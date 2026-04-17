@@ -63,8 +63,16 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-primary-foreground/10 pt-6 text-center text-xs text-primary-foreground/60">
-          © {new Date().getFullYear()} Hispajuris · Asesor.Legal — Todos los derechos reservados
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-primary-foreground/10 pt-6 text-center text-xs text-primary-foreground/60 sm:flex-row sm:justify-between">
+          <span>
+            © {new Date().getFullYear()} Hispajuris · Asesor.Legal — Todos los derechos reservados
+          </span>
+          <a
+            href="/admin/login"
+            className="rounded-full border border-accent/40 px-3 py-1 font-semibold text-accent hover:bg-accent/10"
+          >
+            Acceso abogados →
+          </a>
         </div>
       </div>
     </footer>
