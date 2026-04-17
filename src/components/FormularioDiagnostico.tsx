@@ -127,6 +127,11 @@ export function FormularioDiagnostico() {
     };
     const diag = calcularDiagnostico(input);
 
+    // Guardamos perfil/puntuación/resultado dentro del título para no requerir
+    // migración del esquema. El enum `semaforo` (rojo|ambar|verde) se mantiene
+    // para compatibilidad con el panel de abogados.
+    const tituloEnriquecido = `[${diag.resultado}|${diag.perfil}|${diag.puntuacion}pts] ${diag.titulo}`;
+
     const { error } = await supabase.from("leads_interinos").insert({
       nombre: data.nombre.trim(),
       email: data.email.trim(),
@@ -138,10 +143,10 @@ export function FormularioDiagnostico() {
       contratos_sucesivos: data.contratosSucesivos,
       situacion_actual: data.situacionActual,
       documentos_disponibles: data.documentos,
-      urgencia: data.urgencia,
+      urgencia: data.urgencia || diag.esUrgente,
       mensaje_libre: data.mensaje.trim() || null,
       semaforo: diag.semaforo,
-      diagnostico_titulo: diag.titulo,
+      diagnostico_titulo: tituloEnriquecido,
       diagnostico_mensaje: diag.mensaje,
     });
 
@@ -262,14 +267,14 @@ export function FormularioDiagnostico() {
                     </div>
                     <input
                       type="range"
-                      min={1}
+                      min={0}
                       max={30}
                       value={data.anosServicio}
                       onChange={(e) => update("anosServicio", Number(e.target.value))}
                       className="mt-3 w-full accent-[var(--color-accent)]"
                     />
                     <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                      <span>1</span>
+                      <span>0</span>
                       <span>15</span>
                       <span>30</span>
                     </div>
