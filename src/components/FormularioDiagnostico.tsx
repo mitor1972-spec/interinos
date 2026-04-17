@@ -461,23 +461,33 @@ export function FormularioDiagnostico() {
                       label="Nombre completo *"
                       value={data.nombre}
                       onChange={(v) => update("nombre", v)}
+                      error={showErrors && errores.nombre ? "Indica tu nombre" : undefined}
                     />
                     <Field
                       label="Email *"
                       type="email"
                       value={data.email}
                       onChange={(v) => update("email", v)}
+                      error={
+                        showErrors && errores.email
+                          ? data.email.trim()
+                            ? "Email no válido"
+                            : "Indica tu email"
+                          : undefined
+                      }
                     />
                     <Field
                       label="Teléfono *"
                       type="tel"
                       value={data.telefono}
                       onChange={(v) => update("telefono", v)}
+                      error={showErrors && errores.telefono ? "Indica tu teléfono" : undefined}
                     />
                     <Field
                       label="Provincia *"
                       value={data.provincia}
                       onChange={(v) => update("provincia", v)}
+                      error={showErrors && errores.provincia ? "Indica tu provincia" : undefined}
                     />
                   </div>
 
@@ -504,7 +514,13 @@ export function FormularioDiagnostico() {
                     />
                   </div>
 
-                  <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm">
+                  <label
+                    className={`mt-5 flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition ${
+                      showErrors && errores.rgpd
+                        ? "border-destructive/60 bg-destructive/5"
+                        : "border-transparent"
+                    }`}
+                  >
                     <input
                       type="checkbox"
                       checked={data.rgpd}
@@ -512,13 +528,18 @@ export function FormularioDiagnostico() {
                       className="mt-0.5 h-4 w-4 rounded border-border accent-[var(--color-accent)]"
                     />
                     <span className="text-muted-foreground">
-                      Acepto la{" "}
+                      He leído y acepto la{" "}
                       <a href="#" className="text-primary underline">
                         política de privacidad
                       </a>{" "}
                       y el tratamiento de mis datos para recibir el diagnóstico. *
                     </span>
                   </label>
+                  {showErrors && errores.rgpd && (
+                    <p className="mt-2 text-xs font-semibold text-destructive">
+                      Debes aceptar la política de privacidad para continuar.
+                    </p>
+                  )}
                 </Step>
               )}
             </motion.div>
