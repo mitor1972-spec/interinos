@@ -2,7 +2,7 @@ import { Check, ArrowRight } from "lucide-react";
 
 export function Pricing() {
   return (
-    <section id="precios" className="relative -mt-12 px-4 sm:-mt-16 sm:px-6">
+    <section id="precios" className="relative mt-20 px-4 sm:mt-24 sm:px-6">
       <div className="container mx-auto">
         <div className="grid gap-6 md:grid-cols-2">
           {/* FASE I */}
