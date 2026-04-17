@@ -175,7 +175,7 @@ export function FormularioDiagnostico() {
     await handleSubmit(sinContacto);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (sinContacto = false) => {
     if (submitting) return;
     setSubmitting(true);
     const input: DiagnosticoInput = {
@@ -188,6 +188,17 @@ export function FormularioDiagnostico() {
       urgencia: data.urgencia,
     };
     const diag = calcularDiagnostico(input);
+
+    // Si es inviable y no tenemos datos de contacto, no guardamos lead
+    // (los campos nombre/email/telefono/provincia son obligatorios en BD).
+    if (sinContacto) {
+      setSubmitting(false);
+      setResult(diag);
+      setTimeout(() => {
+        document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return;
+    }
 
     const { error } = await supabase.from("leads_interinos").insert({
       nombre: data.nombre.trim(),
@@ -214,7 +225,7 @@ export function FormularioDiagnostico() {
 
     if (error) {
       console.error("Error guardando lead:", error);
-      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 668 510 087.");
+      toast.error(`No hemos podido guardar tu caso. Por favor, llámanos al ${TELEFONO}.`);
       return;
     }
 
