@@ -545,49 +545,51 @@ export function FormularioDiagnostico() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Nav */}
-          <div className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-6">
-            <button
-              type="button"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={step === 0}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Atrás
-            </button>
+          {/* Nav — hidden when bloqueo is active (user has dedicated buttons) */}
+          {!(step === 1 && bloqueadoAntiguedad) && (
+            <div className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-6">
+              <button
+                type="button"
+                onClick={() => { setShowErrors(false); setStep((s) => Math.max(0, s - 1)); }}
+                disabled={step === 0}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Atrás
+              </button>
 
-            {step < totalSteps - 1 ? (
-              <button
-                type="button"
-                onClick={() => canNext() && setStep((s) => s + 1)}
-                disabled={!canNext()}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Siguiente
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => canNext() && handleSubmit()}
-                disabled={!canNext() || submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    Ver mi diagnóstico
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </button>
-            )}
-          </div>
+              {step < totalSteps - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => canNext() && handleNext()}
+                  disabled={!canNext()}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Siguiente
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => persistirYMostrarResultado(false)}
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      Ver mi diagnóstico
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
