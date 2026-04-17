@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   calcularDiagnostico,
   type DiagnosticoInput,
   type DiagnosticoResult,
 } from "@/lib/diagnostico";
+import { supabase } from "@/integrations/supabase/client";
 import { ResultadoDiagnostico } from "./ResultadoDiagnostico";
 
 const TIPOS_RELACION = [
@@ -78,6 +80,7 @@ export function FormularioDiagnostico() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormState>(INITIAL);
   const [result, setResult] = useState<DiagnosticoResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const totalSteps = 4;
   const progress = ((step + 1) / totalSteps) * 100;
@@ -110,7 +113,9 @@ export function FormularioDiagnostico() {
     return false;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     const input: DiagnosticoInput = {
       tipoRelacion: data.tipoRelacion,
       administracion: data.administracion,
@@ -121,8 +126,35 @@ export function FormularioDiagnostico() {
       urgencia: data.urgencia,
     };
     const diag = calcularDiagnostico(input);
+
+    const { error } = await supabase.from("leads_interinos").insert({
+      nombre: data.nombre.trim(),
+      email: data.email.trim(),
+      telefono: data.telefono.trim(),
+      provincia: data.provincia.trim(),
+      tipo_relacion: data.tipoRelacion,
+      administracion: data.administracion,
+      anos_servicio: data.anosServicio,
+      contratos_sucesivos: data.contratosSucesivos,
+      situacion_actual: data.situacionActual,
+      documentos_disponibles: data.documentos,
+      urgencia: data.urgencia,
+      mensaje_libre: data.mensaje.trim() || null,
+      semaforo: diag.semaforo,
+      diagnostico_titulo: diag.titulo,
+      diagnostico_mensaje: diag.mensaje,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error("Error guardando lead:", error);
+      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 900 105 108.");
+      return;
+    }
+
     setResult(diag);
-    // scroll a resultado
+    toast.success("¡Diagnóstico generado! Hemos recibido tu caso.");
     setTimeout(() => {
       document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
@@ -406,11 +438,20 @@ export function FormularioDiagnostico() {
               <button
                 type="button"
                 onClick={() => canNext() && handleSubmit()}
-                disabled={!canNext()}
+                disabled={!canNext() || submitting}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Ver mi diagnóstico
-                <ArrowRight className="h-4 w-4" />
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    Ver mi diagnóstico
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             )}
           </div>
