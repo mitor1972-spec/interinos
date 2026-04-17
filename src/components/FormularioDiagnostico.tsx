@@ -358,6 +358,42 @@ export function FormularioDiagnostico() {
                       onChange={(v) => update("contratosSucesivos", v)}
                     />
                   </div>
+
+                  {bloqueadoAntiguedad && (
+                    <div className="mt-6 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-5">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-destructive/15 text-destructive">
+                          <Ban className="h-5 w-5" />
+                        </span>
+                        <div className="flex-1">
+                          <h4 className="text-base font-bold text-destructive">
+                            Caso no viable actualmente
+                          </h4>
+                          <p className="mt-1.5 text-sm text-foreground">
+                            Lo sentimos. Con menos de 2 años de antigüedad tu caso no encaja en
+                            los supuestos que ampara la sentencia del TJUE actualmente.
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <a
+                              href={`tel:${TELEFONO_TEL}`}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light"
+                            >
+                              <Phone className="h-4 w-4" />
+                              Llamar al {TELEFONO}
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => setStep(0)}
+                              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted"
+                            >
+                              <ArrowLeft className="h-4 w-4" />
+                              Volver al inicio
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </Step>
               )}
 
