@@ -152,7 +152,7 @@ export function FormularioDiagnostico() {
 
     if (error) {
       console.error("Error guardando lead:", error);
-      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 900 105 108.");
+      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 668 510 087.");
       return;
     }
 

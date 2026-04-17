@@ -27,9 +27,9 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold uppercase tracking-wider text-accent">Contacto</h4>
             <ul className="mt-4 space-y-3 text-sm">
               <li>
-                <a href="tel:900105108" className="flex items-center gap-2 hover:text-accent">
+                <a href="tel:668510087" className="flex items-center gap-2 hover:text-accent">
                   <Phone className="h-4 w-4" />
-                  <span>900 105 108</span>
+                  <span>668 510 087</span>
                 </a>
               </li>
               <li>

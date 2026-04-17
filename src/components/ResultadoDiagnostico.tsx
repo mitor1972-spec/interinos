@@ -195,13 +195,13 @@ export function ResultadoDiagnostico({
                 </button>
               )}
               <a
-                href="tel:900105108"
+                href="tel:668510087"
                 className={`inline-flex items-center justify-center gap-2 rounded-full border border-primary px-6 py-3.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground ${
                   result.mostrarPago ? "bg-background" : "flex-1 bg-background"
                 }`}
               >
                 <Phone className="h-4 w-4" />
-                {result.mostrarPago ? "Prefiero que me llamen" : "Llámanos: 900 105 108"}
+                {result.mostrarPago ? "Prefiero que me llamen" : "Llámanos: 668 510 087"}
               </a>
             </div>
 
