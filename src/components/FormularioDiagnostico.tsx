@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2, Phone, Ban } from "lucide-react";
 import { toast } from "sonner";
 import {
   calcularDiagnostico,
@@ -9,6 +9,9 @@ import {
 } from "@/lib/diagnostico";
 import { supabase } from "@/integrations/supabase/client";
 import { ResultadoDiagnostico } from "./ResultadoDiagnostico";
+
+const TELEFONO = "668 510 087";
+const TELEFONO_TEL = "668510087";
 
 const TIPOS_RELACION = [
   "Soy funcionario/a interino/a",
@@ -81,9 +84,37 @@ export function FormularioDiagnostico() {
   const [data, setData] = useState<FormState>(INITIAL);
   const [result, setResult] = useState<DiagnosticoResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   const totalSteps = 4;
   const progress = ((step + 1) / totalSteps) * 100;
+
+  // Regla 1 — Bloqueo total por antigüedad < 2 años
+  const bloqueadoAntiguedad = data.anosServicio > 0 && data.anosServicio < 2;
+
+  // Regla 2 — Puntuación calculada al final del paso 3 (antes del contacto)
+  const preScore = useMemo(() => {
+    if (!data.tipoRelacion || !data.administracion || !data.situacionActual) return null;
+    if (bloqueadoAntiguedad) return null;
+    return calcularDiagnostico({
+      tipoRelacion: data.tipoRelacion,
+      administracion: data.administracion,
+      anosServicio: data.anosServicio,
+      contratosSucesivos: data.contratosSucesivos,
+      situacionActual: data.situacionActual,
+      documentos: data.documentos,
+      urgencia: data.urgencia,
+    });
+  }, [
+    data.tipoRelacion,
+    data.administracion,
+    data.anosServicio,
+    data.contratosSucesivos,
+    data.situacionActual,
+    data.documentos,
+    data.urgencia,
+    bloqueadoAntiguedad,
+  ]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setData((d) => ({ ...d, [key]: value }));
@@ -98,22 +129,53 @@ export function FormularioDiagnostico() {
     });
   };
 
+  // Regla 4 — validación de campos obligatorios del paso 4
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim());
+  const errores = {
+    nombre: !data.nombre.trim(),
+    email: !data.email.trim() || !emailValido,
+    telefono: !data.telefono.trim(),
+    provincia: !data.provincia.trim(),
+    rgpd: !data.rgpd, // Regla 5
+  };
+  const paso4Valido =
+    !errores.nombre && !errores.email && !errores.telefono && !errores.provincia && !errores.rgpd;
+
   const canNext = () => {
     if (step === 0) return !!data.tipoRelacion;
-    if (step === 1) return !!data.administracion;
-    if (step === 2) return !!data.situacionActual;
-    if (step === 3)
-      return (
-        !!data.nombre.trim() &&
-        !!data.email.trim() &&
-        !!data.telefono.trim() &&
-        !!data.provincia.trim() &&
-        data.rgpd
-      );
+    if (step === 1) return !!data.administracion && !bloqueadoAntiguedad;
+    if (step === 2) {
+      if (!data.situacionActual) return false;
+      // Regla 2: si la puntuación pre-contacto es < 3, no se llega al paso 4.
+      // En su lugar, "Siguiente" pasará a mostrar resultado inviable directamente.
+      return true;
+    }
+    if (step === 3) return paso4Valido;
     return false;
   };
 
-  const handleSubmit = async () => {
+  const handleNext = () => {
+    if (step === 3) return;
+    // Salida del paso 3: si puntuación < 3, saltamos al resultado inviable
+    if (step === 2 && preScore && preScore.puntuacion < 3) {
+      void persistirYMostrarResultado(true);
+      return;
+    }
+    if (canNext()) setStep((s) => s + 1);
+  };
+
+  // Si la puntuación pre-contacto es inviable, guardamos sin datos personales
+  // y mostramos el resultado directamente (sin pasar por el paso 4).
+  const persistirYMostrarResultado = async (sinContacto: boolean) => {
+    if (submitting) return;
+    if (!sinContacto && !paso4Valido) {
+      setShowErrors(true);
+      return;
+    }
+    await handleSubmit(sinContacto);
+  };
+
+  const handleSubmit = async (sinContacto = false) => {
     if (submitting) return;
     setSubmitting(true);
     const input: DiagnosticoInput = {
@@ -126,6 +188,17 @@ export function FormularioDiagnostico() {
       urgencia: data.urgencia,
     };
     const diag = calcularDiagnostico(input);
+
+    // Si es inviable y no tenemos datos de contacto, no guardamos lead
+    // (los campos nombre/email/telefono/provincia son obligatorios en BD).
+    if (sinContacto) {
+      setSubmitting(false);
+      setResult(diag);
+      setTimeout(() => {
+        document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return;
+    }
 
     const { error } = await supabase.from("leads_interinos").insert({
       nombre: data.nombre.trim(),
@@ -152,7 +225,7 @@ export function FormularioDiagnostico() {
 
     if (error) {
       console.error("Error guardando lead:", error);
-      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 668 510 087.");
+      toast.error(`No hemos podido guardar tu caso. Por favor, llámanos al ${TELEFONO}.`);
       return;
     }
 
@@ -285,6 +358,42 @@ export function FormularioDiagnostico() {
                       onChange={(v) => update("contratosSucesivos", v)}
                     />
                   </div>
+
+                  {bloqueadoAntiguedad && (
+                    <div className="mt-6 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-5">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-destructive/15 text-destructive">
+                          <Ban className="h-5 w-5" />
+                        </span>
+                        <div className="flex-1">
+                          <h4 className="text-base font-bold text-destructive">
+                            Caso no viable actualmente
+                          </h4>
+                          <p className="mt-1.5 text-sm text-foreground">
+                            Lo sentimos. Con menos de 2 años de antigüedad tu caso no encaja en
+                            los supuestos que ampara la sentencia del TJUE actualmente.
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <a
+                              href={`tel:${TELEFONO_TEL}`}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light"
+                            >
+                              <Phone className="h-4 w-4" />
+                              Llamar al {TELEFONO}
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => setStep(0)}
+                              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted"
+                            >
+                              <ArrowLeft className="h-4 w-4" />
+                              Volver al inicio
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </Step>
               )}
 
@@ -352,23 +461,33 @@ export function FormularioDiagnostico() {
                       label="Nombre completo *"
                       value={data.nombre}
                       onChange={(v) => update("nombre", v)}
+                      error={showErrors && errores.nombre ? "Indica tu nombre" : undefined}
                     />
                     <Field
                       label="Email *"
                       type="email"
                       value={data.email}
                       onChange={(v) => update("email", v)}
+                      error={
+                        showErrors && errores.email
+                          ? data.email.trim()
+                            ? "Email no válido"
+                            : "Indica tu email"
+                          : undefined
+                      }
                     />
                     <Field
                       label="Teléfono *"
                       type="tel"
                       value={data.telefono}
                       onChange={(v) => update("telefono", v)}
+                      error={showErrors && errores.telefono ? "Indica tu teléfono" : undefined}
                     />
                     <Field
                       label="Provincia *"
                       value={data.provincia}
                       onChange={(v) => update("provincia", v)}
+                      error={showErrors && errores.provincia ? "Indica tu provincia" : undefined}
                     />
                   </div>
 
@@ -395,7 +514,13 @@ export function FormularioDiagnostico() {
                     />
                   </div>
 
-                  <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm">
+                  <label
+                    className={`mt-5 flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition ${
+                      showErrors && errores.rgpd
+                        ? "border-destructive/60 bg-destructive/5"
+                        : "border-transparent"
+                    }`}
+                  >
                     <input
                       type="checkbox"
                       checked={data.rgpd}
@@ -403,61 +528,68 @@ export function FormularioDiagnostico() {
                       className="mt-0.5 h-4 w-4 rounded border-border accent-[var(--color-accent)]"
                     />
                     <span className="text-muted-foreground">
-                      Acepto la{" "}
+                      He leído y acepto la{" "}
                       <a href="#" className="text-primary underline">
                         política de privacidad
                       </a>{" "}
                       y el tratamiento de mis datos para recibir el diagnóstico. *
                     </span>
                   </label>
+                  {showErrors && errores.rgpd && (
+                    <p className="mt-2 text-xs font-semibold text-destructive">
+                      Debes aceptar la política de privacidad para continuar.
+                    </p>
+                  )}
                 </Step>
               )}
             </motion.div>
           </AnimatePresence>
 
-          {/* Nav */}
-          <div className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-6">
-            <button
-              type="button"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={step === 0}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Atrás
-            </button>
+          {/* Nav — hidden when bloqueo is active (user has dedicated buttons) */}
+          {!(step === 1 && bloqueadoAntiguedad) && (
+            <div className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-6">
+              <button
+                type="button"
+                onClick={() => { setShowErrors(false); setStep((s) => Math.max(0, s - 1)); }}
+                disabled={step === 0}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Atrás
+              </button>
 
-            {step < totalSteps - 1 ? (
-              <button
-                type="button"
-                onClick={() => canNext() && setStep((s) => s + 1)}
-                disabled={!canNext()}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Siguiente
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => canNext() && handleSubmit()}
-                disabled={!canNext() || submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    Ver mi diagnóstico
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </button>
-            )}
-          </div>
+              {step < totalSteps - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => canNext() && handleNext()}
+                  disabled={!canNext()}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-card transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Siguiente
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => persistirYMostrarResultado(false)}
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      Ver mi diagnóstico
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -560,11 +692,13 @@ function Field({
   value,
   onChange,
   type = "text",
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  error?: string;
 }) {
   return (
     <label className="block">
@@ -573,8 +707,14 @@ function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+        aria-invalid={!!error}
+        className={`mt-1.5 w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+          error
+            ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+            : "border-border focus:border-accent focus:ring-accent/30"
+        }`}
       />
+      {error && <span className="mt-1 block text-xs font-semibold text-destructive">{error}</span>}
     </label>
   );
 }
