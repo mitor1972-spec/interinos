@@ -538,12 +538,31 @@ export function FormularioDiagnostico() {
                       onChange={(v) => update("telefono", v)}
                       error={showErrors && errores.telefono ? "Indica tu teléfono" : undefined}
                     />
-                    <Field
-                      label="Provincia *"
-                      value={data.provincia}
-                      onChange={(v) => update("provincia", v)}
-                      error={showErrors && errores.provincia ? "Indica tu provincia" : undefined}
-                    />
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground">Provincia *</span>
+                      <select
+                        value={data.provincia}
+                        onChange={(e) => update("provincia", e.target.value)}
+                        aria-invalid={showErrors && errores.provincia}
+                        className={`mt-1.5 w-full appearance-none rounded-xl border bg-background bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22/></svg>')] bg-[right_1rem_center] bg-no-repeat px-4 py-3 pr-10 text-sm outline-none transition focus:ring-2 ${
+                          showErrors && errores.provincia
+                            ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                            : "border-border focus:border-accent focus:ring-accent/30"
+                        }`}
+                      >
+                        <option value="">Selecciona tu provincia…</option>
+                        {PROVINCIAS.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
+                      </select>
+                      {showErrors && errores.provincia && (
+                        <span className="mt-1 block text-xs font-semibold text-destructive">
+                          Indica tu provincia
+                        </span>
+                      )}
+                    </label>
                   </div>
 
                   <div className="mt-5">
