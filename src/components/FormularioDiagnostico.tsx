@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2, Phone, Ban } from "lucide-react";
 import { toast } from "sonner";
 import {
   calcularDiagnostico,
@@ -9,6 +9,9 @@ import {
 } from "@/lib/diagnostico";
 import { supabase } from "@/integrations/supabase/client";
 import { ResultadoDiagnostico } from "./ResultadoDiagnostico";
+
+const TELEFONO = "668 510 087";
+const TELEFONO_TEL = "668510087";
 
 const TIPOS_RELACION = [
   "Soy funcionario/a interino/a",
