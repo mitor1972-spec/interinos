@@ -275,11 +275,19 @@ export function FormularioDiagnostico() {
 
         {/* Progress */}
         <div className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-elegant sm:p-8">
-          <div className="mb-6 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>
-              Paso {step + 1} de {totalSteps}
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Progreso
+              </div>
+              <div className="mt-1 text-2xl font-extrabold leading-none text-primary sm:text-3xl">
+                Paso <span className="text-accent">{step + 1}</span>
+                <span className="text-muted-foreground/60"> / {totalSteps}</span>
+              </div>
+            </div>
+            <span className="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-bold text-accent-foreground">
+              {Math.round(progress)}%
             </span>
-            <span className="text-accent">{Math.round(progress)}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <motion.div
