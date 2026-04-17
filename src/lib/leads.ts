@@ -3,6 +3,8 @@ import type { Database } from "@/integrations/supabase/types";
 export type Lead = Database["public"]["Tables"]["leads_interinos"]["Row"];
 export type Semaforo = Database["public"]["Enums"]["semaforo_tipo"];
 export type EstadoCaso = Database["public"]["Enums"]["estado_caso"];
+export type Perfil = Database["public"]["Enums"]["perfil_tipo"];
+export type Resultado = Database["public"]["Enums"]["resultado_viabilidad"];
 
 export const ESTADOS: EstadoCaso[] = [
   "Nuevo",
@@ -18,8 +20,25 @@ export const SEMAFOROS: { value: Semaforo; label: string; emoji: string; classNa
   { value: "verde", label: "Posible", emoji: "🟢", className: "bg-success/10 text-success border-success/30" },
 ];
 
+export const PERFILES: { value: Perfil; label: string; className: string }[] = [
+  { value: "laboral", label: "Laboral", className: "bg-primary/10 text-primary border-primary/30" },
+  { value: "funcionario", label: "Funcionario", className: "bg-accent/15 text-accent-foreground border-accent/30" },
+  { value: "desconocido", label: "Sin definir", className: "bg-muted text-muted-foreground border-border" },
+];
+
+export const RESULTADOS: { value: Resultado; label: string }[] = [
+  { value: "inviable", label: "No viable" },
+  { value: "revision", label: "Revisión" },
+  { value: "viable", label: "Viable" },
+  { value: "urgente", label: "Urgente" },
+];
+
 export function semaforoConfig(s: Semaforo) {
   return SEMAFOROS.find((x) => x.value === s)!;
+}
+
+export function perfilConfig(p: Perfil) {
+  return PERFILES.find((x) => x.value === p)!;
 }
 
 export function estadoBadgeClass(e: EstadoCaso): string {
@@ -35,6 +54,48 @@ export function estadoBadgeClass(e: EstadoCaso): string {
     case "Descartado":
       return "bg-muted text-muted-foreground border-border";
   }
+}
+
+/**
+ * Heurística para considerar la documentación como "completa":
+ * tiene al menos contrato/nombramiento + algún documento adicional
+ * (nóminas, vida laboral, resolución de cese, sentencia previa).
+ */
+export function docsCompletos(documentos: string[] | null): boolean {
+  if (!documentos || documentos.length === 0) return false;
+  const lower = documentos.map((d) => d.toLowerCase());
+  if (lower.every((d) => d.includes("no tengo"))) return false;
+  const hasContrato = lower.some((d) => d.includes("contrato") || d.includes("nombramiento"));
+  const hasOtro = lower.some(
+    (d) =>
+      d.includes("vida laboral") ||
+      d.includes("nómina") ||
+      d.includes("nomina") ||
+      d.includes("cese") ||
+      d.includes("sentencia"),
+  );
+  return hasContrato && hasOtro;
+}
+
+export function reclamacionesPorPerfil(perfil: Perfil): string[] {
+  if (perfil === "laboral") {
+    return [
+      "Declaración de relación laboral fija (vía principal post-TJUE)",
+      "Indemnización de 33 días/año sin tope de 24 mensualidades",
+      "Daños y perjuicios (pérdida de oportunidades, daño moral)",
+    ];
+  }
+  if (perfil === "funcionario") {
+    return [
+      "Estabilidad en el empleo (medida equivalente a la fijeza)",
+      "Indemnización disuasoria y reparadora sin los topes actuales",
+      "Daños morales: incertidumbre, precariedad prolongada",
+    ];
+  }
+  return [
+    "Análisis previo del tipo de relación con la administración",
+    "Posibles vías de reclamación según el resultado del análisis",
+  ];
 }
 
 export function formatDate(iso: string): string {
@@ -63,11 +124,14 @@ export function exportLeadsToCSV(leads: Lead[]): void {
     "Teléfono",
     "Provincia",
     "Tipo relación",
+    "Perfil",
     "Administración",
     "Años",
     "Situación",
     "Urgencia",
     "Semáforo",
+    "Resultado",
+    "Puntuación",
     "Estado",
     "Pago",
     "Documentos",
@@ -82,11 +146,14 @@ export function exportLeadsToCSV(leads: Lead[]): void {
     l.telefono,
     l.provincia,
     l.tipo_relacion,
+    l.perfil,
     l.administracion,
     String(l.anos_servicio),
     l.situacion_actual,
     l.urgencia ? "Sí" : "No",
     l.semaforo,
+    l.resultado_viabilidad,
+    String(l.puntuacion_viabilidad),
     l.estado,
     l.pago_completado ? "Sí" : "No",
     (l.documentos_disponibles || []).join("; "),

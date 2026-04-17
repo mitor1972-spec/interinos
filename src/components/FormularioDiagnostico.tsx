@@ -127,11 +127,6 @@ export function FormularioDiagnostico() {
     };
     const diag = calcularDiagnostico(input);
 
-    // Guardamos perfil/puntuación/resultado dentro del título para no requerir
-    // migración del esquema. El enum `semaforo` (rojo|ambar|verde) se mantiene
-    // para compatibilidad con el panel de abogados.
-    const tituloEnriquecido = `[${diag.resultado}|${diag.perfil}|${diag.puntuacion}pts] ${diag.titulo}`;
-
     const { error } = await supabase.from("leads_interinos").insert({
       nombre: data.nombre.trim(),
       email: data.email.trim(),
@@ -146,8 +141,11 @@ export function FormularioDiagnostico() {
       urgencia: data.urgencia || diag.esUrgente,
       mensaje_libre: data.mensaje.trim() || null,
       semaforo: diag.semaforo,
-      diagnostico_titulo: tituloEnriquecido,
+      diagnostico_titulo: diag.titulo,
       diagnostico_mensaje: diag.mensaje,
+      perfil: diag.perfil,
+      puntuacion_viabilidad: diag.puntuacion,
+      resultado_viabilidad: diag.resultado,
     });
 
     setSubmitting(false);
