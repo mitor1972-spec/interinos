@@ -38,6 +38,17 @@ const SITUACIONES = [
   "Otra situación",
 ];
 
+const PROVINCIAS = [
+  "A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila",
+  "Badajoz", "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria",
+  "Castellón", "Ceuta", "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada",
+  "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaén", "La Rioja", "Las Palmas",
+  "León", "Lleida", "Lugo", "Madrid", "Málaga", "Melilla", "Murcia", "Navarra",
+  "Ourense", "Palencia", "Pontevedra", "Salamanca", "Santa Cruz de Tenerife",
+  "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia",
+  "Valladolid", "Bizkaia", "Zamora", "Zaragoza",
+];
+
 const DOCUMENTOS = [
   "Contrato(s) o nombramiento(s)",
   "Nóminas",
