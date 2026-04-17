@@ -31,7 +31,12 @@ export type Database = {
           nombre: string
           notas_abogado: string | null
           pago_completado: boolean
+          perfil: Database["public"]["Enums"]["perfil_tipo"]
           provincia: string
+          puntuacion_viabilidad: number
+          resultado_viabilidad: Database["public"]["Enums"]["resultado_viabilidad"]
+          revisado: boolean
+          revisado_at: string | null
           semaforo: Database["public"]["Enums"]["semaforo_tipo"]
           situacion_actual: string
           stripe_payment_id: string | null
@@ -56,7 +61,12 @@ export type Database = {
           nombre: string
           notas_abogado?: string | null
           pago_completado?: boolean
+          perfil?: Database["public"]["Enums"]["perfil_tipo"]
           provincia: string
+          puntuacion_viabilidad?: number
+          resultado_viabilidad?: Database["public"]["Enums"]["resultado_viabilidad"]
+          revisado?: boolean
+          revisado_at?: string | null
           semaforo: Database["public"]["Enums"]["semaforo_tipo"]
           situacion_actual: string
           stripe_payment_id?: string | null
@@ -81,7 +91,12 @@ export type Database = {
           nombre?: string
           notas_abogado?: string | null
           pago_completado?: boolean
+          perfil?: Database["public"]["Enums"]["perfil_tipo"]
           provincia?: string
+          puntuacion_viabilidad?: number
+          resultado_viabilidad?: Database["public"]["Enums"]["resultado_viabilidad"]
+          revisado?: boolean
+          revisado_at?: string | null
           semaforo?: Database["public"]["Enums"]["semaforo_tipo"]
           situacion_actual?: string
           stripe_payment_id?: string | null
@@ -135,6 +150,8 @@ export type Database = {
         | "Propuesta enviada"
         | "Cliente"
         | "Descartado"
+      perfil_tipo: "laboral" | "funcionario" | "desconocido"
+      resultado_viabilidad: "inviable" | "revision" | "viable" | "urgente"
       semaforo_tipo: "rojo" | "ambar" | "verde"
     }
     CompositeTypes: {
@@ -271,6 +288,8 @@ export const Constants = {
         "Cliente",
         "Descartado",
       ],
+      perfil_tipo: ["laboral", "funcionario", "desconocido"],
+      resultado_viabilidad: ["inviable", "revision", "viable", "urgente"],
       semaforo_tipo: ["rojo", "ambar", "verde"],
     },
   },
