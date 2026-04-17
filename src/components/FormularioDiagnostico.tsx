@@ -38,6 +38,17 @@ const SITUACIONES = [
   "Otra situación",
 ];
 
+const PROVINCIAS = [
+  "A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila",
+  "Badajoz", "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria",
+  "Castellón", "Ceuta", "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada",
+  "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaén", "La Rioja", "Las Palmas",
+  "León", "Lleida", "Lugo", "Madrid", "Málaga", "Melilla", "Murcia", "Navarra",
+  "Ourense", "Palencia", "Pontevedra", "Salamanca", "Santa Cruz de Tenerife",
+  "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia",
+  "Valladolid", "Bizkaia", "Zamora", "Zaragoza",
+];
+
 const DOCUMENTOS = [
   "Contrato(s) o nombramiento(s)",
   "Nóminas",
@@ -264,11 +275,19 @@ export function FormularioDiagnostico() {
 
         {/* Progress */}
         <div className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-elegant sm:p-8">
-          <div className="mb-6 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <span>
-              Paso {step + 1} de {totalSteps}
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Progreso
+              </div>
+              <div className="mt-1 text-2xl font-extrabold leading-none text-primary sm:text-3xl">
+                Paso <span className="text-accent">{step + 1}</span>
+                <span className="text-muted-foreground/60"> / {totalSteps}</span>
+              </div>
+            </div>
+            <span className="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-bold text-accent-foreground">
+              {Math.round(progress)}%
             </span>
-            <span className="text-accent">{Math.round(progress)}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <motion.div
@@ -310,9 +329,12 @@ export function FormularioDiagnostico() {
               {step === 1 && (
                 <Step title="Administración y antigüedad" hint="Indícanos dónde y cuánto tiempo.">
                   <div>
-                    <label className="text-sm font-semibold text-foreground">
+                    <label className="text-base font-bold text-primary sm:text-lg">
                       ¿En qué administración trabajas o trabajabas?
                     </label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Selecciona la opción que corresponda.
+                    </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       {ADMINISTRACIONES.map((opt) => (
                         <OptionButton
@@ -327,27 +349,60 @@ export function FormularioDiagnostico() {
                     </div>
                   </div>
 
-                  <div className="mt-7">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-semibold text-foreground">
-                        Años en esa situación
-                      </label>
-                      <span className="rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
-                        {data.anosServicio} {data.anosServicio === 1 ? "año" : "años"}
+                  <div className="mt-8">
+                    <label className="text-base font-bold text-primary sm:text-lg">
+                      Años en esa situación
+                    </label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Usa el deslizador o escribe los años directamente.
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => update("anosServicio", Math.max(0, data.anosServicio - 1))}
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 border-border bg-background text-lg font-bold text-foreground transition hover:border-primary/40 hover:bg-muted"
+                        aria-label="Restar un año"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        min={0}
+                        max={50}
+                        value={data.anosServicio}
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          if (Number.isNaN(n)) return;
+                          update("anosServicio", Math.max(0, Math.min(50, Math.floor(n))));
+                        }}
+                        className="h-12 w-24 rounded-xl border-2 border-border bg-background text-center text-xl font-extrabold text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => update("anosServicio", Math.min(50, data.anosServicio + 1))}
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 border-border bg-background text-lg font-bold text-foreground transition hover:border-primary/40 hover:bg-muted"
+                        aria-label="Sumar un año"
+                      >
+                        +
+                      </button>
+                      <span className="ml-1 text-sm font-semibold text-muted-foreground">
+                        {data.anosServicio === 1 ? "año" : "años"}
                       </span>
                     </div>
+
                     <input
                       type="range"
                       min={0}
                       max={30}
-                      value={data.anosServicio}
+                      value={Math.min(30, data.anosServicio)}
                       onChange={(e) => update("anosServicio", Number(e.target.value))}
-                      className="mt-3 w-full accent-[var(--color-accent)]"
+                      className="mt-5 w-full accent-[var(--color-accent)]"
                     />
                     <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                       <span>0</span>
                       <span>15</span>
-                      <span>30</span>
+                      <span>30+</span>
                     </div>
                   </div>
 
@@ -483,12 +538,31 @@ export function FormularioDiagnostico() {
                       onChange={(v) => update("telefono", v)}
                       error={showErrors && errores.telefono ? "Indica tu teléfono" : undefined}
                     />
-                    <Field
-                      label="Provincia *"
-                      value={data.provincia}
-                      onChange={(v) => update("provincia", v)}
-                      error={showErrors && errores.provincia ? "Indica tu provincia" : undefined}
-                    />
+                    <label className="block">
+                      <span className="text-sm font-semibold text-foreground">Provincia *</span>
+                      <select
+                        value={data.provincia}
+                        onChange={(e) => update("provincia", e.target.value)}
+                        aria-invalid={showErrors && errores.provincia}
+                        className={`mt-1.5 w-full appearance-none rounded-xl border bg-background bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22/></svg>')] bg-[right_1rem_center] bg-no-repeat px-4 py-3 pr-10 text-sm outline-none transition focus:ring-2 ${
+                          showErrors && errores.provincia
+                            ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                            : "border-border focus:border-accent focus:ring-accent/30"
+                        }`}
+                      >
+                        <option value="">Selecciona tu provincia…</option>
+                        {PROVINCIAS.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
+                      </select>
+                      {showErrors && errores.provincia && (
+                        <span className="mt-1 block text-xs font-semibold text-destructive">
+                          Indica tu provincia
+                        </span>
+                      )}
+                    </label>
                   </div>
 
                   <div className="mt-5">
