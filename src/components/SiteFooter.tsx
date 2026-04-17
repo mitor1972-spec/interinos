@@ -32,11 +32,9 @@ export function SiteFooter() {
                 </a>
               </li>
               <li>
-                <a
-                  href="mailto:info@asesor.legal"
-                  className="flex items-center gap-2 hover:text-accent"
-                >
-                  <Mail className="h-4 w-4" /> info@asesor.legal
+                <a href="mailto:info@asesor.legal" className="flex items-center gap-2 hover:text-accent">
+                  <Mail className="h-4 w-4" />
+                  <span>info@asesor.legal</span>
                 </a>
               </li>
             </ul>
