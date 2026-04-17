@@ -690,11 +690,13 @@ function Field({
   value,
   onChange,
   type = "text",
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  error?: string;
 }) {
   return (
     <label className="block">
@@ -703,8 +705,14 @@ function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+        aria-invalid={!!error}
+        className={`mt-1.5 w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+          error
+            ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+            : "border-border focus:border-accent focus:ring-accent/30"
+        }`}
       />
+      {error && <span className="mt-1 block text-xs font-semibold text-destructive">{error}</span>}
     </label>
   );
 }
