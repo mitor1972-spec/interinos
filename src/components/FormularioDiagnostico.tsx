@@ -84,9 +84,37 @@ export function FormularioDiagnostico() {
   const [data, setData] = useState<FormState>(INITIAL);
   const [result, setResult] = useState<DiagnosticoResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   const totalSteps = 4;
   const progress = ((step + 1) / totalSteps) * 100;
+
+  // Regla 1 — Bloqueo total por antigüedad < 2 años
+  const bloqueadoAntiguedad = data.anosServicio > 0 && data.anosServicio < 2;
+
+  // Regla 2 — Puntuación calculada al final del paso 3 (antes del contacto)
+  const preScore = useMemo(() => {
+    if (!data.tipoRelacion || !data.administracion || !data.situacionActual) return null;
+    if (bloqueadoAntiguedad) return null;
+    return calcularDiagnostico({
+      tipoRelacion: data.tipoRelacion,
+      administracion: data.administracion,
+      anosServicio: data.anosServicio,
+      contratosSucesivos: data.contratosSucesivos,
+      situacionActual: data.situacionActual,
+      documentos: data.documentos,
+      urgencia: data.urgencia,
+    });
+  }, [
+    data.tipoRelacion,
+    data.administracion,
+    data.anosServicio,
+    data.contratosSucesivos,
+    data.situacionActual,
+    data.documentos,
+    data.urgencia,
+    bloqueadoAntiguedad,
+  ]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setData((d) => ({ ...d, [key]: value }));
@@ -101,19 +129,50 @@ export function FormularioDiagnostico() {
     });
   };
 
+  // Regla 4 — validación de campos obligatorios del paso 4
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim());
+  const errores = {
+    nombre: !data.nombre.trim(),
+    email: !data.email.trim() || !emailValido,
+    telefono: !data.telefono.trim(),
+    provincia: !data.provincia.trim(),
+    rgpd: !data.rgpd, // Regla 5
+  };
+  const paso4Valido =
+    !errores.nombre && !errores.email && !errores.telefono && !errores.provincia && !errores.rgpd;
+
   const canNext = () => {
     if (step === 0) return !!data.tipoRelacion;
-    if (step === 1) return !!data.administracion;
-    if (step === 2) return !!data.situacionActual;
-    if (step === 3)
-      return (
-        !!data.nombre.trim() &&
-        !!data.email.trim() &&
-        !!data.telefono.trim() &&
-        !!data.provincia.trim() &&
-        data.rgpd
-      );
+    if (step === 1) return !!data.administracion && !bloqueadoAntiguedad;
+    if (step === 2) {
+      if (!data.situacionActual) return false;
+      // Regla 2: si la puntuación pre-contacto es < 3, no se llega al paso 4.
+      // En su lugar, "Siguiente" pasará a mostrar resultado inviable directamente.
+      return true;
+    }
+    if (step === 3) return paso4Valido;
     return false;
+  };
+
+  const handleNext = () => {
+    if (step === 3) return;
+    // Salida del paso 3: si puntuación < 3, saltamos al resultado inviable
+    if (step === 2 && preScore && preScore.puntuacion < 3) {
+      void persistirYMostrarResultado(true);
+      return;
+    }
+    if (canNext()) setStep((s) => s + 1);
+  };
+
+  // Si la puntuación pre-contacto es inviable, guardamos sin datos personales
+  // y mostramos el resultado directamente (sin pasar por el paso 4).
+  const persistirYMostrarResultado = async (sinContacto: boolean) => {
+    if (submitting) return;
+    if (!sinContacto && !paso4Valido) {
+      setShowErrors(true);
+      return;
+    }
+    await handleSubmit(sinContacto);
   };
 
   const handleSubmit = async () => {
