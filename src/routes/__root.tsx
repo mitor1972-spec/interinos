@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
+import { DevModeBar } from "@/components/DevModeBar";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -70,6 +71,7 @@ function RootComponent() {
     <>
       <Outlet />
       <Toaster position="top-center" richColors closeButton />
+      <DevModeBar />
     </>
   );
 }
