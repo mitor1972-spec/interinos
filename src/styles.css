@@ -100,6 +100,10 @@
   --input: oklch(0.91 0.01 250);
   --ring: oklch(0.74 0.14 85);
 
+  /* Superficie del formulario: gris con tinte azul marino suave */
+  --form-surface: oklch(0.95 0.018 250);
+  --form-surface-border: oklch(0.86 0.025 250);
+
   /* Gradients */
   --gradient-hero: linear-gradient(135deg, oklch(0.32 0.06 250) 0%, oklch(0.24 0.05 250) 100%);
   --gradient-gold: linear-gradient(135deg, oklch(0.78 0.14 85) 0%, oklch(0.68 0.14 80) 100%);
