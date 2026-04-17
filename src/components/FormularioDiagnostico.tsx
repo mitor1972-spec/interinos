@@ -157,6 +157,8 @@ export function FormularioDiagnostico() {
     if (step === 1) return !!data.administracion && !bloqueadoAntiguedad;
     if (step === 2) {
       if (!data.situacionActual) return false;
+      // Documentación obligatoria: al menos un check (incluye "No tengo documentación aún")
+      if (data.documentos.length === 0) return false;
       // Regla 2: si la puntuación pre-contacto es < 3, no se llega al paso 4.
       // En su lugar, "Siguiente" pasará a mostrar resultado inviable directamente.
       return true;
