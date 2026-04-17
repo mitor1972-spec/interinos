@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   calcularDiagnostico,
   type DiagnosticoInput,
   type DiagnosticoResult,
 } from "@/lib/diagnostico";
+import { supabase } from "@/integrations/supabase/client";
 import { ResultadoDiagnostico } from "./ResultadoDiagnostico";
 
 const TIPOS_RELACION = [
