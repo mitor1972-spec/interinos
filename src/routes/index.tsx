@@ -33,9 +33,9 @@ function Index() {
       <SiteHeader />
       <main>
         <Hero />
-        <Pricing />
-        <Ventajas />
         <FormularioDiagnostico />
+        <Ventajas />
+        <Pricing />
       </main>
       <SiteFooter />
     </div>
