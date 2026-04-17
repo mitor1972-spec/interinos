@@ -157,6 +157,8 @@ export function FormularioDiagnostico() {
     if (step === 1) return !!data.administracion && !bloqueadoAntiguedad;
     if (step === 2) {
       if (!data.situacionActual) return false;
+      // Documentación obligatoria: al menos un check (incluye "No tengo documentación aún")
+      if (data.documentos.length === 0) return false;
       // Regla 2: si la puntuación pre-contacto es < 3, no se llega al paso 4.
       // En su lugar, "Siguiente" pasará a mostrar resultado inviable directamente.
       return true;
@@ -455,9 +457,12 @@ export function FormularioDiagnostico() {
               {step === 2 && (
                 <Step title="Situación actual y documentación" hint="Esto nos ayuda a priorizar.">
                   <div>
-                    <label className="text-sm font-semibold text-foreground">
+                    <label className="text-base font-bold text-primary sm:text-lg">
                       ¿Cuál es tu situación ahora mismo?
                     </label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Selecciona la opción que mejor te describa.
+                    </p>
                     <div className="mt-3 grid gap-2">
                       {SITUACIONES.map((opt) => (
                         <OptionButton
@@ -472,11 +477,22 @@ export function FormularioDiagnostico() {
                     </div>
                   </div>
 
-                  <div className="mt-7">
-                    <label className="text-sm font-semibold text-foreground">
-                      ¿Qué documentación tienes disponible?
-                    </label>
-                    <p className="mt-1 text-xs text-muted-foreground">Marca todo lo que tengas.</p>
+                  <div className="mt-8">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="text-base font-bold text-primary sm:text-lg">
+                        ¿Qué documentación tienes disponible?
+                      </label>
+                      <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">
+                        Obligatorio
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Marca al menos una opción. Si aún no tienes nada, selecciona{" "}
+                      <span className="font-semibold text-foreground">
+                        “No tengo documentación aún”
+                      </span>
+                      .
+                    </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       {DOCUMENTOS.map((doc) => {
                         const checked = data.documentos.includes(doc);
@@ -505,6 +521,11 @@ export function FormularioDiagnostico() {
                         );
                       })}
                     </div>
+                    {data.situacionActual && data.documentos.length === 0 && (
+                      <p className="mt-3 text-xs font-semibold text-destructive">
+                        Marca al menos una opción para poder continuar.
+                      </p>
+                    )}
                   </div>
                 </Step>
               )}
