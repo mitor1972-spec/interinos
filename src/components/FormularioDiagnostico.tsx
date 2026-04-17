@@ -80,6 +80,7 @@ export function FormularioDiagnostico() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormState>(INITIAL);
   const [result, setResult] = useState<DiagnosticoResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const totalSteps = 4;
   const progress = ((step + 1) / totalSteps) * 100;
@@ -112,7 +113,9 @@ export function FormularioDiagnostico() {
     return false;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     const input: DiagnosticoInput = {
       tipoRelacion: data.tipoRelacion,
       administracion: data.administracion,
@@ -123,8 +126,35 @@ export function FormularioDiagnostico() {
       urgencia: data.urgencia,
     };
     const diag = calcularDiagnostico(input);
+
+    const { error } = await supabase.from("leads_interinos").insert({
+      nombre: data.nombre.trim(),
+      email: data.email.trim(),
+      telefono: data.telefono.trim(),
+      provincia: data.provincia.trim(),
+      tipo_relacion: data.tipoRelacion,
+      administracion: data.administracion,
+      anos_servicio: data.anosServicio,
+      contratos_sucesivos: data.contratosSucesivos,
+      situacion_actual: data.situacionActual,
+      documentos_disponibles: data.documentos,
+      urgencia: data.urgencia,
+      mensaje_libre: data.mensaje.trim() || null,
+      semaforo: diag.semaforo,
+      diagnostico_titulo: diag.titulo,
+      diagnostico_mensaje: diag.mensaje,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error("Error guardando lead:", error);
+      toast.error("No hemos podido guardar tu caso. Por favor, llámanos al 900 105 108.");
+      return;
+    }
+
     setResult(diag);
-    // scroll a resultado
+    toast.success("¡Diagnóstico generado! Hemos recibido tu caso.");
     setTimeout(() => {
       document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
