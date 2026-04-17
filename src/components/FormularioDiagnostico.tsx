@@ -438,11 +438,20 @@ export function FormularioDiagnostico() {
               <button
                 type="button"
                 onClick={() => canNext() && handleSubmit()}
-                disabled={!canNext()}
+                disabled={!canNext() || submitting}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-7 py-3 text-sm font-bold text-accent-foreground shadow-gold transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Ver mi diagnóstico
-                <ArrowRight className="h-4 w-4" />
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    Ver mi diagnóstico
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             )}
           </div>
