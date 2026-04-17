@@ -87,7 +87,7 @@ export function Pricing() {
             </p>
 
             <a
-              href="tel:900105108"
+              href="tel:668510087"
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary bg-background px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
             >
               Más información
