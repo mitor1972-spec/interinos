@@ -329,9 +329,12 @@ export function FormularioDiagnostico() {
               {step === 1 && (
                 <Step title="Administración y antigüedad" hint="Indícanos dónde y cuánto tiempo.">
                   <div>
-                    <label className="text-sm font-semibold text-foreground">
+                    <label className="text-base font-bold text-primary sm:text-lg">
                       ¿En qué administración trabajas o trabajabas?
                     </label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Selecciona la opción que corresponda.
+                    </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       {ADMINISTRACIONES.map((opt) => (
                         <OptionButton
@@ -346,27 +349,60 @@ export function FormularioDiagnostico() {
                     </div>
                   </div>
 
-                  <div className="mt-7">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-semibold text-foreground">
-                        Años en esa situación
-                      </label>
-                      <span className="rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
-                        {data.anosServicio} {data.anosServicio === 1 ? "año" : "años"}
+                  <div className="mt-8">
+                    <label className="text-base font-bold text-primary sm:text-lg">
+                      Años en esa situación
+                    </label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Usa el deslizador o escribe los años directamente.
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => update("anosServicio", Math.max(0, data.anosServicio - 1))}
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 border-border bg-background text-lg font-bold text-foreground transition hover:border-primary/40 hover:bg-muted"
+                        aria-label="Restar un año"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        min={0}
+                        max={50}
+                        value={data.anosServicio}
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          if (Number.isNaN(n)) return;
+                          update("anosServicio", Math.max(0, Math.min(50, Math.floor(n))));
+                        }}
+                        className="h-12 w-24 rounded-xl border-2 border-border bg-background text-center text-xl font-extrabold text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => update("anosServicio", Math.min(50, data.anosServicio + 1))}
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 border-border bg-background text-lg font-bold text-foreground transition hover:border-primary/40 hover:bg-muted"
+                        aria-label="Sumar un año"
+                      >
+                        +
+                      </button>
+                      <span className="ml-1 text-sm font-semibold text-muted-foreground">
+                        {data.anosServicio === 1 ? "año" : "años"}
                       </span>
                     </div>
+
                     <input
                       type="range"
                       min={0}
                       max={30}
-                      value={data.anosServicio}
+                      value={Math.min(30, data.anosServicio)}
                       onChange={(e) => update("anosServicio", Number(e.target.value))}
-                      className="mt-3 w-full accent-[var(--color-accent)]"
+                      className="mt-5 w-full accent-[var(--color-accent)]"
                     />
                     <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                       <span>0</span>
                       <span>15</span>
-                      <span>30</span>
+                      <span>30+</span>
                     </div>
                   </div>
 
