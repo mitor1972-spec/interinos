@@ -1,6 +1,6 @@
 import { Phone, Scale } from "lucide-react";
 
-const TELEFONO = "900 105 108";
+const TELEFONO = "668 510 087";
 
 export function SiteHeader() {
   return (
