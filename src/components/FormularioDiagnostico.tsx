@@ -276,7 +276,7 @@ export function FormularioDiagnostico() {
         </div>
 
         {/* Progress */}
-        <div className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-elegant sm:p-8">
+        <div className="mt-10 rounded-2xl border border-form-surface-border bg-form-surface p-6 shadow-elegant sm:p-8">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
