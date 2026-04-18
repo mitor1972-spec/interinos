@@ -657,7 +657,6 @@ function AdminPanel() {
             </div>
           )}
         </div>
-      </main>
 
       <BulkActionsBar
         count={selectedIds.size}
@@ -675,7 +674,7 @@ function AdminPanel() {
           setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
         }}
       />
-    </div>
+    </AdminLayout>
   );
 }
 
