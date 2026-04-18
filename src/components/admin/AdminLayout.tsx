@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -41,10 +41,17 @@ interface Props {
 }
 
 export function AdminLayout({ title, subtitle, actions, children }: Props) {
-  const { session, isAdmin } = useAuth();
+  const { session, isAdmin, isLawyer, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Lawyer puro intentando entrar a /admin/* → enviar a /abogado
+  useEffect(() => {
+    if (!loading && session && isLawyer && !isAdmin) {
+      navigate({ to: "/abogado" });
+    }
+  }, [loading, session, isLawyer, isAdmin, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
