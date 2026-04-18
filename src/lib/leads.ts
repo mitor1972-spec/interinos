@@ -18,11 +18,15 @@ export const ESTADOS: EstadoCaso[] = [
 export const PRECIO_FASE_I_EUR = 302.5;
 
 export function formatEuros(amount: number): string {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
+  // Redondeamos primero para evitar que Intl muestre decimales por aproximación
+  // y forzamos separador de miles (es-ES no agrupa cifras de 4 dígitos por defecto).
+  const rounded = Math.round(amount);
+  const formatted = new Intl.NumberFormat("es-ES", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+    useGrouping: true,
+  }).format(rounded);
+  return `${formatted} €`;
 }
 
 export const SEMAFOROS: { value: Semaforo; label: string; emoji: string; className: string }[] = [
