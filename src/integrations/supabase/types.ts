@@ -383,7 +383,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "lawyer" | "admin" | "client"
+      app_role: "lawyer" | "admin" | "client" | "perito"
       documento_categoria:
         | "contrato"
         | "nomina"
@@ -398,6 +398,7 @@ export type Database = {
         | "Propuesta enviada"
         | "Cliente"
         | "Descartado"
+      estado_valoracion: "borrador" | "enviada" | "aceptada" | "rechazada"
       metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
       resultado_viabilidad: "inviable" | "revision" | "viable" | "urgente"
@@ -529,7 +530,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["lawyer", "admin", "client"],
+      app_role: ["lawyer", "admin", "client", "perito"],
       documento_categoria: [
         "contrato",
         "nomina",
@@ -546,6 +547,7 @@ export const Constants = {
         "Cliente",
         "Descartado",
       ],
+      estado_valoracion: ["borrador", "enviada", "aceptada", "rechazada"],
       metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
       resultado_viabilidad: ["inviable", "revision", "viable", "urgente"],
