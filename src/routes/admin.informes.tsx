@@ -475,8 +475,7 @@ function InformesPage() {
             </div>
           </>
         )}
-      </main>
-    </div>
+    </AdminLayout>
   );
 }
 
