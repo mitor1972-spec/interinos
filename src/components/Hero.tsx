@@ -50,7 +50,7 @@ export function Hero() {
             </a>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-primary-foreground/70">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base font-medium text-primary-foreground/80 sm:text-lg">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               Sin compromiso
