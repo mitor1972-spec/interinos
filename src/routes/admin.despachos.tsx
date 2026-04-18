@@ -25,7 +25,7 @@ import {
   type AbogadoConDespacho,
   type ProvinciaAbogado,
 } from "@/lib/abogados";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 export const Route = createFileRoute("/admin/despachos")({
   head: () => ({
@@ -89,101 +89,52 @@ function DespachosPage() {
 
   if (!isAdmin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="max-w-md text-center">
+      <AdminLayout title="Despachos">
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
           <h1 className="mt-4 text-xl font-bold text-primary">Solo administradores</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             La gestión de despachos y abogados está reservada al rol admin.
           </p>
-          <Link
-            to="/admin"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-light"
-          >
-            Volver al panel
-          </Link>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Topbar */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-navy text-accent">
-              <Scale className="h-5 w-5" />
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-bold text-primary">Panel · Hispajuris</div>
-              <div className="text-[10px] font-medium uppercase tracking-wider text-accent">
-                Asesor.Legal
-              </div>
-            </div>
-          </Link>
-          <AdminNav />
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-muted-foreground sm:inline">{session.user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-            >
-              <LogOut className="h-3.5 w-3.5" /> Salir
-            </button>
-          </div>
-        </div>
-      </header>
+    <AdminLayout
+      title="Despachos y abogados"
+      subtitle="Gestiona los despachos colaboradores, los abogados y la asignación por provincia."
+    >
+      {/* Tabs */}
+      <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1 shadow-card">
+        <TabBtn active={tab === "despachos"} onClick={() => setTab("despachos")} icon={Building2}>
+          Despachos ({despachos.length})
+        </TabBtn>
+        <TabBtn active={tab === "abogados"} onClick={() => setTab("abogados")} icon={Users}>
+          Abogados ({abogados.length})
+        </TabBtn>
+        <TabBtn active={tab === "provincias"} onClick={() => setTab("provincias")} icon={MapPin}>
+          Provincias ({provincias.length})
+        </TabBtn>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <div>
-          <h1 className="text-2xl font-bold text-primary sm:text-3xl">Despachos y abogados</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Gestiona los despachos colaboradores, los abogados y la asignación por provincia.
-          </p>
+      {loading ? (
+        <div className="mt-6 flex items-center justify-center py-16 text-muted-foreground">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Cargando...
         </div>
-
-        {/* Tabs */}
-        <div className="mt-6 flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1 shadow-card">
-          <TabBtn active={tab === "despachos"} onClick={() => setTab("despachos")} icon={Building2}>
-            Despachos ({despachos.length})
-          </TabBtn>
-          <TabBtn active={tab === "abogados"} onClick={() => setTab("abogados")} icon={Users}>
-            Abogados ({abogados.length})
-          </TabBtn>
-          <TabBtn active={tab === "provincias"} onClick={() => setTab("provincias")} icon={MapPin}>
-            Provincias ({provincias.length})
-          </TabBtn>
+      ) : (
+        <div className="mt-6">
+          {tab === "despachos" && <DespachosTab despachos={despachos} onChange={reloadAll} />}
+          {tab === "abogados" && (
+            <AbogadosTab abogados={abogados} despachos={despachos} onChange={reloadAll} />
+          )}
+          {tab === "provincias" && (
+            <ProvinciasTab mapeos={provincias} abogados={abogados} onChange={reloadAll} />
+          )}
         </div>
-
-        {loading ? (
-          <div className="mt-6 flex items-center justify-center py-16 text-muted-foreground">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Cargando...
-          </div>
-        ) : (
-          <div className="mt-6">
-            {tab === "despachos" && (
-              <DespachosTab despachos={despachos} onChange={reloadAll} />
-            )}
-            {tab === "abogados" && (
-              <AbogadosTab
-                abogados={abogados}
-                despachos={despachos}
-                onChange={reloadAll}
-              />
-            )}
-            {tab === "provincias" && (
-              <ProvinciasTab
-                mapeos={provincias}
-                abogados={abogados}
-                onChange={reloadAll}
-              />
-            )}
-          </div>
-        )}
-      </main>
-    </div>
+      )}
+    </AdminLayout>
   );
 }
 
