@@ -26,34 +26,47 @@ export function useAuth(): AuthState {
         }
         return;
       }
+
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", uid);
+
       if (!active) return;
+
       if (error) {
         setIsLawyer(false);
         setIsAdmin(false);
         return;
       }
+
       const roles = Array.isArray(data) ? data.map((r) => r.role) : [];
       setIsAdmin(roles.includes("admin"));
       setIsLawyer(roles.includes("lawyer") || roles.includes("admin"));
     };
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const resolveSession = async (newSession: Session | null) => {
       if (!active) return;
+      setLoading(true);
       setSession(newSession);
-      setTimeout(() => checkRole(newSession?.user?.id), 0);
+      await checkRole(newSession?.user?.id);
+      if (active) setLoading(false);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      void resolveSession(newSession);
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (!active) return;
-      setSession(s);
-      checkRole(s?.user?.id).finally(() => {
-        if (active) setLoading(false);
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: s } }) => resolveSession(s))
+      .catch(() => {
+        if (!active) return;
+        setSession(null);
+        setIsLawyer(false);
+        setIsAdmin(false);
+        setLoading(false);
       });
-    });
 
     return () => {
       active = false;
