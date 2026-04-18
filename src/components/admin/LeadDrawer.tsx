@@ -45,6 +45,24 @@ interface Props {
   onUpdated: (lead: Lead) => void;
 }
 
+/** Genera el motivo de urgencia legible a partir de los datos del caso. */
+function motivoUrgencia(lead: Lead): string {
+  const sit = (lead.situacion_actual || "").toLowerCase();
+  if (sit.includes("cesado") || sit.includes("cese")) {
+    return "Cese reciente o inminente — requiere actuación inmediata";
+  }
+  if (lead.urgencia || sit.includes("plazo") || sit.includes("recurso")) {
+    return "Plazo o recurso en marcha — tiempo crítico";
+  }
+  if (sit.includes("indefinido no fijo")) {
+    return "Reconocido como indefinido no fijo — quiere reclamar más";
+  }
+  if (sit.includes("estabilización") || sit.includes("estabilizacion")) {
+    return "Proceso de estabilización activo que afecta a la plaza";
+  }
+  return "Caso prioritario — revisar con el cliente";
+}
+
 export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
   const [notas, setNotas] = useState("");
   const [estado, setEstado] = useState<EstadoCaso>("Nuevo");
