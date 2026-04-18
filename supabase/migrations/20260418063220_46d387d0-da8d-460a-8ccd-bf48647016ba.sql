@@ -1,0 +1,1 @@
+DELETE FROM public.leads_interinos WHERE email LIKE 'verif_%@test-real.local';

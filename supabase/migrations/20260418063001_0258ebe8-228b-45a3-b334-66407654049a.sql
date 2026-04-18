@@ -1,0 +1,1 @@
+ALTER TABLE public.leads_interinos DISABLE TRIGGER trg_asignar_abogado_por_provincia;
