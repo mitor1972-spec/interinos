@@ -13,7 +13,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Award,
-  CreditCard,
   Pencil,
   Sparkles,
   History,
@@ -34,6 +33,9 @@ import {
 import { registrarCambios } from "@/lib/historial";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
+import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
+import { PagoManualForm } from "@/components/admin/PagoManualForm";
+import { CompletitudBar } from "@/components/admin/CompletitudBar";
 
 interface Props {
   lead: Lead | null;
@@ -48,6 +50,7 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [editing, setEditing] = useState(false);
   const [historialKey, setHistorialKey] = useState(0);
+  const [documentosCount, setDocumentosCount] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialMount = useRef(true);
   const lastNotasSaved = useRef<string>("");
@@ -198,11 +201,17 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
                 saving={saving}
                 savedAt={savedAt}
                 historialKey={historialKey}
+                documentosCount={documentosCount}
                 onClose={onClose}
                 onChangeNotas={setNotas}
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
+                onDocumentosChange={setDocumentosCount}
+                onLeadUpdated={(updated) => {
+                  onUpdated(updated);
+                  setHistorialKey((k) => k + 1);
+                }}
               />
             </motion.aside>
           </>
@@ -230,11 +239,14 @@ function DrawerContent({
   saving,
   savedAt,
   historialKey,
+  documentosCount,
   onClose,
   onChangeNotas,
   onChangeEstado,
   onToggleUrgente,
   onEdit,
+  onDocumentosChange,
+  onLeadUpdated,
 }: {
   lead: Lead;
   estado: EstadoCaso;
@@ -242,11 +254,14 @@ function DrawerContent({
   saving: boolean;
   savedAt: Date | null;
   historialKey: number;
+  documentosCount: number;
   onClose: () => void;
   onChangeNotas: (v: string) => void;
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
+  onDocumentosChange: (n: number) => void;
+  onLeadUpdated: (lead: Lead) => void;
 }) {
   const sem = semaforoConfig(lead.semaforo);
   const per = perfilConfig(lead.perfil);
@@ -281,6 +296,7 @@ function DrawerContent({
           </div>
           <h2 className="mt-2 truncate text-xl font-bold text-primary">{lead.nombre}</h2>
           <p className="text-xs text-muted-foreground">{lead.tipo_relacion}</p>
+          <CompletitudBar lead={lead} documentosCount={documentosCount} />
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -390,27 +406,12 @@ function DrawerContent({
 
         {/* Pago */}
         <Section title="Pago Fase I">
-          <div
-            className={`flex items-center justify-between rounded-xl border p-3 text-sm ${
-              lead.pago_completado
-                ? "border-success/40 bg-success/5"
-                : "border-border bg-background"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <CreditCard
-                className={`h-4 w-4 ${
-                  lead.pago_completado ? "text-success" : "text-muted-foreground"
-                }`}
-              />
-              <span className="font-medium text-foreground">
-                {lead.pago_completado ? "Cobrado (302,50 € IVA incl.)" : "Pendiente de pago"}
-              </span>
-            </div>
-            {lead.stripe_payment_id && (
-              <span className="text-xs text-muted-foreground">{lead.stripe_payment_id}</span>
-            )}
-          </div>
+          <PagoManualForm lead={lead} onSaved={onLeadUpdated} />
+        </Section>
+
+        {/* Documentos subidos por el abogado */}
+        <Section title="Documentos del caso (abogado)">
+          <LeadDocumentos leadId={lead.id} onChange={onDocumentosChange} />
         </Section>
 
         {/* Documentación */}
@@ -495,15 +496,23 @@ function DrawerContent({
         </Section>
 
         {/* Gestión IA — placeholders */}
-        <Section title="Gestión IA">
+        <section className="mb-5 rounded-2xl border border-primary/30 bg-primary/10 p-4 ring-1 ring-primary/10">
+          <div className="mb-3 flex items-center justify-between border-b border-primary/20 pb-2">
+            <h3 className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
+              <Sparkles className="h-3 w-3" /> Gestión IA
+            </h3>
+            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+              Beta
+            </span>
+          </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <IAButton icon={Wand2} label="Generar demanda con IA" />
             <IAButton icon={Sparkles} label="Ayuda IA sobre este caso" />
           </div>
-          <p className="mt-2 text-[11px] italic text-muted-foreground">
+          <p className="mt-2 text-[11px] italic text-primary/70">
             Estas herramientas estarán disponibles próximamente.
           </p>
-        </Section>
+        </section>
 
         {/* Historial de cambios */}
         <Section
@@ -559,7 +568,7 @@ function IAButton({
     <button
       type="button"
       disabled
-      className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-border bg-background px-3 py-2.5 text-left text-sm font-medium text-foreground opacity-90 hover:bg-muted disabled:cursor-not-allowed"
+      className="flex items-center justify-between gap-2 rounded-xl border border-primary/20 bg-background/80 px-3 py-2.5 text-left text-sm font-medium text-foreground hover:bg-background disabled:cursor-not-allowed"
     >
       <span className="inline-flex items-center gap-2">
         <Icon className="h-4 w-4 text-accent" />
