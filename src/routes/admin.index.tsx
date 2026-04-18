@@ -6,15 +6,18 @@ import {
   Download,
   Inbox,
   AlertCircle,
-  Info,
-  CheckCircle2,
   Loader2,
   RefreshCw,
-  Filter,
   Scale,
   Bell,
   FileCheck2,
   CreditCard,
+  Users,
+  Euro,
+  TrendingUp,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,10 +26,12 @@ import {
   ESTADOS,
   SEMAFOROS,
   PERFILES,
+  PRECIO_FASE_I_EUR,
   semaforoConfig,
   perfilConfig,
   estadoBadgeClass,
   formatDateShort,
+  formatEuros,
   exportLeadsToCSV,
   docsCompletos,
   type Lead,
@@ -35,6 +40,23 @@ import {
   type Perfil,
 } from "@/lib/leads";
 import { LeadDrawer } from "@/components/admin/LeadDrawer";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
+import { RowMenu } from "@/components/admin/RowMenu";
+
+type SortKey =
+  | "created_at"
+  | "nombre"
+  | "provincia"
+  | "perfil"
+  | "anos_servicio"
+  | "puntuacion_viabilidad"
+  | "semaforo"
+  | "estado";
+
+interface SortState {
+  key: SortKey;
+  dir: "asc" | "desc";
+}
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
