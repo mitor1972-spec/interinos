@@ -497,15 +497,23 @@ function DrawerContent({
         </Section>
 
         {/* Gestión IA — placeholders */}
-        <Section title="Gestión IA">
+        <section className="mb-5 rounded-2xl border border-primary/30 bg-primary/10 p-4 ring-1 ring-primary/10">
+          <div className="mb-3 flex items-center justify-between border-b border-primary/20 pb-2">
+            <h3 className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
+              <Sparkles className="h-3 w-3" /> Gestión IA
+            </h3>
+            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+              Beta
+            </span>
+          </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <IAButton icon={Wand2} label="Generar demanda con IA" />
             <IAButton icon={Sparkles} label="Ayuda IA sobre este caso" />
           </div>
-          <p className="mt-2 text-[11px] italic text-muted-foreground">
+          <p className="mt-2 text-[11px] italic text-primary/70">
             Estas herramientas estarán disponibles próximamente.
           </p>
-        </Section>
+        </section>
 
         {/* Historial de cambios */}
         <Section
