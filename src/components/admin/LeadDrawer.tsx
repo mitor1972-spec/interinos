@@ -240,11 +240,14 @@ function DrawerContent({
   saving,
   savedAt,
   historialKey,
+  documentosCount,
   onClose,
   onChangeNotas,
   onChangeEstado,
   onToggleUrgente,
   onEdit,
+  onDocumentosChange,
+  onLeadUpdated,
 }: {
   lead: Lead;
   estado: EstadoCaso;
@@ -252,11 +255,14 @@ function DrawerContent({
   saving: boolean;
   savedAt: Date | null;
   historialKey: number;
+  documentosCount: number;
   onClose: () => void;
   onChangeNotas: (v: string) => void;
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
+  onDocumentosChange: (n: number) => void;
+  onLeadUpdated: (lead: Lead) => void;
 }) {
   const sem = semaforoConfig(lead.semaforo);
   const per = perfilConfig(lead.perfil);
