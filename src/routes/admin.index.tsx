@@ -381,13 +381,13 @@ function AdminPanel() {
                 else toast.info("Sin leads nuevos por revisar.");
               }}
               className="relative inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-              aria-label={`${metrics.noRevisados} leads sin revisar`}
+              aria-label={`${metrics.pendientes} leads pendientes de revisar`}
             >
               <Bell className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sin revisar</span>
-              {metrics.noRevisados > 0 && (
+              {metrics.pendientes > 0 && (
                 <span className="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
-                  {metrics.noRevisados}
+                  {metrics.pendientes}
                 </span>
               )}
             </button>
@@ -430,22 +430,32 @@ function AdminPanel() {
           </div>
         </div>
 
-        {/* Métricas */}
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <MetricCard label="Total leads" value={metrics.total} icon={Inbox} />
-          <MetricCard label="Sin revisar" value={metrics.noRevisados} icon={Bell} tone="destructive" />
+        {/* Métricas — las 5 oficiales */}
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <MetricCard label="Total leads" value={metrics.total} icon={Users} />
+          <MetricCard
+            label="Pendiente revisar"
+            value={metrics.pendientes}
+            icon={Bell}
+            tone="warning"
+          />
           <MetricCard
             label="Urgentes"
-            value={metrics.rojos}
+            value={metrics.urgentes}
             icon={AlertCircle}
             tone="destructive"
           />
-          <MetricCard label="Revisar" value={metrics.ambar} icon={Info} tone="warning" />
-          <MetricCard label="Posibles" value={metrics.verdes} icon={CheckCircle2} tone="success" />
+          <MetricCard
+            label="Cobrados"
+            value={formatEuros(metrics.cobradosEur)}
+            hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
+            icon={Euro}
+            tone="success"
+          />
           <MetricCard
             label="Conversión"
             value={`${metrics.conversion}%`}
-            icon={Filter}
+            icon={TrendingUp}
             tone="primary"
           />
         </div>
