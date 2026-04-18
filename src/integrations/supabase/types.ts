@@ -191,6 +191,80 @@ export type Database = {
           },
         ]
       }
+      lead_valoraciones: {
+        Row: {
+          antiguedad_reconocida: number
+          costas: number
+          created_at: string
+          danos_perjuicios: number
+          estado: Database["public"]["Enums"]["estado_valoracion"]
+          fecha_valoracion: string
+          id: string
+          indemnizacion_principal: number
+          intereses: number
+          lead_id: string
+          moneda: string
+          notas: string | null
+          otros_concepto: string | null
+          otros_importe: number
+          perito_email: string | null
+          perito_user_id: string | null
+          salarios_tramitacion: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          antiguedad_reconocida?: number
+          costas?: number
+          created_at?: string
+          danos_perjuicios?: number
+          estado?: Database["public"]["Enums"]["estado_valoracion"]
+          fecha_valoracion?: string
+          id?: string
+          indemnizacion_principal?: number
+          intereses?: number
+          lead_id: string
+          moneda?: string
+          notas?: string | null
+          otros_concepto?: string | null
+          otros_importe?: number
+          perito_email?: string | null
+          perito_user_id?: string | null
+          salarios_tramitacion?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          antiguedad_reconocida?: number
+          costas?: number
+          created_at?: string
+          danos_perjuicios?: number
+          estado?: Database["public"]["Enums"]["estado_valoracion"]
+          fecha_valoracion?: string
+          id?: string
+          indemnizacion_principal?: number
+          intereses?: number
+          lead_id?: string
+          moneda?: string
+          notas?: string | null
+          otros_concepto?: string | null
+          otros_importe?: number
+          perito_email?: string | null
+          perito_user_id?: string | null
+          salarios_tramitacion?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_valoraciones_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_interinos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_interinos: {
         Row: {
           administracion: string
@@ -370,6 +444,7 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: boolean
       }
+      is_perito: { Args: { _user_id: string }; Returns: boolean }
       obtener_directorio_usuarios: {
         Args: never
         Returns: {
@@ -383,7 +458,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "lawyer" | "admin" | "client"
+      app_role: "lawyer" | "admin" | "client" | "perito"
       documento_categoria:
         | "contrato"
         | "nomina"
@@ -398,6 +473,7 @@ export type Database = {
         | "Propuesta enviada"
         | "Cliente"
         | "Descartado"
+      estado_valoracion: "borrador" | "enviada" | "aceptada" | "rechazada"
       metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
       resultado_viabilidad: "inviable" | "revision" | "viable" | "urgente"
@@ -529,7 +605,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["lawyer", "admin", "client"],
+      app_role: ["lawyer", "admin", "client", "perito"],
       documento_categoria: [
         "contrato",
         "nomina",
@@ -546,6 +622,7 @@ export const Constants = {
         "Cliente",
         "Descartado",
       ],
+      estado_valoracion: ["borrador", "enviada", "aceptada", "rechazada"],
       metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
       resultado_viabilidad: ["inviable", "revision", "viable", "urgente"],

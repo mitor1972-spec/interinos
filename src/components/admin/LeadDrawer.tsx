@@ -35,6 +35,8 @@ import { registrarCambios } from "@/lib/historial";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
+import { LeadValoracion } from "@/components/perito/LeadValoracion";
+import { useAuth } from "@/hooks/useAuth";
 import { PagoManualForm } from "@/components/admin/PagoManualForm";
 import { CompletitudBar } from "@/components/admin/CompletitudBar";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
@@ -452,6 +454,11 @@ function DrawerContent({
           <LeadDocumentos leadId={lead.id} onChange={onDocumentosChange} />
         </Section>
 
+        {/* Valoración económica del Perito */}
+        <Section title="Valoración económica (perito)">
+          <ValoracionBlock leadId={lead.id} />
+        </Section>
+
         {/* Documentación */}
         <Section title="Documentación marcada por el cliente">
           {lead.documentos_disponibles && lead.documentos_disponibles.length > 0 ? (
@@ -672,4 +679,12 @@ function Item({ label, value }: { label: string; value: string }) {
       <dd className="mt-0.5 text-sm font-semibold text-foreground">{value}</dd>
     </div>
   );
+}
+
+function ValoracionBlock({ leadId }: { leadId: string }) {
+  const { isAdmin, isPerito } = useAuth();
+  // Admin y perito pueden editar (RLS controla que el perito solo edite las suyas).
+  // Abogado solo lee.
+  const canEdit = isAdmin || isPerito;
+  return <LeadValoracion leadId={leadId} canEdit={canEdit} />;
 }

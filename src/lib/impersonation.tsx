@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-export type ImpersonatedRole = "admin" | "abogado" | "cliente";
+export type ImpersonatedRole = "admin" | "abogado" | "perito" | "cliente";
 
 const STORAGE_KEY = "lov_impersonated_role";
 
@@ -18,7 +18,12 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) as ImpersonatedRole | null;
-      if (stored === "admin" || stored === "abogado" || stored === "cliente") {
+      if (
+        stored === "admin" ||
+        stored === "abogado" ||
+        stored === "perito" ||
+        stored === "cliente"
+      ) {
         setRoleState(stored);
       }
     } catch {
@@ -47,7 +52,6 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
 export function useImpersonation(): Ctx {
   const ctx = useContext(ImpersonationContext);
   if (!ctx) {
-    // Fallback seguro si se usa fuera del provider
     return {
       role: "admin",
       setRole: () => {},

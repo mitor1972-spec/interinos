@@ -40,15 +40,19 @@ function LoginPage() {
 
     // Comprobar roles para decidir destino
     const userId = signIn.user?.id;
-    let target: "/admin" | "/abogado" = "/admin";
+    let target: "/admin" | "/abogado" | "/perito" = "/admin";
     if (userId) {
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
       const list = (roles ?? []).map((r) => r.role);
-      if (!list.includes("admin") && list.includes("lawyer")) {
+      if (list.includes("admin")) {
+        target = "/admin";
+      } else if (list.includes("lawyer")) {
         target = "/abogado";
+      } else if (list.includes("perito")) {
+        target = "/perito";
       }
     }
 
