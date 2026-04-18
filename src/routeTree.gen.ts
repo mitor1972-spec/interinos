@@ -14,10 +14,12 @@ import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
+import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInformesRouteImport } from './routes/admin.informes'
 import { Route as AdminFinanzasRouteImport } from './routes/admin.finanzas'
 import { Route as AdminDespachosRouteImport } from './routes/admin.despachos'
+import { Route as AdminConfiguracionRouteImport } from './routes/admin.configuracion'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -44,6 +46,11 @@ const ClienteLoginRoute = ClienteLoginRouteImport.update({
   path: '/cliente/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
+  id: '/admin/usuarios',
+  path: '/admin/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -64,13 +71,20 @@ const AdminDespachosRoute = AdminDespachosRouteImport.update({
   path: '/admin/despachos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConfiguracionRoute = AdminConfiguracionRouteImport.update({
+  id: '/admin/configuracion',
+  path: '/admin/configuracion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/admin/': typeof AdminIndexRoute
@@ -78,10 +92,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/admin': typeof AdminIndexRoute
@@ -90,10 +106,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/admin/': typeof AdminIndexRoute
@@ -103,10 +121,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
     | '/admin/'
@@ -114,10 +134,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
     | '/admin'
@@ -125,10 +147,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
     | '/admin/'
@@ -137,10 +161,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminConfiguracionRoute: typeof AdminConfiguracionRoute
   AdminDespachosRoute: typeof AdminDespachosRoute
   AdminFinanzasRoute: typeof AdminFinanzasRoute
   AdminInformesRoute: typeof AdminInformesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminUsuariosRoute: typeof AdminUsuariosRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
   ClienteRegistroRoute: typeof ClienteRegistroRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -184,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClienteLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/usuarios': {
+      id: '/admin/usuarios'
+      path: '/admin/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -212,15 +245,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDespachosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/configuracion': {
+      id: '/admin/configuracion'
+      path: '/admin/configuracion'
+      fullPath: '/admin/configuracion'
+      preLoaderRoute: typeof AdminConfiguracionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminConfiguracionRoute: AdminConfiguracionRoute,
   AdminDespachosRoute: AdminDespachosRoute,
   AdminFinanzasRoute: AdminFinanzasRoute,
   AdminInformesRoute: AdminInformesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminUsuariosRoute: AdminUsuariosRoute,
   ClienteLoginRoute: ClienteLoginRoute,
   ClienteRegistroRoute: ClienteRegistroRoute,
   AdminIndexRoute: AdminIndexRoute,
