@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      lead_documentos: {
+        Row: {
+          categoria: Database["public"]["Enums"]["documento_categoria"]
+          created_at: string
+          id: string
+          lead_id: string
+          mime_type: string | null
+          nombre_original: string
+          notas: string | null
+          storage_path: string
+          subido_por: string | null
+          subido_por_email: string | null
+          tamano_bytes: number | null
+          updated_at: string
+        }
+        Insert: {
+          categoria?: Database["public"]["Enums"]["documento_categoria"]
+          created_at?: string
+          id?: string
+          lead_id: string
+          mime_type?: string | null
+          nombre_original: string
+          notas?: string | null
+          storage_path: string
+          subido_por?: string | null
+          subido_por_email?: string | null
+          tamano_bytes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["documento_categoria"]
+          created_at?: string
+          id?: string
+          lead_id?: string
+          mime_type?: string | null
+          nombre_original?: string
+          notas?: string | null
+          storage_path?: string
+          subido_por?: string | null
+          subido_por_email?: string | null
+          tamano_bytes?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_documentos_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_interinos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_historial: {
         Row: {
           campo: string
@@ -69,9 +122,13 @@ export type Database = {
           estado: Database["public"]["Enums"]["estado_caso"]
           id: string
           mensaje_libre: string | null
+          metodo_pago: Database["public"]["Enums"]["metodo_pago"] | null
           nombre: string
           notas_abogado: string | null
           pago_completado: boolean
+          pago_fecha: string | null
+          pago_importe: number | null
+          pago_referencia: string | null
           perfil: Database["public"]["Enums"]["perfil_tipo"]
           provincia: string
           puntuacion_viabilidad: number
@@ -99,9 +156,13 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_caso"]
           id?: string
           mensaje_libre?: string | null
+          metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
           nombre: string
           notas_abogado?: string | null
           pago_completado?: boolean
+          pago_fecha?: string | null
+          pago_importe?: number | null
+          pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
           provincia: string
           puntuacion_viabilidad?: number
@@ -129,9 +190,13 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_caso"]
           id?: string
           mensaje_libre?: string | null
+          metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
           nombre?: string
           notas_abogado?: string | null
           pago_completado?: boolean
+          pago_fecha?: string | null
+          pago_importe?: number | null
+          pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
           provincia?: string
           puntuacion_viabilidad?: number
@@ -185,12 +250,21 @@ export type Database = {
     }
     Enums: {
       app_role: "lawyer" | "admin"
+      documento_categoria:
+        | "contrato"
+        | "nomina"
+        | "vida_laboral"
+        | "cese"
+        | "sentencia"
+        | "justificante_pago"
+        | "otro"
       estado_caso:
         | "Nuevo"
         | "En estudio"
         | "Propuesta enviada"
         | "Cliente"
         | "Descartado"
+      metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
       resultado_viabilidad: "inviable" | "revision" | "viable" | "urgente"
       semaforo_tipo: "rojo" | "ambar" | "verde"
@@ -322,6 +396,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["lawyer", "admin"],
+      documento_categoria: [
+        "contrato",
+        "nomina",
+        "vida_laboral",
+        "cese",
+        "sentencia",
+        "justificante_pago",
+        "otro",
+      ],
       estado_caso: [
         "Nuevo",
         "En estudio",
@@ -329,6 +412,7 @@ export const Constants = {
         "Cliente",
         "Descartado",
       ],
+      metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
       resultado_viabilidad: ["inviable", "revision", "viable", "urgente"],
       semaforo_tipo: ["rojo", "ambar", "verde"],
