@@ -132,7 +132,7 @@ function AdminPanel() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return leads.filter((l) => {
+    const list = leads.filter((l) => {
       if (filterSem !== "todos" && l.semaforo !== filterSem) return false;
       if (filterEstado !== "todos" && l.estado !== filterEstado) return false;
       if (filterPerfil !== "todos" && l.perfil !== filterPerfil) return false;
@@ -145,19 +145,182 @@ function AdminPanel() {
       }
       return true;
     });
-  }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago]);
 
-  // Métricas
+    // Orden
+    const semafOrder: Record<Semaforo, number> = { rojo: 0, ambar: 1, verde: 2 };
+    const estadoOrder: Record<EstadoCaso, number> = {
+      Nuevo: 0,
+      "En estudio": 1,
+      "Propuesta enviada": 2,
+      Cliente: 3,
+      Descartado: 4,
+    };
+    const dir = sort.dir === "asc" ? 1 : -1;
+    const sorted = [...list].sort((a, b) => {
+      const k = sort.key;
+      let av: number | string;
+      let bv: number | string;
+      if (k === "created_at") {
+        av = new Date(a.created_at).getTime();
+        bv = new Date(b.created_at).getTime();
+      } else if (k === "anos_servicio" || k === "puntuacion_viabilidad") {
+        av = a[k];
+        bv = b[k];
+      } else if (k === "semaforo") {
+        av = semafOrder[a.semaforo];
+        bv = semafOrder[b.semaforo];
+      } else if (k === "estado") {
+        av = estadoOrder[a.estado];
+        bv = estadoOrder[b.estado];
+      } else {
+        av = String(a[k] ?? "").toLowerCase();
+        bv = String(b[k] ?? "").toLowerCase();
+      }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+    return sorted;
+  }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago, sort]);
+
+  // Métricas (las 5 oficiales)
   const metrics = useMemo(() => {
     const total = leads.length;
-    const noRevisados = leads.filter((l) => !l.revisado).length;
-    const rojos = leads.filter((l) => l.semaforo === "rojo").length;
-    const ambar = leads.filter((l) => l.semaforo === "ambar").length;
-    const verdes = leads.filter((l) => l.semaforo === "verde").length;
+    const pendientes = leads.filter((l) => l.estado === "Nuevo" && !l.revisado).length;
+    const urgentes = leads.filter((l) => l.semaforo === "rojo" || l.urgencia).length;
+    const cobradosNum = leads.filter((l) => l.pago_completado).length;
+    const cobradosEur = cobradosNum * PRECIO_FASE_I_EUR;
     const clientes = leads.filter((l) => l.estado === "Cliente").length;
     const conversion = total > 0 ? Math.round((clientes / total) * 100) : 0;
-    return { total, noRevisados, rojos, ambar, verdes, clientes, conversion };
+    return { total, pendientes, urgentes, cobradosEur, cobradosNum, conversion };
   }, [leads]);
+
+  // Helpers selección múltiple
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((l) => selectedIds.has(l.id));
+  const toggleSelectAll = () =>
+    setSelectedIds((prev) => {
+      if (allFilteredSelected) {
+        const next = new Set(prev);
+        filtered.forEach((l) => next.delete(l.id));
+        return next;
+      }
+      const next = new Set(prev);
+      filtered.forEach((l) => next.add(l.id));
+      return next;
+    });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: key === "created_at" || key === "puntuacion_viabilidad" ? "desc" : "asc" },
+    );
+
+  // Acción individual genérica (menú ⋮)
+  const updateOne = async (id: string, patch: Partial<Lead>, successMsg?: string) => {
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update(patch)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      toast.error("No se pudo actualizar");
+      return;
+    }
+    if (data) {
+      setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
+      if (successMsg) toast.success(successMsg);
+    }
+  };
+
+  const deleteOne = async (id: string) => {
+    if (!confirm("¿Eliminar este lead? Esta acción no se puede deshacer.")) return;
+    const { error } = await supabase.from("leads_interinos").delete().eq("id", id);
+    if (error) {
+      toast.error("No se pudo eliminar");
+      return;
+    }
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    toast.success("Lead eliminado");
+  };
+
+  // Acciones masivas
+  const bulkChangeEstado = async (estado: EstadoCaso) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update({ estado })
+      .in("id", ids)
+      .select();
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudo cambiar el estado");
+      return;
+    }
+    if (data) {
+      const map = new Map(data.map((l) => [l.id, l]));
+      setLeads((prev) => prev.map((l) => map.get(l.id) ?? l));
+      toast.success(`${data.length} actualizados a "${estado}"`);
+    }
+  };
+
+  const bulkMarkUrgente = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update({ urgencia: true, semaforo: "rojo" })
+      .in("id", ids)
+      .select();
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudo marcar como urgente");
+      return;
+    }
+    if (data) {
+      const map = new Map(data.map((l) => [l.id, l]));
+      setLeads((prev) => prev.map((l) => map.get(l.id) ?? l));
+      toast.success(`${data.length} marcados como urgentes`);
+    }
+  };
+
+  const bulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (
+      !confirm(
+        `¿Eliminar ${ids.length} lead${ids.length === 1 ? "" : "s"}? Esta acción no se puede deshacer.`,
+      )
+    )
+      return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("leads_interinos").delete().in("id", ids);
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudieron eliminar");
+      return;
+    }
+    setLeads((prev) => prev.filter((l) => !selectedIds.has(l.id)));
+    setSelectedIds(new Set());
+    toast.success(`${ids.length} leads eliminados`);
+  };
 
   const selectedLead = leads.find((l) => l.id === selectedId) || null;
 
