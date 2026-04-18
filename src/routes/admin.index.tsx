@@ -42,8 +42,7 @@ import {
 import { LeadDrawer } from "@/components/admin/LeadDrawer";
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
-import { AdminNav } from "@/components/admin/AdminNav";
-import { RoleSwitcher } from "@/components/admin/RoleSwitcher";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { DashboardOverview } from "@/components/admin/DashboardOverview";
 import { useImpersonation } from "@/lib/impersonation";
 
@@ -368,119 +367,56 @@ function AdminPanel() {
     );
   }
 
+  const headerActions = (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          const first = leads.find((l) => !l.revisado);
+          if (first) openLead(first);
+          else toast.info("Sin leads nuevos por revisar.");
+        }}
+        className="relative inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+        aria-label={`${metrics.pendientes} leads pendientes de revisar`}
+      >
+        <Bell className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Sin revisar</span>
+        {metrics.pendientes > 0 && (
+          <span className="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+            {metrics.pendientes}
+          </span>
+        )}
+      </button>
+      <button
+        onClick={fetchLeads}
+        disabled={loading}
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+      >
+        <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+        <span className="hidden sm:inline">Refrescar</span>
+      </button>
+      <button
+        onClick={() => exportLeadsToCSV(filtered)}
+        disabled={filtered.length === 0}
+        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-light disabled:opacity-50"
+      >
+        <Download className="h-3.5 w-3.5" />
+        CSV ({filtered.length})
+      </button>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Topbar */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-navy text-accent">
-              <Scale className="h-5 w-5" />
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-bold text-primary">Panel · Hispajuris</div>
-              <div className="text-[10px] font-medium uppercase tracking-wider text-accent">
-                Asesor.Legal
-              </div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-2 text-sm">
-            <AdminNav />
-            {isAdmin && <RoleSwitcher />}
-            <button
-              type="button"
-              onClick={() => {
-                const first = leads.find((l) => !l.revisado);
-                if (first) openLead(first);
-                else toast.info("Sin leads nuevos por revisar.");
-              }}
-              className="relative inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-              aria-label={`${metrics.pendientes} leads pendientes de revisar`}
-            >
-              <Bell className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Sin revisar</span>
-              {metrics.pendientes > 0 && (
-                <span className="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
-                  {metrics.pendientes}
-                </span>
-              )}
-            </button>
-            <span className="hidden text-muted-foreground lg:inline">{session.user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-            >
-              <LogOut className="h-3.5 w-3.5" /> Salir
-            </button>
-          </div>
-        </div>
-      </header>
+    <AdminLayout
+      title="Dashboard · Leads y casos"
+      subtitle="Solicitudes de diagnóstico recibidas desde la web pública."
+      actions={headerActions}
+    >
+      {/* Dashboard overview con KPIs, actividad y gráfico semanal */}
+      <DashboardOverview leads={leads} onOpenLead={openLead} />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-primary sm:text-3xl">Leads y casos</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Solicitudes de diagnóstico recibidas desde la web pública.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={fetchLeads}
-              disabled={loading}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-              Refrescar
-            </button>
-            <button
-              onClick={() => exportLeadsToCSV(filtered)}
-              disabled={filtered.length === 0}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-light disabled:opacity-50"
-            >
-              <Download className="h-3.5 w-3.5" />
-              Exportar CSV ({filtered.length})
-            </button>
-          </div>
-        </div>
-
-        {/* Métricas — las 5 oficiales */}
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <MetricCard label="Total leads" value={metrics.total} icon={Users} />
-          <MetricCard
-            label="Pendiente revisar"
-            value={metrics.pendientes}
-            icon={Bell}
-            tone="warning"
-          />
-          <MetricCard
-            label="Urgentes"
-            value={metrics.urgentes}
-            icon={AlertCircle}
-            tone="destructive"
-          />
-          <MetricCard
-            label="Cobrados"
-            value={formatEuros(metrics.cobradosEur)}
-            hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
-            icon={Euro}
-            tone="success"
-          />
-          <MetricCard
-            label="Conversión"
-            value={`${metrics.conversion}%`}
-            icon={TrendingUp}
-            tone="primary"
-          />
-        </div>
-
-        {/* Dashboard overview con actividad y gráfico semanal */}
-        <div className="mt-6">
-          <DashboardOverview leads={leads} onOpenLead={openLead} />
-        </div>
-
-        {/* Filtros */}
-        <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
+      {/* Filtros */}
+      <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
