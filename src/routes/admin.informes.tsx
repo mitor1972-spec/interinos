@@ -38,7 +38,7 @@ import {
   type Perfil,
 } from "@/lib/leads";
 import { listarAbogados, type AbogadoConDespacho } from "@/lib/abogados";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 export const Route = createFileRoute("/admin/informes")({
   head: () => ({
@@ -248,85 +248,55 @@ function InformesPage() {
   if (!session) return null;
   if (!isLawyer) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="max-w-md text-center">
+      <AdminLayout title="Informes">
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
           <h1 className="mt-4 text-xl font-bold text-primary">Acceso restringido</h1>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-navy text-accent">
-              <Scale className="h-5 w-5" />
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-bold text-primary">Panel · Hispajuris</div>
-              <div className="text-[10px] font-medium uppercase tracking-wider text-accent">
-                Asesor.Legal
-              </div>
-            </div>
-          </Link>
-          <AdminNav />
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-muted-foreground sm:inline">{session.user.email}</span>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-            >
-              <LogOut className="h-3.5 w-3.5" /> Salir
-            </button>
-          </div>
-        </div>
-      </header>
+  const headerActions = (
+    <div className="flex flex-wrap items-end gap-2">
+      <div>
+        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Desde
+        </label>
+        <input
+          type="date"
+          value={from}
+          onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
+          className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Hasta
+        </label>
+        <input
+          type="date"
+          value={to}
+          onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
+          className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+      </div>
+      <button
+        onClick={exportCsv}
+        disabled={leads.length === 0}
+        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-light disabled:opacity-50"
+      >
+        <Download className="h-3.5 w-3.5" /> CSV
+      </button>
+    </div>
+  );
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="inline-flex items-center gap-2 text-2xl font-bold text-primary sm:text-3xl">
-              <BarChart3 className="h-6 w-6" /> Informes
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Métricas, conversión, ingresos y ranking de abogados.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-end gap-2">
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Desde
-              </label>
-              <input
-                type="date"
-                value={from}
-                onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Hasta
-              </label>
-              <input
-                type="date"
-                value={to}
-                onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-              />
-            </div>
-            <button
-              onClick={exportCsv}
-              disabled={leads.length === 0}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-light disabled:opacity-50"
-            >
-              <Download className="h-3.5 w-3.5" /> Exportar CSV
-            </button>
-          </div>
-        </div>
+  return (
+    <AdminLayout
+      title="Informes"
+      subtitle="Métricas, conversión, ingresos y ranking de abogados."
+      actions={headerActions}
+    >
 
         {loading ? (
           <div className="mt-10 flex items-center justify-center py-16 text-muted-foreground">
