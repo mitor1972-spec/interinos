@@ -23,6 +23,11 @@ const LABELS: Record<string, string> = {
   situacion_actual: "Situación actual",
   perfil: "Perfil",
   semaforo: "Semáforo",
+  pago_completado: "Pago confirmado",
+  metodo_pago: "Método de pago",
+  pago_fecha: "Fecha del pago",
+  pago_importe: "Importe pagado",
+  pago_referencia: "Referencia de pago",
 };
 
 export function labelCampo(campo: string): string {
