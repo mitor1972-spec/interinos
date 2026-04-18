@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      abogados: {
+        Row: {
+          activo: boolean
+          created_at: string
+          despacho_id: string | null
+          email: string
+          id: string
+          nombre: string
+          notas: string | null
+          telefono: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          despacho_id?: string | null
+          email: string
+          id?: string
+          nombre: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          despacho_id?: string | null
+          email?: string
+          id?: string
+          nombre?: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abogados_despacho_id_fkey"
+            columns: ["despacho_id"]
+            isOneToOne: false
+            referencedRelation: "despachos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      despachos: {
+        Row: {
+          activo: boolean
+          ciudad: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nombre: string
+          notas: string | null
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          ciudad?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          ciudad?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre?: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_documentos: {
         Row: {
           categoria: Database["public"]["Enums"]["documento_categoria"]
@@ -213,6 +296,38 @@ export type Database = {
         }
         Relationships: []
       }
+      provincia_abogado: {
+        Row: {
+          abogado_id: string
+          created_at: string
+          id: string
+          provincia: string
+          updated_at: string
+        }
+        Insert: {
+          abogado_id: string
+          created_at?: string
+          id?: string
+          provincia: string
+          updated_at?: string
+        }
+        Update: {
+          abogado_id?: string
+          created_at?: string
+          id?: string
+          provincia?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provincia_abogado_abogado_id_fkey"
+            columns: ["abogado_id"]
+            isOneToOne: false
+            referencedRelation: "abogados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -244,6 +359,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_assigned_lawyer: {
+        Args: { _lead_id: string; _user_id: string }
         Returns: boolean
       }
       is_lawyer: { Args: { _user_id: string }; Returns: boolean }
