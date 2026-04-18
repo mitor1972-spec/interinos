@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      lead_historial: {
+        Row: {
+          campo: string
+          created_at: string
+          id: string
+          lead_id: string
+          usuario_email: string | null
+          usuario_id: string | null
+          valor_anterior: string | null
+          valor_nuevo: string | null
+        }
+        Insert: {
+          campo: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          usuario_email?: string | null
+          usuario_id?: string | null
+          valor_anterior?: string | null
+          valor_nuevo?: string | null
+        }
+        Update: {
+          campo?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          usuario_email?: string | null
+          usuario_id?: string | null
+          valor_anterior?: string | null
+          valor_nuevo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_historial_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_interinos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_interinos: {
         Row: {
           administracion: string
