@@ -35,6 +35,8 @@ import { registrarCambios } from "@/lib/historial";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
+import { LeadValoracion } from "@/components/perito/LeadValoracion";
+import { useAuth } from "@/hooks/useAuth";
 import { PagoManualForm } from "@/components/admin/PagoManualForm";
 import { CompletitudBar } from "@/components/admin/CompletitudBar";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
@@ -450,6 +452,11 @@ function DrawerContent({
         {/* Documentos subidos por el abogado */}
         <Section title="Documentos del caso (abogado)">
           <LeadDocumentos leadId={lead.id} onChange={onDocumentosChange} />
+        </Section>
+
+        {/* Valoración económica del Perito */}
+        <Section title="Valoración económica (perito)">
+          <ValoracionBlock leadId={lead.id} />
         </Section>
 
         {/* Documentación */}
