@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AbogadoIndexRouteImport } from './routes/abogado.index'
 import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
@@ -20,6 +21,9 @@ import { Route as AdminInformesRouteImport } from './routes/admin.informes'
 import { Route as AdminFinanzasRouteImport } from './routes/admin.finanzas'
 import { Route as AdminDespachosRouteImport } from './routes/admin.despachos'
 import { Route as AdminConfiguracionRouteImport } from './routes/admin.configuracion'
+import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
+import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
+import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,6 +38,11 @@ const ClienteIndexRoute = ClienteIndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbogadoIndexRoute = AbogadoIndexRouteImport.update({
+  id: '/abogado/',
+  path: '/abogado/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClienteRegistroRoute = ClienteRegistroRouteImport.update({
@@ -76,9 +85,27 @@ const AdminConfiguracionRoute = AdminConfiguracionRouteImport.update({
   path: '/admin/configuracion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbogadoPerfilRoute = AbogadoPerfilRouteImport.update({
+  id: '/abogado/perfil',
+  path: '/abogado/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbogadoCalendarioRoute = AbogadoCalendarioRouteImport.update({
+  id: '/abogado/calendario',
+  path: '/abogado/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbogadoAyudaIaRoute = AbogadoAyudaIaRouteImport.update({
+  id: '/abogado/ayuda-ia',
+  path: '/abogado/ayuda-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
+  '/abogado/calendario': typeof AbogadoCalendarioRoute
+  '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -87,11 +114,15 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/abogado/': typeof AbogadoIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
+  '/abogado/calendario': typeof AbogadoCalendarioRoute
+  '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -100,12 +131,16 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/abogado': typeof AbogadoIndexRoute
   '/admin': typeof AdminIndexRoute
   '/cliente': typeof ClienteIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
+  '/abogado/calendario': typeof AbogadoCalendarioRoute
+  '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -114,6 +149,7 @@ export interface FileRoutesById {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/abogado/': typeof AbogadoIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
 }
@@ -121,6 +157,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/abogado/ayuda-ia'
+    | '/abogado/calendario'
+    | '/abogado/perfil'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -129,11 +168,15 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/abogado/'
     | '/admin/'
     | '/cliente/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/abogado/ayuda-ia'
+    | '/abogado/calendario'
+    | '/abogado/perfil'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -142,11 +185,15 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/abogado'
     | '/admin'
     | '/cliente'
   id:
     | '__root__'
     | '/'
+    | '/abogado/ayuda-ia'
+    | '/abogado/calendario'
+    | '/abogado/perfil'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -155,12 +202,16 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/abogado/'
     | '/admin/'
     | '/cliente/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AbogadoAyudaIaRoute: typeof AbogadoAyudaIaRoute
+  AbogadoCalendarioRoute: typeof AbogadoCalendarioRoute
+  AbogadoPerfilRoute: typeof AbogadoPerfilRoute
   AdminConfiguracionRoute: typeof AdminConfiguracionRoute
   AdminDespachosRoute: typeof AdminDespachosRoute
   AdminFinanzasRoute: typeof AdminFinanzasRoute
@@ -169,6 +220,7 @@ export interface RootRouteChildren {
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
   ClienteRegistroRoute: typeof ClienteRegistroRoute
+  AbogadoIndexRoute: typeof AbogadoIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ClienteIndexRoute: typeof ClienteIndexRoute
 }
@@ -194,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abogado/': {
+      id: '/abogado/'
+      path: '/abogado'
+      fullPath: '/abogado/'
+      preLoaderRoute: typeof AbogadoIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cliente/registro': {
@@ -252,11 +311,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfiguracionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abogado/perfil': {
+      id: '/abogado/perfil'
+      path: '/abogado/perfil'
+      fullPath: '/abogado/perfil'
+      preLoaderRoute: typeof AbogadoPerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abogado/calendario': {
+      id: '/abogado/calendario'
+      path: '/abogado/calendario'
+      fullPath: '/abogado/calendario'
+      preLoaderRoute: typeof AbogadoCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abogado/ayuda-ia': {
+      id: '/abogado/ayuda-ia'
+      path: '/abogado/ayuda-ia'
+      fullPath: '/abogado/ayuda-ia'
+      preLoaderRoute: typeof AbogadoAyudaIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AbogadoAyudaIaRoute: AbogadoAyudaIaRoute,
+  AbogadoCalendarioRoute: AbogadoCalendarioRoute,
+  AbogadoPerfilRoute: AbogadoPerfilRoute,
   AdminConfiguracionRoute: AdminConfiguracionRoute,
   AdminDespachosRoute: AdminDespachosRoute,
   AdminFinanzasRoute: AdminFinanzasRoute,
@@ -265,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsuariosRoute: AdminUsuariosRoute,
   ClienteLoginRoute: ClienteLoginRoute,
   ClienteRegistroRoute: ClienteRegistroRoute,
+  AbogadoIndexRoute: AbogadoIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
   ClienteIndexRoute: ClienteIndexRoute,
 }

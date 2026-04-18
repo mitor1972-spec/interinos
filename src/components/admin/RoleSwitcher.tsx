@@ -16,6 +16,10 @@ export function RoleSwitcher() {
     setRole(next);
     if (next === "cliente") {
       navigate({ to: "/cliente" });
+    } else if (next === "abogado") {
+      navigate({ to: "/abogado" });
+    } else {
+      navigate({ to: "/admin" });
     }
   };
 

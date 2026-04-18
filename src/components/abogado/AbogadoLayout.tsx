@@ -1,12 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard,
-  Wallet,
-  Building2,
-  BarChart3,
-  Settings,
-  UserCog,
+  Briefcase,
+  CalendarDays,
+  Sparkles,
+  UserRound,
   LogOut,
   Scale,
   Menu,
@@ -14,23 +12,20 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { RoleSwitcher } from "@/components/admin/RoleSwitcher";
 
 interface NavItem {
   to: string;
   label: string;
-  icon: typeof LayoutDashboard;
+  icon: typeof Briefcase;
   exact?: boolean;
-  adminOnly?: boolean;
+  soon?: boolean;
 }
 
 const NAV: NavItem[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/finanzas", label: "Finanzas", icon: Wallet, adminOnly: true },
-  { to: "/admin/despachos", label: "Despachos", icon: Building2, adminOnly: true },
-  { to: "/admin/informes", label: "Informes", icon: BarChart3 },
-  { to: "/admin/usuarios", label: "Usuarios", icon: UserCog, adminOnly: true },
-  { to: "/admin/configuracion", label: "Configuración", icon: Settings, adminOnly: true },
+  { to: "/abogado", label: "Mis casos", icon: Briefcase, exact: true },
+  { to: "/abogado/calendario", label: "Calendario", icon: CalendarDays, soon: true },
+  { to: "/abogado/ayuda-ia", label: "Ayuda IA", icon: Sparkles },
+  { to: "/abogado/perfil", label: "Mi perfil", icon: UserRound },
 ];
 
 interface Props {
@@ -40,29 +35,20 @@ interface Props {
   children: ReactNode;
 }
 
-export function AdminLayout({ title, subtitle, actions, children }: Props) {
-  const { session, isAdmin, isLawyer, loading } = useAuth();
+export function AbogadoLayout({ title, subtitle, actions, children }: Props) {
+  const { session } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  // Lawyer puro intentando entrar a /admin/* → enviar a /abogado
-  useEffect(() => {
-    if (!loading && session && isLawyer && !isAdmin) {
-      navigate({ to: "/abogado" });
-    }
-  }, [loading, session, isLawyer, isAdmin, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/admin/login" });
   };
 
-  const items = NAV.filter((item) => !item.adminOnly || isAdmin);
-
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Mobile topbar */}
+      {/* Topbar móvil */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur lg:hidden">
         <button
           type="button"
@@ -72,28 +58,24 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
         >
           <Menu className="h-4 w-4" />
         </button>
-        <Link to="/admin" className="flex items-center gap-2">
+        <Link to="/abogado" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-navy text-accent">
             <Scale className="h-4 w-4" />
           </div>
           <span className="text-sm font-bold text-primary">Hispajuris</span>
         </Link>
-        {isAdmin ? <RoleSwitcher /> : <span className="w-9" />}
+        <span className="w-9" />
       </header>
 
       <div className="flex">
-        {/* Sidebar desktop */}
         <aside className="sticky top-0 hidden h-screen w-64 flex-none flex-col border-r border-border bg-background lg:flex">
           <SidebarContent
-            items={items}
             currentPath={location.pathname}
             email={session?.user.email ?? ""}
-            isAdmin={isAdmin}
             onLogout={handleLogout}
           />
         </aside>
 
-        {/* Sidebar móvil */}
         {mobileOpen && (
           <div
             className="fixed inset-0 z-40 bg-primary/40 backdrop-blur-sm lg:hidden"
@@ -114,10 +96,8 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
                 </button>
               </div>
               <SidebarContent
-                items={items}
                 currentPath={location.pathname}
                 email={session?.user.email ?? ""}
-                isAdmin={isAdmin}
                 onLogout={handleLogout}
                 onNavigate={() => setMobileOpen(false)}
               />
@@ -125,15 +105,12 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
           </div>
         )}
 
-        {/* Main */}
         <main className="min-w-0 flex-1">
           <div className="container mx-auto px-4 py-6 sm:py-8">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-primary sm:text-3xl">{title}</h1>
-                {subtitle && (
-                  <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-                )}
+                {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
               </div>
               {actions && <div className="flex items-center gap-2">{actions}</div>}
             </div>
@@ -146,26 +123,17 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
 }
 
 interface SidebarContentProps {
-  items: NavItem[];
   currentPath: string;
   email: string;
-  isAdmin: boolean;
   onLogout: () => void;
   onNavigate?: () => void;
 }
 
-function SidebarContent({
-  items,
-  currentPath,
-  email,
-  isAdmin,
-  onLogout,
-  onNavigate,
-}: SidebarContentProps) {
+function SidebarContent({ currentPath, email, onLogout, onNavigate }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
       <Link
-        to="/admin"
+        to="/abogado"
         onClick={onNavigate}
         className="flex items-center gap-2.5 border-b border-border px-5 py-5"
       >
@@ -175,22 +143,13 @@ function SidebarContent({
         <div className="leading-tight">
           <div className="text-sm font-bold text-primary">Hispajuris</div>
           <div className="text-[10px] font-medium uppercase tracking-wider text-accent">
-            Asesor.Legal
+            Panel abogado
           </div>
         </div>
       </Link>
 
-      {isAdmin && (
-        <div className="border-b border-border px-4 py-3">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Cambiar vista
-          </p>
-          <RoleSwitcher />
-        </div>
-      )}
-
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-        {items.map((item) => {
+        {NAV.map((item) => {
           const Icon = item.icon;
           const active = item.exact
             ? currentPath === item.to
@@ -200,14 +159,21 @@ function SidebarContent({
               key={item.to}
               to={item.to}
               onClick={onNavigate}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              className={`flex items-center justify-between gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
                 active
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <Icon className="h-4 w-4 flex-none" />
-              <span>{item.label}</span>
+              <span className="flex items-center gap-2.5">
+                <Icon className="h-4 w-4 flex-none" />
+                {item.label}
+              </span>
+              {item.soon && (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase text-muted-foreground">
+                  Próx.
+                </span>
+              )}
             </Link>
           );
         })}
