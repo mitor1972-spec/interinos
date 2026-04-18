@@ -727,11 +727,13 @@ function AdminPanel() {
 function MetricCard({
   label,
   value,
+  hint,
   icon: Icon,
   tone = "default",
 }: {
   label: string;
   value: number | string;
+  hint?: string;
   icon: React.ElementType;
   tone?: "default" | "destructive" | "warning" | "success" | "accent" | "primary";
 }) {
@@ -752,6 +754,36 @@ function MetricCard({
         <Icon className={`h-4 w-4 ${tones[tone]}`} />
       </div>
       <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
+      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
     </div>
+  );
+}
+
+function SortableTh({
+  label,
+  k,
+  sort,
+  onSort,
+}: {
+  label: string;
+  k: SortKey;
+  sort: SortState;
+  onSort: (k: SortKey) => void;
+}) {
+  const active = sort.key === k;
+  const Icon = !active ? ChevronsUpDown : sort.dir === "asc" ? ChevronUp : ChevronDown;
+  return (
+    <th className="px-4 py-3">
+      <button
+        type="button"
+        onClick={() => onSort(k)}
+        className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider transition hover:text-foreground ${
+          active ? "text-primary" : "text-muted-foreground"
+        }`}
+      >
+        {label}
+        <Icon className="h-3 w-3 opacity-70" />
+      </button>
+    </th>
   );
 }
