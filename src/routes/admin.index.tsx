@@ -194,16 +194,12 @@ function AdminPanel() {
     return sorted;
   }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago, sort]);
 
-  // Métricas (las 5 oficiales)
+  // Métricas mínimas necesarias en esta vista (badge "Sin revisar").
+  // Las KPIs financieras viven en DashboardOverview para evitar duplicaciones
+  // y discrepancias de fórmula (ver Problema 3 en historial).
   const metrics = useMemo(() => {
-    const total = leads.length;
     const pendientes = leads.filter((l) => l.estado === "Nuevo" && !l.revisado).length;
-    const urgentes = leads.filter((l) => l.semaforo === "rojo" || l.urgencia).length;
-    const cobradosNum = leads.filter((l) => l.pago_completado).length;
-    const cobradosEur = cobradosNum * PRECIO_FASE_I_EUR;
-    const clientes = leads.filter((l) => l.estado === "Cliente").length;
-    const conversion = total > 0 ? Math.round((clientes / total) * 100) : 0;
-    return { total, pendientes, urgentes, cobradosEur, cobradosNum, conversion };
+    return { pendientes };
   }, [leads]);
 
   // Helpers selección múltiple
