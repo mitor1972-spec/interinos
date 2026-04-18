@@ -11,7 +11,7 @@ export function Pricing() {
               <span className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground">
                 Fase I
               </span>
-              <span className="text-xs font-medium text-muted-foreground">Más contratada</span>
+              <span className="font-medium text-muted-foreground text-sm">Más contratada</span>
             </div>
             <h3 className="mt-4 text-xl font-bold text-primary">
               Estudio + Reclamación administrativa
@@ -51,7 +51,7 @@ export function Pricing() {
               <span className="inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider text-secondary-foreground">
                 Fase II
               </span>
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 font-semibold text-primary text-sm">
                 Solo si es necesario
               </span>
             </div>
