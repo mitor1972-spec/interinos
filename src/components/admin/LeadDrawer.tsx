@@ -17,6 +17,7 @@ import {
   Sparkles,
   History,
   Wand2,
+  PhoneCall,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +43,24 @@ interface Props {
   lead: Lead | null;
   onClose: () => void;
   onUpdated: (lead: Lead) => void;
+}
+
+/** Genera el motivo de urgencia legible a partir de los datos del caso. */
+function motivoUrgencia(lead: Lead): string {
+  const sit = (lead.situacion_actual || "").toLowerCase();
+  if (sit.includes("cesado") || sit.includes("cese")) {
+    return "Cese reciente o inminente — requiere actuación inmediata";
+  }
+  if (lead.urgencia || sit.includes("plazo") || sit.includes("recurso")) {
+    return "Plazo o recurso en marcha — tiempo crítico";
+  }
+  if (sit.includes("indefinido no fijo")) {
+    return "Reconocido como indefinido no fijo — quiere reclamar más";
+  }
+  if (sit.includes("estabilización") || sit.includes("estabilizacion")) {
+    return "Proceso de estabilización activo que afecta a la plaza";
+  }
+  return "Caso prioritario — revisar con el cliente";
 }
 
 export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
@@ -297,6 +316,24 @@ function DrawerContent({
           </div>
           <h2 className="mt-2 truncate text-xl font-bold text-primary">{lead.nombre}</h2>
           <p className="text-xs text-muted-foreground">{lead.tipo_relacion}</p>
+          {(lead.urgencia || lead.semaforo === "rojo") && (
+            <div className="mt-3 rounded-xl border-2 border-destructive/60 bg-destructive/10 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-3 py-1 text-xs font-bold uppercase tracking-wider text-destructive-foreground">
+                  🔴 Caso urgente
+                </span>
+                <a
+                  href={`tel:${lead.telefono}`}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-3 py-1.5 text-xs font-bold text-destructive-foreground hover:bg-destructive/90"
+                >
+                  <PhoneCall className="h-3.5 w-3.5" /> Llamar ahora →
+                </a>
+              </div>
+              <p className="mt-2 text-sm font-semibold text-destructive">
+                {motivoUrgencia(lead)}
+              </p>
+            </div>
+          )}
           <CompletitudBar lead={lead} documentosCount={documentosCount} />
         </div>
         <div className="flex items-center gap-1">

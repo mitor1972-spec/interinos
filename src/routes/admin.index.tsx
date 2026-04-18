@@ -8,13 +8,9 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
-  Scale,
   Bell,
   FileCheck2,
   CreditCard,
-  Users,
-  Euro,
-  TrendingUp,
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
@@ -26,12 +22,10 @@ import {
   ESTADOS,
   SEMAFOROS,
   PERFILES,
-  PRECIO_FASE_I_EUR,
   semaforoConfig,
   perfilConfig,
   estadoBadgeClass,
   formatDateShort,
-  formatEuros,
   exportLeadsToCSV,
   docsCompletos,
   type Lead,
@@ -194,16 +188,12 @@ function AdminPanel() {
     return sorted;
   }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago, sort]);
 
-  // Métricas (las 5 oficiales)
+  // Métricas mínimas necesarias en esta vista (badge "Sin revisar").
+  // Las KPIs financieras viven en DashboardOverview para evitar duplicaciones
+  // y discrepancias de fórmula (ver Problema 3 en historial).
   const metrics = useMemo(() => {
-    const total = leads.length;
     const pendientes = leads.filter((l) => l.estado === "Nuevo" && !l.revisado).length;
-    const urgentes = leads.filter((l) => l.semaforo === "rojo" || l.urgencia).length;
-    const cobradosNum = leads.filter((l) => l.pago_completado).length;
-    const cobradosEur = cobradosNum * PRECIO_FASE_I_EUR;
-    const clientes = leads.filter((l) => l.estado === "Cliente").length;
-    const conversion = total > 0 ? Math.round((clientes / total) * 100) : 0;
-    return { total, pendientes, urgentes, cobradosEur, cobradosNum, conversion };
+    return { pendientes };
   }, [leads]);
 
   // Helpers selección múltiple
@@ -675,41 +665,6 @@ function AdminPanel() {
         }}
       />
     </AdminLayout>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-  tone = "default",
-}: {
-  label: string;
-  value: number | string;
-  hint?: string;
-  icon: React.ElementType;
-  tone?: "default" | "destructive" | "warning" | "success" | "accent" | "primary";
-}) {
-  const tones: Record<string, string> = {
-    default: "text-muted-foreground",
-    destructive: "text-destructive",
-    warning: "text-warning",
-    success: "text-success",
-    accent: "text-accent",
-    primary: "text-primary",
-  };
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {label}
-        </span>
-        <Icon className={`h-4 w-4 ${tones[tone]}`} />
-      </div>
-      <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
-    </div>
   );
 }
 
