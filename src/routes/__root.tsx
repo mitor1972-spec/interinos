@@ -2,6 +2,8 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { Toaster } from "sonner";
 
 import { DevModeBar } from "@/components/DevModeBar";
+import { ImpersonationProvider } from "@/lib/impersonation";
+import { ImpersonationBanner } from "@/components/admin/RoleSwitcher";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -72,10 +74,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <>
+    <ImpersonationProvider>
+      <ImpersonationBanner />
       <Outlet />
       <Toaster position="top-center" richColors closeButton />
       <DevModeBar />
-    </>
+    </ImpersonationProvider>
   );
 }
