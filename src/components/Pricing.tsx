@@ -4,6 +4,15 @@ export function Pricing() {
   return (
     <section id="precios" className="relative mt-20 px-4 sm:mt-24 sm:px-6">
       <div className="container mx-auto">
+        <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+            Precios claros y sin sorpresas
+          </h2>
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
+            Te ofrecemos un precio especial para interinos, sin sorpresas, todo incluido.
+            Aprovecha ahora y benefíciate de esta resolución lo antes posible.
+          </p>
+        </div>
         <div className="grid gap-6 md:grid-cols-2">
           {/* FASE I */}
           <div className="relative rounded-2xl border border-border bg-card p-7 shadow-elegant ring-1 ring-accent/20 sm:p-8">
