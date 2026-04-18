@@ -569,7 +569,7 @@ function IAButton({
     <button
       type="button"
       disabled
-      className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-border bg-background px-3 py-2.5 text-left text-sm font-medium text-foreground opacity-90 hover:bg-muted disabled:cursor-not-allowed"
+      className="flex items-center justify-between gap-2 rounded-xl border border-primary/20 bg-background/80 px-3 py-2.5 text-left text-sm font-medium text-foreground hover:bg-background disabled:cursor-not-allowed"
     >
       <span className="inline-flex items-center gap-2">
         <Icon className="h-4 w-4 text-accent" />
