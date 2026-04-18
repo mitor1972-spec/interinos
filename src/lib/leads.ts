@@ -14,6 +14,17 @@ export const ESTADOS: EstadoCaso[] = [
   "Descartado",
 ];
 
+/** Precio Fase I cobrado por lead (IVA incluido), en euros. */
+export const PRECIO_FASE_I_EUR = 302.5;
+
+export function formatEuros(amount: number): string {
+  return new Intl.NumberFormat("es-ES", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export const SEMAFOROS: { value: Semaforo; label: string; emoji: string; className: string }[] = [
   { value: "rojo", label: "Urgente", emoji: "🔴", className: "bg-destructive/10 text-destructive border-destructive/30" },
   { value: "ambar", label: "Revisar", emoji: "🟡", className: "bg-warning/10 text-warning-foreground border-warning/40" },

@@ -6,15 +6,18 @@ import {
   Download,
   Inbox,
   AlertCircle,
-  Info,
-  CheckCircle2,
   Loader2,
   RefreshCw,
-  Filter,
   Scale,
   Bell,
   FileCheck2,
   CreditCard,
+  Users,
+  Euro,
+  TrendingUp,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,10 +26,12 @@ import {
   ESTADOS,
   SEMAFOROS,
   PERFILES,
+  PRECIO_FASE_I_EUR,
   semaforoConfig,
   perfilConfig,
   estadoBadgeClass,
   formatDateShort,
+  formatEuros,
   exportLeadsToCSV,
   docsCompletos,
   type Lead,
@@ -35,6 +40,23 @@ import {
   type Perfil,
 } from "@/lib/leads";
 import { LeadDrawer } from "@/components/admin/LeadDrawer";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
+import { RowMenu } from "@/components/admin/RowMenu";
+
+type SortKey =
+  | "created_at"
+  | "nombre"
+  | "provincia"
+  | "perfil"
+  | "anos_servicio"
+  | "puntuacion_viabilidad"
+  | "semaforo"
+  | "estado";
+
+interface SortState {
+  key: SortKey;
+  dir: "asc" | "desc";
+}
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -58,6 +80,9 @@ function AdminPanel() {
   const [filterPerfil, setFilterPerfil] = useState<Perfil | "todos">("todos");
   const [filterPago, setFilterPago] = useState<"todos" | "si" | "no">("todos");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [sort, setSort] = useState<SortState>({ key: "created_at", dir: "desc" });
 
   // Redirige si no hay sesión
   useEffect(() => {
@@ -107,7 +132,7 @@ function AdminPanel() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return leads.filter((l) => {
+    const list = leads.filter((l) => {
       if (filterSem !== "todos" && l.semaforo !== filterSem) return false;
       if (filterEstado !== "todos" && l.estado !== filterEstado) return false;
       if (filterPerfil !== "todos" && l.perfil !== filterPerfil) return false;
@@ -120,19 +145,182 @@ function AdminPanel() {
       }
       return true;
     });
-  }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago]);
 
-  // Métricas
+    // Orden
+    const semafOrder: Record<Semaforo, number> = { rojo: 0, ambar: 1, verde: 2 };
+    const estadoOrder: Record<EstadoCaso, number> = {
+      Nuevo: 0,
+      "En estudio": 1,
+      "Propuesta enviada": 2,
+      Cliente: 3,
+      Descartado: 4,
+    };
+    const dir = sort.dir === "asc" ? 1 : -1;
+    const sorted = [...list].sort((a, b) => {
+      const k = sort.key;
+      let av: number | string;
+      let bv: number | string;
+      if (k === "created_at") {
+        av = new Date(a.created_at).getTime();
+        bv = new Date(b.created_at).getTime();
+      } else if (k === "anos_servicio" || k === "puntuacion_viabilidad") {
+        av = a[k];
+        bv = b[k];
+      } else if (k === "semaforo") {
+        av = semafOrder[a.semaforo];
+        bv = semafOrder[b.semaforo];
+      } else if (k === "estado") {
+        av = estadoOrder[a.estado];
+        bv = estadoOrder[b.estado];
+      } else {
+        av = String(a[k] ?? "").toLowerCase();
+        bv = String(b[k] ?? "").toLowerCase();
+      }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+    return sorted;
+  }, [leads, search, filterSem, filterEstado, filterPerfil, filterPago, sort]);
+
+  // Métricas (las 5 oficiales)
   const metrics = useMemo(() => {
     const total = leads.length;
-    const noRevisados = leads.filter((l) => !l.revisado).length;
-    const rojos = leads.filter((l) => l.semaforo === "rojo").length;
-    const ambar = leads.filter((l) => l.semaforo === "ambar").length;
-    const verdes = leads.filter((l) => l.semaforo === "verde").length;
+    const pendientes = leads.filter((l) => l.estado === "Nuevo" && !l.revisado).length;
+    const urgentes = leads.filter((l) => l.semaforo === "rojo" || l.urgencia).length;
+    const cobradosNum = leads.filter((l) => l.pago_completado).length;
+    const cobradosEur = cobradosNum * PRECIO_FASE_I_EUR;
     const clientes = leads.filter((l) => l.estado === "Cliente").length;
     const conversion = total > 0 ? Math.round((clientes / total) * 100) : 0;
-    return { total, noRevisados, rojos, ambar, verdes, clientes, conversion };
+    return { total, pendientes, urgentes, cobradosEur, cobradosNum, conversion };
   }, [leads]);
+
+  // Helpers selección múltiple
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((l) => selectedIds.has(l.id));
+  const toggleSelectAll = () =>
+    setSelectedIds((prev) => {
+      if (allFilteredSelected) {
+        const next = new Set(prev);
+        filtered.forEach((l) => next.delete(l.id));
+        return next;
+      }
+      const next = new Set(prev);
+      filtered.forEach((l) => next.add(l.id));
+      return next;
+    });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: key === "created_at" || key === "puntuacion_viabilidad" ? "desc" : "asc" },
+    );
+
+  // Acción individual genérica (menú ⋮)
+  const updateOne = async (id: string, patch: Partial<Lead>, successMsg?: string) => {
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update(patch)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      toast.error("No se pudo actualizar");
+      return;
+    }
+    if (data) {
+      setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
+      if (successMsg) toast.success(successMsg);
+    }
+  };
+
+  const deleteOne = async (id: string) => {
+    if (!confirm("¿Eliminar este lead? Esta acción no se puede deshacer.")) return;
+    const { error } = await supabase.from("leads_interinos").delete().eq("id", id);
+    if (error) {
+      toast.error("No se pudo eliminar");
+      return;
+    }
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    toast.success("Lead eliminado");
+  };
+
+  // Acciones masivas
+  const bulkChangeEstado = async (estado: EstadoCaso) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update({ estado })
+      .in("id", ids)
+      .select();
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudo cambiar el estado");
+      return;
+    }
+    if (data) {
+      const map = new Map(data.map((l) => [l.id, l]));
+      setLeads((prev) => prev.map((l) => map.get(l.id) ?? l));
+      toast.success(`${data.length} actualizados a "${estado}"`);
+    }
+  };
+
+  const bulkMarkUrgente = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const { data, error } = await supabase
+      .from("leads_interinos")
+      .update({ urgencia: true, semaforo: "rojo" })
+      .in("id", ids)
+      .select();
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudo marcar como urgente");
+      return;
+    }
+    if (data) {
+      const map = new Map(data.map((l) => [l.id, l]));
+      setLeads((prev) => prev.map((l) => map.get(l.id) ?? l));
+      toast.success(`${data.length} marcados como urgentes`);
+    }
+  };
+
+  const bulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (
+      !confirm(
+        `¿Eliminar ${ids.length} lead${ids.length === 1 ? "" : "s"}? Esta acción no se puede deshacer.`,
+      )
+    )
+      return;
+    setBulkBusy(true);
+    const { error } = await supabase.from("leads_interinos").delete().in("id", ids);
+    setBulkBusy(false);
+    if (error) {
+      toast.error("No se pudieron eliminar");
+      return;
+    }
+    setLeads((prev) => prev.filter((l) => !selectedIds.has(l.id)));
+    setSelectedIds(new Set());
+    toast.success(`${ids.length} leads eliminados`);
+  };
 
   const selectedLead = leads.find((l) => l.id === selectedId) || null;
 
@@ -193,13 +381,13 @@ function AdminPanel() {
                 else toast.info("Sin leads nuevos por revisar.");
               }}
               className="relative inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-              aria-label={`${metrics.noRevisados} leads sin revisar`}
+              aria-label={`${metrics.pendientes} leads pendientes de revisar`}
             >
               <Bell className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sin revisar</span>
-              {metrics.noRevisados > 0 && (
+              {metrics.pendientes > 0 && (
                 <span className="ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
-                  {metrics.noRevisados}
+                  {metrics.pendientes}
                 </span>
               )}
             </button>
@@ -242,22 +430,32 @@ function AdminPanel() {
           </div>
         </div>
 
-        {/* Métricas */}
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <MetricCard label="Total leads" value={metrics.total} icon={Inbox} />
-          <MetricCard label="Sin revisar" value={metrics.noRevisados} icon={Bell} tone="destructive" />
+        {/* Métricas — las 5 oficiales */}
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <MetricCard label="Total leads" value={metrics.total} icon={Users} />
+          <MetricCard
+            label="Pendiente revisar"
+            value={metrics.pendientes}
+            icon={Bell}
+            tone="warning"
+          />
           <MetricCard
             label="Urgentes"
-            value={metrics.rojos}
+            value={metrics.urgentes}
             icon={AlertCircle}
             tone="destructive"
           />
-          <MetricCard label="Revisar" value={metrics.ambar} icon={Info} tone="warning" />
-          <MetricCard label="Posibles" value={metrics.verdes} icon={CheckCircle2} tone="success" />
+          <MetricCard
+            label="Cobrados"
+            value={formatEuros(metrics.cobradosEur)}
+            hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
+            icon={Euro}
+            tone="success"
+          />
           <MetricCard
             label="Conversión"
             value={`${metrics.conversion}%`}
-            icon={Filter}
+            icon={TrendingUp}
             tone="primary"
           />
         </div>
@@ -347,20 +545,36 @@ function AdminPanel() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3">Fecha</th>
-                    <th className="px-4 py-3">Nombre</th>
+                    <th className="w-10 px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={allFilteredSelected}
+                        onChange={toggleSelectAll}
+                        aria-label="Seleccionar todos los visibles"
+                        className="h-4 w-4 cursor-pointer rounded border-border accent-primary"
+                      />
+                    </th>
+                    <SortableTh label="Fecha" k="created_at" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Nombre" k="nombre" sort={sort} onSort={toggleSort} />
                     <th className="px-4 py-3">Contacto</th>
-                    <th className="px-4 py-3">Provincia</th>
-                    <th className="px-4 py-3">Perfil</th>
-                    <th className="px-4 py-3">Años</th>
-                    <th className="px-4 py-3">Semáforo</th>
-                    <th className="px-4 py-3">Estado</th>
+                    <SortableTh label="Provincia" k="provincia" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Perfil" k="perfil" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Años" k="anos_servicio" sort={sort} onSort={toggleSort} />
+                    <SortableTh
+                      label="Pts."
+                      k="puntuacion_viabilidad"
+                      sort={sort}
+                      onSort={toggleSort}
+                    />
+                    <SortableTh label="Semáforo" k="semaforo" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Estado" k="estado" sort={sort} onSort={toggleSort} />
                     <th className="px-4 py-3 text-center" title="Documentación completa">
                       Docs
                     </th>
                     <th className="px-4 py-3 text-center" title="Pago Fase I cobrado">
                       Pago
                     </th>
+                    <th className="w-12 px-2 py-3 text-center" aria-label="Acciones" />
                   </tr>
                 </thead>
                 <tbody>
@@ -368,14 +582,27 @@ function AdminPanel() {
                     const sem = semaforoConfig(l.semaforo);
                     const per = perfilConfig(l.perfil);
                     const docs = docsCompletos(l.documentos_disponibles);
+                    const isSelected = selectedIds.has(l.id);
                     return (
                       <tr
                         key={l.id}
                         onClick={() => openLead(l)}
                         className={`cursor-pointer border-b border-border last:border-0 transition hover:bg-accent-soft/30 ${
-                          !l.revisado ? "bg-primary/5" : ""
+                          isSelected ? "bg-accent/10" : !l.revisado ? "bg-primary/5" : ""
                         }`}
                       >
+                        <td
+                          className="px-3 py-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(l.id)}
+                            aria-label={`Seleccionar ${l.nombre}`}
+                            className="h-4 w-4 cursor-pointer rounded border-border accent-primary"
+                          />
+                        </td>
                         <td className="px-4 py-3 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {!l.revisado && (
@@ -407,6 +634,7 @@ function AdminPanel() {
                         <td className="px-4 py-3 font-semibold text-foreground">
                           {l.anos_servicio}
                         </td>
+                        <td className="px-4 py-3 text-foreground">{l.puntuacion_viabilidad}</td>
                         <td className="px-4 py-3">
                           <span
                             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${sem.className}`}
@@ -446,6 +674,26 @@ function AdminPanel() {
                             </span>
                           )}
                         </td>
+                        <td className="px-2 py-3 text-center">
+                          <RowMenu
+                            isUrgente={l.urgencia}
+                            onView={() => openLead(l)}
+                            onChangeEstado={(estado) =>
+                              updateOne(l.id, { estado }, `Estado: ${estado}`)
+                            }
+                            onToggleUrgente={() =>
+                              updateOne(
+                                l.id,
+                                {
+                                  urgencia: !l.urgencia,
+                                  semaforo: !l.urgencia ? "rojo" : l.semaforo,
+                                },
+                                !l.urgencia ? "Marcado como urgente" : "Urgencia retirada",
+                              )
+                            }
+                            onDelete={() => deleteOne(l.id)}
+                          />
+                        </td>
                       </tr>
                     );
                   })}
@@ -455,6 +703,15 @@ function AdminPanel() {
           )}
         </div>
       </main>
+
+      <BulkActionsBar
+        count={selectedIds.size}
+        busy={bulkBusy}
+        onClear={() => setSelectedIds(new Set())}
+        onChangeEstado={bulkChangeEstado}
+        onToggleUrgente={bulkMarkUrgente}
+        onDelete={bulkDelete}
+      />
 
       <LeadDrawer
         lead={selectedLead}
@@ -470,11 +727,13 @@ function AdminPanel() {
 function MetricCard({
   label,
   value,
+  hint,
   icon: Icon,
   tone = "default",
 }: {
   label: string;
   value: number | string;
+  hint?: string;
   icon: React.ElementType;
   tone?: "default" | "destructive" | "warning" | "success" | "accent" | "primary";
 }) {
@@ -495,6 +754,36 @@ function MetricCard({
         <Icon className={`h-4 w-4 ${tones[tone]}`} />
       </div>
       <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
+      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
     </div>
+  );
+}
+
+function SortableTh({
+  label,
+  k,
+  sort,
+  onSort,
+}: {
+  label: string;
+  k: SortKey;
+  sort: SortState;
+  onSort: (k: SortKey) => void;
+}) {
+  const active = sort.key === k;
+  const Icon = !active ? ChevronsUpDown : sort.dir === "asc" ? ChevronUp : ChevronDown;
+  return (
+    <th className="px-4 py-3">
+      <button
+        type="button"
+        onClick={() => onSort(k)}
+        className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider transition hover:text-foreground ${
+          active ? "text-primary" : "text-muted-foreground"
+        }`}
+      >
+        {label}
+        <Icon className="h-3 w-3 opacity-70" />
+      </button>
+    </th>
   );
 }
