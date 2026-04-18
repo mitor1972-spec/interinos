@@ -26,7 +26,7 @@ function LoginPage() {
     if (loading) return;
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signIn, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setLoading(false);
@@ -38,8 +38,22 @@ function LoginPage() {
       return;
     }
 
+    // Comprobar roles para decidir destino
+    const userId = signIn.user?.id;
+    let target: "/admin" | "/abogado" = "/admin";
+    if (userId) {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const list = (roles ?? []).map((r) => r.role);
+      if (!list.includes("admin") && list.includes("lawyer")) {
+        target = "/abogado";
+      }
+    }
+
     toast.success("Acceso correcto");
-    navigate({ to: "/admin" });
+    navigate({ to: target });
   };
 
   return (

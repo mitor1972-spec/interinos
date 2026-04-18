@@ -89,6 +89,13 @@ function AdminPanel() {
     }
   }, [authLoading, session, navigate]);
 
+  // Lawyer puro (sin admin) → vista de abogado
+  useEffect(() => {
+    if (!authLoading && session && isLawyer && !isAdmin) {
+      navigate({ to: "/abogado" });
+    }
+  }, [authLoading, session, isLawyer, isAdmin, navigate]);
+
   // Si admin se impersona como cliente, lo lleva a /cliente
   useEffect(() => {
     if (isAdmin && impersonatedRole === "cliente") {
