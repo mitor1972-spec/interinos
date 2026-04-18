@@ -294,7 +294,15 @@ export type Database = {
           updated_at?: string
           urgencia?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_interinos_asignado_a_fkey"
+            columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "usuarios_directorio"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       provincia_abogado: {
         Row: {
@@ -326,6 +334,13 @@ export type Database = {
             referencedRelation: "abogados"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "provincia_abogado_abogado_id_fkey"
+            columns: ["abogado_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios_directorio"
+            referencedColumns: ["abogado_id"]
+          },
         ]
       }
       user_roles: {
@@ -347,11 +362,37 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios_directorio"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      usuarios_directorio: {
+        Row: {
+          abogado_activo: boolean | null
+          abogado_id: string | null
+          despacho_id: string | null
+          email: string | null
+          nombre: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abogados_despacho_id_fkey"
+            columns: ["despacho_id"]
+            isOneToOne: false
+            referencedRelation: "despachos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
