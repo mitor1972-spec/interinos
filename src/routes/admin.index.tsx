@@ -384,7 +384,9 @@ function AdminPanel() {
               </div>
             </div>
           </Link>
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-2 text-sm">
+            <AdminNav />
+            {isAdmin && <RoleSwitcher />}
             <button
               type="button"
               onClick={() => {
@@ -403,7 +405,7 @@ function AdminPanel() {
                 </span>
               )}
             </button>
-            <span className="hidden text-muted-foreground sm:inline">{session.user.email}</span>
+            <span className="hidden text-muted-foreground lg:inline">{session.user.email}</span>
             <button
               onClick={handleLogout}
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
@@ -470,6 +472,11 @@ function AdminPanel() {
             icon={TrendingUp}
             tone="primary"
           />
+        </div>
+
+        {/* Dashboard overview con actividad y gráfico semanal */}
+        <div className="mt-6">
+          <DashboardOverview leads={leads} onOpenLead={openLead} />
         </div>
 
         {/* Filtros */}
