@@ -366,9 +366,13 @@ export type Database = {
         Returns: boolean
       }
       is_lawyer: { Args: { _user_id: string }; Returns: boolean }
+      is_lead_owner: {
+        Args: { _lead_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "lawyer" | "admin"
+      app_role: "lawyer" | "admin" | "client"
       documento_categoria:
         | "contrato"
         | "nomina"
@@ -514,7 +518,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["lawyer", "admin"],
+      app_role: ["lawyer", "admin", "client"],
       documento_categoria: [
         "contrato",
         "nomina",
