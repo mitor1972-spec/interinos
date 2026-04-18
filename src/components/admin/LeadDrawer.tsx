@@ -297,6 +297,7 @@ function DrawerContent({
           </div>
           <h2 className="mt-2 truncate text-xl font-bold text-primary">{lead.nombre}</h2>
           <p className="text-xs text-muted-foreground">{lead.tipo_relacion}</p>
+          <CompletitudBar lead={lead} documentosCount={documentosCount} />
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -406,27 +407,12 @@ function DrawerContent({
 
         {/* Pago */}
         <Section title="Pago Fase I">
-          <div
-            className={`flex items-center justify-between rounded-xl border p-3 text-sm ${
-              lead.pago_completado
-                ? "border-success/40 bg-success/5"
-                : "border-border bg-background"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <CreditCard
-                className={`h-4 w-4 ${
-                  lead.pago_completado ? "text-success" : "text-muted-foreground"
-                }`}
-              />
-              <span className="font-medium text-foreground">
-                {lead.pago_completado ? "Cobrado (302,50 € IVA incl.)" : "Pendiente de pago"}
-              </span>
-            </div>
-            {lead.stripe_payment_id && (
-              <span className="text-xs text-muted-foreground">{lead.stripe_payment_id}</span>
-            )}
-          </div>
+          <PagoManualForm lead={lead} onSaved={onLeadUpdated} />
+        </Section>
+
+        {/* Documentos subidos por el abogado */}
+        <Section title="Documentos del caso (abogado)">
+          <LeadDocumentos leadId={lead.id} onChange={onDocumentosChange} />
         </Section>
 
         {/* Documentación */}
