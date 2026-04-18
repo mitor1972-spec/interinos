@@ -51,6 +51,7 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [editing, setEditing] = useState(false);
   const [historialKey, setHistorialKey] = useState(0);
+  const [documentosCount, setDocumentosCount] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialMount = useRef(true);
   const lastNotasSaved = useRef<string>("");
@@ -201,11 +202,17 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
                 saving={saving}
                 savedAt={savedAt}
                 historialKey={historialKey}
+                documentosCount={documentosCount}
                 onClose={onClose}
                 onChangeNotas={setNotas}
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
+                onDocumentosChange={setDocumentosCount}
+                onLeadUpdated={(updated) => {
+                  onUpdated(updated);
+                  setHistorialKey((k) => k + 1);
+                }}
               />
             </motion.aside>
           </>
