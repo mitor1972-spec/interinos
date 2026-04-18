@@ -13,7 +13,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Award,
-  CreditCard,
   Pencil,
   Sparkles,
   History,
