@@ -17,6 +17,7 @@ import {
   Sparkles,
   History,
   Wand2,
+  PhoneCall,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
