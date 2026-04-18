@@ -34,6 +34,9 @@ import {
 import { registrarCambios } from "@/lib/historial";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
+import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
+import { PagoManualForm } from "@/components/admin/PagoManualForm";
+import { CompletitudBar } from "@/components/admin/CompletitudBar";
 
 interface Props {
   lead: Lead | null;
