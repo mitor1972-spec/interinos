@@ -545,20 +545,36 @@ function AdminPanel() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3">Fecha</th>
-                    <th className="px-4 py-3">Nombre</th>
+                    <th className="w-10 px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={allFilteredSelected}
+                        onChange={toggleSelectAll}
+                        aria-label="Seleccionar todos los visibles"
+                        className="h-4 w-4 cursor-pointer rounded border-border accent-primary"
+                      />
+                    </th>
+                    <SortableTh label="Fecha" k="created_at" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Nombre" k="nombre" sort={sort} onSort={toggleSort} />
                     <th className="px-4 py-3">Contacto</th>
-                    <th className="px-4 py-3">Provincia</th>
-                    <th className="px-4 py-3">Perfil</th>
-                    <th className="px-4 py-3">Años</th>
-                    <th className="px-4 py-3">Semáforo</th>
-                    <th className="px-4 py-3">Estado</th>
+                    <SortableTh label="Provincia" k="provincia" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Perfil" k="perfil" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Años" k="anos_servicio" sort={sort} onSort={toggleSort} />
+                    <SortableTh
+                      label="Pts."
+                      k="puntuacion_viabilidad"
+                      sort={sort}
+                      onSort={toggleSort}
+                    />
+                    <SortableTh label="Semáforo" k="semaforo" sort={sort} onSort={toggleSort} />
+                    <SortableTh label="Estado" k="estado" sort={sort} onSort={toggleSort} />
                     <th className="px-4 py-3 text-center" title="Documentación completa">
                       Docs
                     </th>
                     <th className="px-4 py-3 text-center" title="Pago Fase I cobrado">
                       Pago
                     </th>
+                    <th className="w-12 px-2 py-3 text-center" aria-label="Acciones" />
                   </tr>
                 </thead>
                 <tbody>
@@ -566,14 +582,27 @@ function AdminPanel() {
                     const sem = semaforoConfig(l.semaforo);
                     const per = perfilConfig(l.perfil);
                     const docs = docsCompletos(l.documentos_disponibles);
+                    const isSelected = selectedIds.has(l.id);
                     return (
                       <tr
                         key={l.id}
                         onClick={() => openLead(l)}
                         className={`cursor-pointer border-b border-border last:border-0 transition hover:bg-accent-soft/30 ${
-                          !l.revisado ? "bg-primary/5" : ""
+                          isSelected ? "bg-accent/10" : !l.revisado ? "bg-primary/5" : ""
                         }`}
                       >
+                        <td
+                          className="px-3 py-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(l.id)}
+                            aria-label={`Seleccionar ${l.nombre}`}
+                            className="h-4 w-4 cursor-pointer rounded border-border accent-primary"
+                          />
+                        </td>
                         <td className="px-4 py-3 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {!l.revisado && (
@@ -605,6 +634,7 @@ function AdminPanel() {
                         <td className="px-4 py-3 font-semibold text-foreground">
                           {l.anos_servicio}
                         </td>
+                        <td className="px-4 py-3 text-foreground">{l.puntuacion_viabilidad}</td>
                         <td className="px-4 py-3">
                           <span
                             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${sem.className}`}
@@ -644,6 +674,26 @@ function AdminPanel() {
                             </span>
                           )}
                         </td>
+                        <td className="px-2 py-3 text-center">
+                          <RowMenu
+                            isUrgente={l.urgencia}
+                            onView={() => openLead(l)}
+                            onChangeEstado={(estado) =>
+                              updateOne(l.id, { estado }, `Estado: ${estado}`)
+                            }
+                            onToggleUrgente={() =>
+                              updateOne(
+                                l.id,
+                                {
+                                  urgencia: !l.urgencia,
+                                  semaforo: !l.urgencia ? "rojo" : l.semaforo,
+                                },
+                                !l.urgencia ? "Marcado como urgente" : "Urgencia retirada",
+                              )
+                            }
+                            onDelete={() => deleteOne(l.id)}
+                          />
+                        </td>
                       </tr>
                     );
                   })}
@@ -653,6 +703,15 @@ function AdminPanel() {
           )}
         </div>
       </main>
+
+      <BulkActionsBar
+        count={selectedIds.size}
+        busy={bulkBusy}
+        onClear={() => setSelectedIds(new Set())}
+        onChangeEstado={bulkChangeEstado}
+        onToggleUrgente={bulkMarkUrgente}
+        onDelete={bulkDelete}
+      />
 
       <LeadDrawer
         lead={selectedLead}
