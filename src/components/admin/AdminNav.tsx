@@ -1,8 +1,9 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Building2, BarChart3, Wallet } from "lucide-react";
 
 const ITEMS = [
   { to: "/admin", label: "Leads", icon: LayoutDashboard, exact: true },
+  { to: "/admin/finanzas", label: "Finanzas", icon: Wallet, exact: false },
   { to: "/admin/despachos", label: "Despachos", icon: Building2, exact: false },
   { to: "/admin/informes", label: "Informes", icon: BarChart3, exact: false },
 ] as const;
