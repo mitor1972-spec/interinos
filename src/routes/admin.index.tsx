@@ -672,41 +672,6 @@ function AdminPanel() {
   );
 }
 
-function MetricCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-  tone = "default",
-}: {
-  label: string;
-  value: number | string;
-  hint?: string;
-  icon: React.ElementType;
-  tone?: "default" | "destructive" | "warning" | "success" | "accent" | "primary";
-}) {
-  const tones: Record<string, string> = {
-    default: "text-muted-foreground",
-    destructive: "text-destructive",
-    warning: "text-warning",
-    success: "text-success",
-    accent: "text-accent",
-    primary: "text-primary",
-  };
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {label}
-        </span>
-        <Icon className={`h-4 w-4 ${tones[tone]}`} />
-      </div>
-      <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
-    </div>
-  );
-}
-
 function SortableTh({
   label,
   k,
