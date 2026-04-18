@@ -41,17 +41,18 @@ interface Props {
 }
 
 export function AdminLayout({ title, subtitle, actions, children }: Props) {
-  const { session, isAdmin, isLawyer, loading } = useAuth();
+  const { session, isAdmin, isLawyer, isPerito, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Lawyer puro intentando entrar a /admin/* → enviar a /abogado
+  // Roles puros (no admin) → enviar a su panel
   useEffect(() => {
-    if (!loading && session && isLawyer && !isAdmin) {
-      navigate({ to: "/abogado" });
+    if (!loading && session && !isAdmin) {
+      if (isLawyer) navigate({ to: "/abogado" });
+      else if (isPerito) navigate({ to: "/perito" });
     }
-  }, [loading, session, isLawyer, isAdmin, navigate]);
+  }, [loading, session, isLawyer, isPerito, isAdmin, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
