@@ -474,6 +474,11 @@ function AdminPanel() {
           />
         </div>
 
+        {/* Dashboard overview con actividad y gráfico semanal */}
+        <div className="mt-6">
+          <DashboardOverview leads={leads} onOpenLead={openLead} />
+        </div>
+
         {/* Filtros */}
         <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
