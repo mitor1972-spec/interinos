@@ -370,6 +370,17 @@ export type Database = {
         Args: { _lead_id: string; _user_id: string }
         Returns: boolean
       }
+      obtener_directorio_usuarios: {
+        Args: never
+        Returns: {
+          abogado_activo: boolean
+          abogado_id: string
+          despacho_id: string
+          email: string
+          nombre: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "lawyer" | "admin" | "client"
