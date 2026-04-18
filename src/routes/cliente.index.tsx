@@ -11,6 +11,7 @@ import {
   Building2,
   CreditCard,
   ExternalLink,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +56,7 @@ function ClienteHome() {
   const [docs, setDocs] = useState<LeadDocumento[]>([]);
   const [uploadingCat, setUploadingCat] = useState<DocCategoria | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [hasStaffRole, setHasStaffRole] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -64,7 +66,18 @@ function ClienteHome() {
         navigate({ to: "/cliente/login" });
         return;
       }
+      const uid = sess.session.user.id;
       setUserEmail(sess.session.user.email ?? null);
+
+      // Comprobar si es admin/abogado para mostrarle atajo al panel
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid);
+      const roleList = Array.isArray(roles) ? roles.map((r) => r.role) : [];
+      if (active) {
+        setHasStaffRole(roleList.includes("admin") || roleList.includes("lawyer"));
+      }
 
       const { data: leadData, error: leadErr } = await supabase
         .from("leads_interinos")
@@ -76,7 +89,6 @@ function ClienteHome() {
 
       if (!active) return;
       if (leadErr || !leadData) {
-        toast.error("No encontramos tu caso. Contacta con el equipo.");
         setLoading(false);
         return;
       }
@@ -125,22 +137,48 @@ function ClienteHome() {
           <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
           <h1 className="mt-3 text-2xl font-bold text-primary">No encontramos tu caso</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Verificamos el email <strong>{userEmail}</strong> pero no aparece en
-            nuestro sistema. Contacta con el equipo en{" "}
-            <a
-              href="mailto:info@asesor.legal"
-              className="text-accent underline-offset-2 hover:underline"
-            >
-              info@asesor.legal
-            </a>
-            .
+            {hasStaffRole ? (
+              <>
+                La sesión activa (<strong>{userEmail}</strong>) es de un usuario
+                interno. Esta sección es solo para clientes. Accede al panel
+                de administración desde el botón de abajo.
+              </>
+            ) : (
+              <>
+                Verificamos el email <strong>{userEmail}</strong> pero no aparece
+                en nuestro sistema. Contacta con el equipo en{" "}
+                <a
+                  href="mailto:info@asesor.legal"
+                  className="text-accent underline-offset-2 hover:underline"
+                >
+                  info@asesor.legal
+                </a>
+                .
+              </>
+            )}
           </p>
-          <button
-            onClick={handleLogout}
-            className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
-          >
-            <LogOut className="h-4 w-4" /> Cerrar sesión
-          </button>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {hasStaffRole && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                <Shield className="h-4 w-4" /> Ir al panel admin
+              </Link>
+            )}
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              Volver al inicio
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              <LogOut className="h-4 w-4" /> Cerrar sesión
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -173,6 +211,14 @@ function ClienteHome() {
             </div>
           </Link>
           <div className="flex items-center gap-3 text-sm">
+            {hasStaffRole && (
+              <Link
+                to="/admin"
+                className="hidden items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 sm:inline-flex"
+              >
+                <Shield className="h-3.5 w-3.5" /> Panel admin
+              </Link>
+            )}
             <span className="hidden text-muted-foreground sm:inline">{userEmail}</span>
             <button
               onClick={handleLogout}
