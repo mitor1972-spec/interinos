@@ -6,6 +6,7 @@ interface AuthState {
   session: Session | null;
   isLawyer: boolean;
   isAdmin: boolean;
+  isPerito: boolean;
   loading: boolean;
 }
 
@@ -13,6 +14,7 @@ export function useAuth(): AuthState {
   const [session, setSession] = useState<Session | null>(null);
   const [isLawyer, setIsLawyer] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isPerito, setIsPerito] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,6 +25,7 @@ export function useAuth(): AuthState {
         if (active) {
           setIsLawyer(false);
           setIsAdmin(false);
+          setIsPerito(false);
         }
         return;
       }
@@ -37,12 +40,14 @@ export function useAuth(): AuthState {
       if (error) {
         setIsLawyer(false);
         setIsAdmin(false);
+        setIsPerito(false);
         return;
       }
 
       const roles = Array.isArray(data) ? data.map((r) => r.role) : [];
       setIsAdmin(roles.includes("admin"));
       setIsLawyer(roles.includes("lawyer") || roles.includes("admin"));
+      setIsPerito(roles.includes("perito") || roles.includes("admin"));
     };
 
     const resolveSession = async (newSession: Session | null) => {
@@ -65,6 +70,7 @@ export function useAuth(): AuthState {
         setSession(null);
         setIsLawyer(false);
         setIsAdmin(false);
+        setIsPerito(false);
         setLoading(false);
       });
 
@@ -74,5 +80,5 @@ export function useAuth(): AuthState {
     };
   }, []);
 
-  return { session, isLawyer, isAdmin, loading };
+  return { session, isLawyer, isAdmin, isPerito, loading };
 }

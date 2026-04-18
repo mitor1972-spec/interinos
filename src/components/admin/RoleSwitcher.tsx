@@ -1,10 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Shield, Briefcase, User } from "lucide-react";
+import { Shield, Briefcase, User, Calculator } from "lucide-react";
 import { useImpersonation, type ImpersonatedRole } from "@/lib/impersonation";
 
 const OPTIONS: { value: ImpersonatedRole; label: string; icon: typeof Shield }[] = [
   { value: "admin", label: "Admin", icon: Shield },
   { value: "abogado", label: "Abogado", icon: Briefcase },
+  { value: "perito", label: "Perito", icon: Calculator },
   { value: "cliente", label: "Cliente", icon: User },
 ];
 
@@ -18,6 +19,8 @@ export function RoleSwitcher() {
       navigate({ to: "/cliente" });
     } else if (next === "abogado") {
       navigate({ to: "/abogado" });
+    } else if (next === "perito") {
+      navigate({ to: "/perito" });
     } else {
       navigate({ to: "/admin" });
     }

@@ -10,9 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PeritoIndexRouteImport } from './routes/perito.index'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AbogadoIndexRouteImport } from './routes/abogado.index'
+import { Route as PeritoPerfilRouteImport } from './routes/perito.perfil'
+import { Route as PeritoCalendarioRouteImport } from './routes/perito.calendario'
+import { Route as PeritoAyudaIaRouteImport } from './routes/perito.ayuda-ia'
 import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
@@ -30,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PeritoIndexRoute = PeritoIndexRouteImport.update({
+  id: '/perito/',
+  path: '/perito/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClienteIndexRoute = ClienteIndexRouteImport.update({
   id: '/cliente/',
   path: '/cliente/',
@@ -43,6 +52,21 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AbogadoIndexRoute = AbogadoIndexRouteImport.update({
   id: '/abogado/',
   path: '/abogado/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeritoPerfilRoute = PeritoPerfilRouteImport.update({
+  id: '/perito/perfil',
+  path: '/perito/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeritoCalendarioRoute = PeritoCalendarioRouteImport.update({
+  id: '/perito/calendario',
+  path: '/perito/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeritoAyudaIaRoute = PeritoAyudaIaRouteImport.update({
+  id: '/perito/ayuda-ia',
+  path: '/perito/ayuda-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClienteRegistroRoute = ClienteRegistroRouteImport.update({
@@ -114,9 +138,13 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
+  '/perito/calendario': typeof PeritoCalendarioRoute
+  '/perito/perfil': typeof PeritoPerfilRoute
   '/abogado/': typeof AbogadoIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
+  '/perito/': typeof PeritoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -131,9 +159,13 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
+  '/perito/calendario': typeof PeritoCalendarioRoute
+  '/perito/perfil': typeof PeritoPerfilRoute
   '/abogado': typeof AbogadoIndexRoute
   '/admin': typeof AdminIndexRoute
   '/cliente': typeof ClienteIndexRoute
+  '/perito': typeof PeritoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,9 +181,13 @@ export interface FileRoutesById {
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
+  '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
+  '/perito/calendario': typeof PeritoCalendarioRoute
+  '/perito/perfil': typeof PeritoPerfilRoute
   '/abogado/': typeof AbogadoIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
+  '/perito/': typeof PeritoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,9 +204,13 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/perito/ayuda-ia'
+    | '/perito/calendario'
+    | '/perito/perfil'
     | '/abogado/'
     | '/admin/'
     | '/cliente/'
+    | '/perito/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,9 +225,13 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/perito/ayuda-ia'
+    | '/perito/calendario'
+    | '/perito/perfil'
     | '/abogado'
     | '/admin'
     | '/cliente'
+    | '/perito'
   id:
     | '__root__'
     | '/'
@@ -202,9 +246,13 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/cliente/login'
     | '/cliente/registro'
+    | '/perito/ayuda-ia'
+    | '/perito/calendario'
+    | '/perito/perfil'
     | '/abogado/'
     | '/admin/'
     | '/cliente/'
+    | '/perito/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,9 +268,13 @@ export interface RootRouteChildren {
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
   ClienteRegistroRoute: typeof ClienteRegistroRoute
+  PeritoAyudaIaRoute: typeof PeritoAyudaIaRoute
+  PeritoCalendarioRoute: typeof PeritoCalendarioRoute
+  PeritoPerfilRoute: typeof PeritoPerfilRoute
   AbogadoIndexRoute: typeof AbogadoIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ClienteIndexRoute: typeof ClienteIndexRoute
+  PeritoIndexRoute: typeof PeritoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perito/': {
+      id: '/perito/'
+      path: '/perito'
+      fullPath: '/perito/'
+      preLoaderRoute: typeof PeritoIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cliente/': {
@@ -253,6 +312,27 @@ declare module '@tanstack/react-router' {
       path: '/abogado'
       fullPath: '/abogado/'
       preLoaderRoute: typeof AbogadoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perito/perfil': {
+      id: '/perito/perfil'
+      path: '/perito/perfil'
+      fullPath: '/perito/perfil'
+      preLoaderRoute: typeof PeritoPerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perito/calendario': {
+      id: '/perito/calendario'
+      path: '/perito/calendario'
+      fullPath: '/perito/calendario'
+      preLoaderRoute: typeof PeritoCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perito/ayuda-ia': {
+      id: '/perito/ayuda-ia'
+      path: '/perito/ayuda-ia'
+      fullPath: '/perito/ayuda-ia'
+      preLoaderRoute: typeof PeritoAyudaIaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cliente/registro': {
@@ -348,10 +428,23 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsuariosRoute: AdminUsuariosRoute,
   ClienteLoginRoute: ClienteLoginRoute,
   ClienteRegistroRoute: ClienteRegistroRoute,
+  PeritoAyudaIaRoute: PeritoAyudaIaRoute,
+  PeritoCalendarioRoute: PeritoCalendarioRoute,
+  PeritoPerfilRoute: PeritoPerfilRoute,
   AbogadoIndexRoute: AbogadoIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
   ClienteIndexRoute: ClienteIndexRoute,
+  PeritoIndexRoute: PeritoIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
