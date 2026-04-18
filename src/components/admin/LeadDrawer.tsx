@@ -680,3 +680,11 @@ function Item({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function ValoracionBlock({ leadId }: { leadId: string }) {
+  const { isAdmin, isPerito } = useAuth();
+  // Admin y perito pueden editar (RLS controla que el perito solo edite las suyas).
+  // Abogado solo lee.
+  const canEdit = isAdmin || isPerito;
+  return <LeadValoracion leadId={leadId} canEdit={canEdit} />;
+}
