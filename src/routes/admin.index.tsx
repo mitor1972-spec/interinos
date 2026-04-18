@@ -42,6 +42,10 @@ import {
 import { LeadDrawer } from "@/components/admin/LeadDrawer";
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { RoleSwitcher } from "@/components/admin/RoleSwitcher";
+import { DashboardOverview } from "@/components/admin/DashboardOverview";
+import { useImpersonation } from "@/lib/impersonation";
 
 type SortKey =
   | "created_at"
@@ -69,8 +73,9 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminPanel() {
-  const { session, isLawyer, loading: authLoading } = useAuth();
+  const { session, isLawyer, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { role: impersonatedRole } = useImpersonation();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +95,13 @@ function AdminPanel() {
       navigate({ to: "/admin/login" });
     }
   }, [authLoading, session, navigate]);
+
+  // Si admin se impersona como cliente, lo lleva a /cliente
+  useEffect(() => {
+    if (isAdmin && impersonatedRole === "cliente") {
+      navigate({ to: "/cliente" });
+    }
+  }, [isAdmin, impersonatedRole, navigate]);
 
   const fetchLeads = async () => {
     setLoading(true);
