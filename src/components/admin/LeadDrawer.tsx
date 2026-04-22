@@ -19,9 +19,11 @@ import {
   Wand2,
   PhoneCall,
   Trash2,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { EnviarEmailModal } from "@/components/admin/EnviarEmailModal";
 import {
   ESTADOS,
   semaforoConfig,
@@ -68,11 +70,13 @@ function motivoUrgencia(lead: Lead): string {
 }
 
 export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
+  const { isAdmin } = useAuth();
   const [notas, setNotas] = useState("");
   const [estado, setEstado] = useState<EstadoCaso>("Nuevo");
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [editing, setEditing] = useState(false);
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
   const [historialKey, setHistorialKey] = useState(0);
   const [documentosCount, setDocumentosCount] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -267,12 +271,14 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
                 savedAt={savedAt}
                 historialKey={historialKey}
                 documentosCount={documentosCount}
+                isAdmin={isAdmin}
                 onClose={onClose}
                 onChangeNotas={setNotas}
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
                 onDelete={deleteLead}
+                onSendEmail={() => setEnviandoEmail(true)}
                 onDocumentosChange={setDocumentosCount}
                 onLeadUpdated={(updated) => {
                   onUpdated(updated);
@@ -294,6 +300,14 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
           }}
         />
       )}
+
+      {open && lead && enviandoEmail && (
+        <EnviarEmailModal
+          lead={lead}
+          onClose={() => setEnviandoEmail(false)}
+          onSent={() => setHistorialKey((k) => k + 1)}
+        />
+      )}
     </>
   );
 }
@@ -306,12 +320,14 @@ function DrawerContent({
   savedAt,
   historialKey,
   documentosCount,
+  isAdmin,
   onClose,
   onChangeNotas,
   onChangeEstado,
   onToggleUrgente,
   onEdit,
   onDelete,
+  onSendEmail,
   onDocumentosChange,
   onLeadUpdated,
 }: {
@@ -322,12 +338,14 @@ function DrawerContent({
   savedAt: Date | null;
   historialKey: number;
   documentosCount: number;
+  isAdmin: boolean;
   onClose: () => void;
   onChangeNotas: (v: string) => void;
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSendEmail: () => void;
   onDocumentosChange: (n: number) => void;
   onLeadUpdated: (lead: Lead) => void;
 }) {
@@ -384,7 +402,17 @@ function DrawerContent({
           )}
           <CompletitudBar lead={lead} documentosCount={documentosCount} />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
+          {isAdmin && (
+            <button
+              onClick={onSendEmail}
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent-foreground hover:bg-accent/20"
+              aria-label="Enviar al abogado"
+              title="Enviar email al abogado asignado"
+            >
+              <Send className="h-3.5 w-3.5" /> Enviar al abogado
+            </button>
+          )}
           <button
             onClick={onEdit}
             className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
