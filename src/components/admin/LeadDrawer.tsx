@@ -371,6 +371,14 @@ function DrawerContent({
             <Pencil className="h-3.5 w-3.5" /> Editar caso
           </button>
           <button
+            onClick={onDelete}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/15"
+            aria-label="Eliminar caso"
+            title="Eliminar caso definitivamente"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Eliminar
+          </button>
+          <button
             onClick={onClose}
             className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label="Cerrar"
