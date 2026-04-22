@@ -33,7 +33,6 @@ import {
   type EstadoCaso,
   type Perfil,
 } from "@/lib/leads";
-import { LeadDrawer } from "@/components/admin/LeadDrawer";
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { AdminLayout } from "@/components/admin/AdminLayout";
