@@ -436,11 +436,16 @@ function AdminPanel() {
       subtitle="Solicitudes de diagnóstico recibidas desde la web pública."
       actions={headerActions}
     >
-      {/* Dashboard overview con KPIs, actividad y gráfico semanal */}
-      <DashboardOverview leads={leads} onOpenLead={openLead} />
+      {/* Dashboard overview con KPIs (clickables), actividad y gráfico semanal */}
+      <DashboardOverview leads={leads} onOpenLead={openLead} onApplyFilter={applyFilterPreset} />
 
-      {/* Filtros */}
-      <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
+      {/* Sección "Todos los casos" — anclada para enlace del menú */}
+      <div ref={casosRef} id="casos" className="mt-6 scroll-mt-24">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-primary">Todos los casos</h2>
+          <span className="text-xs text-muted-foreground">{filtered.length} de {leads.length}</span>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
