@@ -33,7 +33,6 @@ import {
   type EstadoCaso,
   type Perfil,
 } from "@/lib/leads";
-import { LeadDrawer } from "@/components/admin/LeadDrawer";
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -77,7 +76,7 @@ function AdminPanel() {
   const [filterEstado, setFilterEstado] = useState<EstadoCaso | "todos">("todos");
   const [filterPerfil, setFilterPerfil] = useState<Perfil | "todos">("todos");
   const [filterPago, setFilterPago] = useState<"todos" | "si" | "no">("todos");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: "created_at", dir: "desc" });
@@ -153,20 +152,15 @@ function AdminPanel() {
     navigate({ to: "/admin/login" });
   };
 
-  // Marca el lead como revisado al abrirlo (si no lo estaba)
+  // Navega a la ficha completa del caso y marca como revisado
   const openLead = async (lead: Lead) => {
-    setSelectedId(lead.id);
     if (!lead.revisado) {
-      const { data, error } = await supabase
+      void supabase
         .from("leads_interinos")
         .update({ revisado: true, revisado_at: new Date().toISOString() })
-        .eq("id", lead.id)
-        .select()
-        .single();
-      if (!error && data) {
-        setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
-      }
+        .eq("id", lead.id);
     }
+    navigate({ to: "/admin/casos/$id", params: { id: lead.id } });
   };
 
   const filtered = useMemo(() => {
@@ -356,8 +350,6 @@ function AdminPanel() {
     setSelectedIds(new Set());
     toast.success(`${ids.length} leads eliminados`);
   };
-
-  const selectedLead = leads.find((l) => l.id === selectedId) || null;
 
   if (authLoading) {
     return (
@@ -709,21 +701,6 @@ function AdminPanel() {
         onDelete={bulkDelete}
       />
 
-      <LeadDrawer
-        lead={selectedLead}
-        onClose={() => setSelectedId(null)}
-        onUpdated={(updated) => {
-          setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
-        }}
-        onDeleted={(id) => {
-          setLeads((prev) => prev.filter((l) => l.id !== id));
-          setSelectedIds((prev) => {
-            const next = new Set(prev);
-            next.delete(id);
-            return next;
-          });
-        }}
-      />
     </AdminLayout>
   );
 }
