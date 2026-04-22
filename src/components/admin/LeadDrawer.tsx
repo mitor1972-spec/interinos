@@ -271,12 +271,14 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
                 savedAt={savedAt}
                 historialKey={historialKey}
                 documentosCount={documentosCount}
+                isAdmin={isAdmin}
                 onClose={onClose}
                 onChangeNotas={setNotas}
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
                 onDelete={deleteLead}
+                onSendEmail={() => setEnviandoEmail(true)}
                 onDocumentosChange={setDocumentosCount}
                 onLeadUpdated={(updated) => {
                   onUpdated(updated);
@@ -296,6 +298,14 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
             onUpdated(updated);
             setHistorialKey((k) => k + 1);
           }}
+        />
+      )}
+
+      {open && lead && enviandoEmail && (
+        <EnviarEmailModal
+          lead={lead}
+          onClose={() => setEnviandoEmail(false)}
+          onSent={() => setHistorialKey((k) => k + 1)}
         />
       )}
     </>
