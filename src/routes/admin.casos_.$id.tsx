@@ -56,7 +56,7 @@ import { patchLead } from "@/lib/leadsGestion";
 import { InlineSelect, InlineText, InlineToggle } from "@/components/admin/InlineField";
 import { listarAbogados, type AbogadoConDespacho } from "@/lib/abogados";
 
-export const Route = createFileRoute("/admin/casos/$id")({
+export const Route = createFileRoute("/admin/casos_/$id")({
   head: () => ({
     meta: [
       { title: "Ficha del caso · Hispajuris · Asesor.Legal" },
