@@ -51,7 +51,7 @@ function tiempoRelativo(iso: string): string {
   return `hace ${d} d`;
 }
 
-export function DashboardOverview({ leads, onOpenLead }: Props) {
+export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
   const metrics = useMemo(() => {
     const total = leads.length;
     const pendientes = leads.filter((l) => l.estado === "Nuevo" && !l.revisado).length;
@@ -85,23 +85,42 @@ export function DashboardOverview({ leads, onOpenLead }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Fila 1 — KPIs principales */}
+      {/* Fila 1 — KPIs principales (clickables → filtran tabla) */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <KPI label="Total leads" value={metrics.total} icon={Users} />
-        <KPI label="Pendiente revisar" value={metrics.pendientes} icon={Bell} tone="warning" />
-        <KPI label="Urgentes" value={metrics.urgentes} icon={AlertCircle} tone="destructive" />
+        <KPI
+          label="Total leads"
+          value={metrics.total}
+          icon={Users}
+          onClick={() => onApplyFilter?.("todos")}
+        />
+        <KPI
+          label="Pendiente revisar"
+          value={metrics.pendientes}
+          icon={Bell}
+          tone="warning"
+          onClick={() => onApplyFilter?.("pendientes")}
+        />
+        <KPI
+          label="Urgentes"
+          value={metrics.urgentes}
+          icon={AlertCircle}
+          tone="destructive"
+          onClick={() => onApplyFilter?.("urgentes")}
+        />
         <KPI
           label="Cobrado"
           value={formatEuros(metrics.cobradosEur)}
           hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
           icon={Euro}
           tone="success"
+          onClick={() => onApplyFilter?.("cobrados")}
         />
         <KPI
           label="Conversión"
           value={`${metrics.conversion}%`}
           icon={TrendingUp}
           tone="primary"
+          onClick={() => onApplyFilter?.("clientes")}
         />
       </div>
 
@@ -280,9 +299,10 @@ interface KPIProps {
   hint?: string;
   icon: typeof Users;
   tone?: "default" | "warning" | "destructive" | "success" | "primary";
+  onClick?: () => void;
 }
 
-function KPI({ label, value, hint, icon: Icon, tone = "default" }: KPIProps) {
+function KPI({ label, value, hint, icon: Icon, tone = "default", onClick }: KPIProps) {
   const toneClasses: Record<string, string> = {
     default: "bg-muted/40 text-foreground",
     warning: "bg-warning/15 text-warning-foreground",
@@ -290,8 +310,15 @@ function KPI({ label, value, hint, icon: Icon, tone = "default" }: KPIProps) {
     success: "bg-success/15 text-success",
     primary: "bg-primary/10 text-primary",
   };
+  const Wrapper: "button" | "div" = onClick ? "button" : "div";
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+    <Wrapper
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
+      className={`rounded-2xl border border-border bg-card p-4 text-left shadow-card transition ${
+        onClick ? "cursor-pointer hover:border-accent hover:shadow-md" : ""
+      }`}
+    >
       <div className="flex items-start justify-between">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
@@ -304,7 +331,7 @@ function KPI({ label, value, hint, icon: Icon, tone = "default" }: KPIProps) {
       </div>
       <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
       {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
-    </div>
+    </Wrapper>
   );
 }
 
