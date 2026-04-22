@@ -57,7 +57,6 @@ export const Route = createFileRoute("/admin/casos")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  codeSplitGroupings: [["loader", "component"]],
   component: AdminCasos,
 });
 
