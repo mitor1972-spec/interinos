@@ -25,6 +25,7 @@ import { Route as AdminInformesRouteImport } from './routes/admin.informes'
 import { Route as AdminFinanzasRouteImport } from './routes/admin.finanzas'
 import { Route as AdminDespachosRouteImport } from './routes/admin.despachos'
 import { Route as AdminConfiguracionRouteImport } from './routes/admin.configuracion'
+import { Route as AdminCasosRouteImport } from './routes/admin.casos'
 import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
 import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
@@ -109,6 +110,11 @@ const AdminConfiguracionRoute = AdminConfiguracionRouteImport.update({
   path: '/admin/configuracion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCasosRoute = AdminCasosRouteImport.update({
+  id: '/admin/casos',
+  path: '/admin/casos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbogadoPerfilRoute = AbogadoPerfilRouteImport.update({
   id: '/abogado/perfil',
   path: '/abogado/perfil',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
+  '/admin/casos': typeof AdminCasosRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
+  '/admin/casos': typeof AdminCasosRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
+  '/admin/casos': typeof AdminCasosRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
+    | '/admin/casos'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
+    | '/admin/casos'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
+    | '/admin/casos'
     | '/admin/configuracion'
     | '/admin/despachos'
     | '/admin/finanzas'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AbogadoAyudaIaRoute: typeof AbogadoAyudaIaRoute
   AbogadoCalendarioRoute: typeof AbogadoCalendarioRoute
   AbogadoPerfilRoute: typeof AbogadoPerfilRoute
+  AdminCasosRoute: typeof AdminCasosRoute
   AdminConfiguracionRoute: typeof AdminConfiguracionRoute
   AdminDespachosRoute: typeof AdminDespachosRoute
   AdminFinanzasRoute: typeof AdminFinanzasRoute
@@ -391,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfiguracionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/casos': {
+      id: '/admin/casos'
+      path: '/admin/casos'
+      fullPath: '/admin/casos'
+      preLoaderRoute: typeof AdminCasosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abogado/perfil': {
       id: '/abogado/perfil'
       path: '/abogado/perfil'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbogadoAyudaIaRoute: AbogadoAyudaIaRoute,
   AbogadoCalendarioRoute: AbogadoCalendarioRoute,
   AbogadoPerfilRoute: AbogadoPerfilRoute,
+  AdminCasosRoute: AdminCasosRoute,
   AdminConfiguracionRoute: AdminConfiguracionRoute,
   AdminDespachosRoute: AdminDespachosRoute,
   AdminFinanzasRoute: AdminFinanzasRoute,
