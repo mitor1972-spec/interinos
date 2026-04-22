@@ -351,8 +351,6 @@ function AdminPanel() {
     toast.success(`${ids.length} leads eliminados`);
   };
 
-  const selectedLead = leads.find((l) => l.id === selectedId) || null;
-
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
