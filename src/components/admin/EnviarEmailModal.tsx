@@ -8,6 +8,7 @@ import {
   construirBorradorEmailLead,
   enviarEmailLead,
 } from "@/lib/emailLead";
+import { listarDocumentos } from "@/lib/documentos";
 
 interface Props {
   lead: Lead;
@@ -41,9 +42,10 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
           .maybeSingle();
         if (data) ab = { nombre: data.nombre, email: data.email };
       }
+      const docs = await listarDocumentos(lead.id);
       if (cancelled) return;
       setAbogado(ab);
-      const draft = construirBorradorEmailLead(lead, ab);
+      const draft = construirBorradorEmailLead(lead, ab, docs);
       setTo(draft.to);
       setCc(draft.cc);
       setSubject(draft.subject);
