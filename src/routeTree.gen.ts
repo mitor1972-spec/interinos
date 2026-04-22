@@ -19,6 +19,7 @@ import { Route as PeritoCalendarioRouteImport } from './routes/perito.calendario
 import { Route as PeritoAyudaIaRouteImport } from './routes/perito.ayuda-ia'
 import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
+import { Route as ApiSendLeadEmailRouteImport } from './routes/api.send-lead-email'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInformesRouteImport } from './routes/admin.informes'
@@ -29,6 +30,7 @@ import { Route as AdminCasosRouteImport } from './routes/admin.casos'
 import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
 import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
+import { Route as AdminConfiguracionEmailRouteImport } from './routes/admin.configuracion.email'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -78,6 +80,11 @@ const ClienteRegistroRoute = ClienteRegistroRouteImport.update({
 const ClienteLoginRoute = ClienteLoginRouteImport.update({
   id: '/cliente/login',
   path: '/cliente/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSendLeadEmailRoute = ApiSendLeadEmailRouteImport.update({
+  id: '/api/send-lead-email',
+  path: '/api/send-lead-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
@@ -130,6 +137,11 @@ const AbogadoAyudaIaRoute = AbogadoAyudaIaRouteImport.update({
   path: '/abogado/ayuda-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConfiguracionEmailRoute = AdminConfiguracionEmailRouteImport.update({
+  id: '/email',
+  path: '/email',
+  getParentRoute: () => AdminConfiguracionRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -137,12 +149,13 @@ export interface FileRoutesByFullPath {
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/casos': typeof AdminCasosRoute
-  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/configuracion': typeof AdminConfiguracionRouteWithChildren
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
@@ -152,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/perito/': typeof PeritoIndexRoute
+  '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -159,12 +173,13 @@ export interface FileRoutesByTo {
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/casos': typeof AdminCasosRoute
-  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/configuracion': typeof AdminConfiguracionRouteWithChildren
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
@@ -174,6 +189,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/cliente': typeof ClienteIndexRoute
   '/perito': typeof PeritoIndexRoute
+  '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -182,12 +198,13 @@ export interface FileRoutesById {
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
   '/admin/casos': typeof AdminCasosRoute
-  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/configuracion': typeof AdminConfiguracionRouteWithChildren
   '/admin/despachos': typeof AdminDespachosRoute
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
   '/perito/ayuda-ia': typeof PeritoAyudaIaRoute
@@ -197,6 +214,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/perito/': typeof PeritoIndexRoute
+  '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -212,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
     | '/perito/ayuda-ia'
@@ -221,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/cliente/'
     | '/perito/'
+    | '/admin/configuracion/email'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -234,6 +254,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
     | '/perito/ayuda-ia'
@@ -243,6 +264,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cliente'
     | '/perito'
+    | '/admin/configuracion/email'
   id:
     | '__root__'
     | '/'
@@ -256,6 +278,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
     | '/perito/ayuda-ia'
@@ -265,6 +288,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/cliente/'
     | '/perito/'
+    | '/admin/configuracion/email'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -273,12 +297,13 @@ export interface RootRouteChildren {
   AbogadoCalendarioRoute: typeof AbogadoCalendarioRoute
   AbogadoPerfilRoute: typeof AbogadoPerfilRoute
   AdminCasosRoute: typeof AdminCasosRoute
-  AdminConfiguracionRoute: typeof AdminConfiguracionRoute
+  AdminConfiguracionRoute: typeof AdminConfiguracionRouteWithChildren
   AdminDespachosRoute: typeof AdminDespachosRoute
   AdminFinanzasRoute: typeof AdminFinanzasRoute
   AdminInformesRoute: typeof AdminInformesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  ApiSendLeadEmailRoute: typeof ApiSendLeadEmailRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
   ClienteRegistroRoute: typeof ClienteRegistroRoute
   PeritoAyudaIaRoute: typeof PeritoAyudaIaRoute
@@ -362,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClienteLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/send-lead-email': {
+      id: '/api/send-lead-email'
+      path: '/api/send-lead-email'
+      fullPath: '/api/send-lead-email'
+      preLoaderRoute: typeof ApiSendLeadEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/admin/usuarios'
@@ -432,8 +464,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbogadoAyudaIaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/configuracion/email': {
+      id: '/admin/configuracion/email'
+      path: '/email'
+      fullPath: '/admin/configuracion/email'
+      preLoaderRoute: typeof AdminConfiguracionEmailRouteImport
+      parentRoute: typeof AdminConfiguracionRoute
+    }
   }
 }
+
+interface AdminConfiguracionRouteChildren {
+  AdminConfiguracionEmailRoute: typeof AdminConfiguracionEmailRoute
+}
+
+const AdminConfiguracionRouteChildren: AdminConfiguracionRouteChildren = {
+  AdminConfiguracionEmailRoute: AdminConfiguracionEmailRoute,
+}
+
+const AdminConfiguracionRouteWithChildren =
+  AdminConfiguracionRoute._addFileChildren(AdminConfiguracionRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -441,12 +491,13 @@ const rootRouteChildren: RootRouteChildren = {
   AbogadoCalendarioRoute: AbogadoCalendarioRoute,
   AbogadoPerfilRoute: AbogadoPerfilRoute,
   AdminCasosRoute: AdminCasosRoute,
-  AdminConfiguracionRoute: AdminConfiguracionRoute,
+  AdminConfiguracionRoute: AdminConfiguracionRouteWithChildren,
   AdminDespachosRoute: AdminDespachosRoute,
   AdminFinanzasRoute: AdminFinanzasRoute,
   AdminInformesRoute: AdminInformesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  ApiSendLeadEmailRoute: ApiSendLeadEmailRoute,
   ClienteLoginRoute: ClienteLoginRoute,
   ClienteRegistroRoute: ClienteRegistroRoute,
   PeritoAyudaIaRoute: PeritoAyudaIaRoute,

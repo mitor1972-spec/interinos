@@ -19,9 +19,11 @@ import {
   Wand2,
   PhoneCall,
   Trash2,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { EnviarEmailModal } from "@/components/admin/EnviarEmailModal";
 import {
   ESTADOS,
   semaforoConfig,
@@ -68,11 +70,13 @@ function motivoUrgencia(lead: Lead): string {
 }
 
 export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
+  const { isAdmin } = useAuth();
   const [notas, setNotas] = useState("");
   const [estado, setEstado] = useState<EstadoCaso>("Nuevo");
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [editing, setEditing] = useState(false);
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
   const [historialKey, setHistorialKey] = useState(0);
   const [documentosCount, setDocumentosCount] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
