@@ -478,9 +478,9 @@ function AdminCasoDetalle() {
                 value={lead.resultado_contacto}
                 options={RESULTADOS_CONTACTO}
                 allowEmpty={false}
-                onSave={(v) =>
-                  v && updateField("resultado_contacto", v as Lead["resultado_contacto"])
-                }
+                onSave={async (v) => {
+                  if (v) await updateField("resultado_contacto", v as Lead["resultado_contacto"]);
+                }}
               />
               <InlineSelect
                 label="Siguiente acción"
@@ -548,12 +548,12 @@ function AdminCasoDetalle() {
 
           {/* Documentos */}
           <Section title="Documentos del caso" icon={FileText}>
-            <LeadDocumentos leadId={lead.id} onCountChange={setDocumentosCount} />
+            <LeadDocumentos leadId={lead.id} onChange={setDocumentosCount} />
           </Section>
 
           {/* Valoración del perito */}
           <Section title="Valoración económica" icon={Award}>
-            <LeadValoracion leadId={lead.id} />
+            <LeadValoracion leadId={lead.id} canEdit={isAdmin} />
           </Section>
 
           {/* Notas internas */}
@@ -570,7 +570,7 @@ function AdminCasoDetalle() {
 
           {/* Historial */}
           <Section title="Historial de cambios" icon={History}>
-            <LeadHistorial leadId={lead.id} refreshKey={historialKey} />
+            <LeadHistorial leadId={lead.id} reloadKey={historialKey} />
           </Section>
         </div>
 
