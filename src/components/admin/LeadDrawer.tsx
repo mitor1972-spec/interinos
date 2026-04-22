@@ -320,12 +320,14 @@ function DrawerContent({
   savedAt,
   historialKey,
   documentosCount,
+  isAdmin,
   onClose,
   onChangeNotas,
   onChangeEstado,
   onToggleUrgente,
   onEdit,
   onDelete,
+  onSendEmail,
   onDocumentosChange,
   onLeadUpdated,
 }: {
@@ -336,12 +338,14 @@ function DrawerContent({
   savedAt: Date | null;
   historialKey: number;
   documentosCount: number;
+  isAdmin: boolean;
   onClose: () => void;
   onChangeNotas: (v: string) => void;
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSendEmail: () => void;
   onDocumentosChange: (n: number) => void;
   onLeadUpdated: (lead: Lead) => void;
 }) {
@@ -398,7 +402,17 @@ function DrawerContent({
           )}
           <CompletitudBar lead={lead} documentosCount={documentosCount} />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
+          {isAdmin && (
+            <button
+              onClick={onSendEmail}
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent-foreground hover:bg-accent/20"
+              aria-label="Enviar al abogado"
+              title="Enviar email al abogado asignado"
+            >
+              <Send className="h-3.5 w-3.5" /> Enviar al abogado
+            </button>
+          )}
           <button
             onClick={onEdit}
             className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
