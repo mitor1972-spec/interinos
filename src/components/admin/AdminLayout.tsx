@@ -11,6 +11,7 @@ import {
   Scale,
   Menu,
   X,
+  Inbox,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +27,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/casos", label: "Casos", icon: Inbox },
   { to: "/admin/finanzas", label: "Finanzas", icon: Wallet, adminOnly: true },
   { to: "/admin/despachos", label: "Despachos", icon: Building2, adminOnly: true },
   { to: "/admin/informes", label: "Informes", icon: BarChart3 },

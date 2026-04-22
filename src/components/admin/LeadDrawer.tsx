@@ -18,6 +18,7 @@ import {
   History,
   Wand2,
   PhoneCall,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +46,7 @@ interface Props {
   lead: Lead | null;
   onClose: () => void;
   onUpdated: (lead: Lead) => void;
+  onDeleted?: (leadId: string) => void;
 }
 
 /** Genera el motivo de urgencia legible a partir de los datos del caso. */
@@ -65,7 +67,7 @@ function motivoUrgencia(lead: Lead): string {
   return "Caso prioritario — revisar con el cliente";
 }
 
-export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
+export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
   const [notas, setNotas] = useState("");
   const [estado, setEstado] = useState<EstadoCaso>("Nuevo");
   const [saving, setSaving] = useState(false);
@@ -195,6 +197,25 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
     }
   };
 
+  const deleteLead = async () => {
+    if (!lead) return;
+    const ok = confirm(
+      `¿Eliminar definitivamente el caso de "${lead.nombre}"?\n\nEsta acción no se puede deshacer y borrará también sus documentos, valoraciones e historial.`,
+    );
+    if (!ok) return;
+    const { error } = await supabase
+      .from("leads_interinos")
+      .delete()
+      .eq("id", lead.id);
+    if (error) {
+      toast.error("No se pudo eliminar el caso");
+      return;
+    }
+    toast.success("Caso eliminado");
+    onDeleted?.(lead.id);
+    onClose();
+  };
+
   const open = !!lead;
 
   return (
@@ -229,6 +250,7 @@ export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
+                onDelete={deleteLead}
                 onDocumentosChange={setDocumentosCount}
                 onLeadUpdated={(updated) => {
                   onUpdated(updated);
@@ -267,6 +289,7 @@ function DrawerContent({
   onChangeEstado,
   onToggleUrgente,
   onEdit,
+  onDelete,
   onDocumentosChange,
   onLeadUpdated,
 }: {
@@ -282,6 +305,7 @@ function DrawerContent({
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
+  onDelete: () => void;
   onDocumentosChange: (n: number) => void;
   onLeadUpdated: (lead: Lead) => void;
 }) {
@@ -345,6 +369,14 @@ function DrawerContent({
             aria-label="Editar caso"
           >
             <Pencil className="h-3.5 w-3.5" /> Editar caso
+          </button>
+          <button
+            onClick={onDelete}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/15"
+            aria-label="Eliminar caso"
+            title="Eliminar caso definitivamente"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Eliminar
           </button>
           <button
             onClick={onClose}

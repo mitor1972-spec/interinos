@@ -703,6 +703,14 @@ function AdminPanel() {
         onUpdated={(updated) => {
           setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
         }}
+        onDeleted={(id) => {
+          setLeads((prev) => prev.filter((l) => l.id !== id));
+          setSelectedIds((prev) => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        }}
       />
     </AdminLayout>
   );
