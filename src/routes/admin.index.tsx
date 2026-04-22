@@ -76,7 +76,7 @@ function AdminPanel() {
   const [filterEstado, setFilterEstado] = useState<EstadoCaso | "todos">("todos");
   const [filterPerfil, setFilterPerfil] = useState<Perfil | "todos">("todos");
   const [filterPago, setFilterPago] = useState<"todos" | "si" | "no">("todos");
-  const [, setSelectedId] = useState<string | null>(null);
+  
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: "created_at", dir: "desc" });
