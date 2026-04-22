@@ -31,7 +31,6 @@ import {
   type EstadoCaso,
   type Perfil,
 } from "@/lib/leads";
-import { LeadDrawer } from "@/components/admin/LeadDrawer";
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -73,7 +72,7 @@ function AdminCasos() {
   const [filterPerfil, setFilterPerfil] = useState<Perfil | "todos">("todos");
   const [filterPago, setFilterPago] = useState<"todos" | "si" | "no">("todos");
   const [filterRevisado, setFilterRevisado] = useState<"todos" | "si" | "no">("todos");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: "created_at", dir: "desc" });
@@ -103,16 +102,13 @@ function AdminCasos() {
   const openLead = async (lead: Lead) => {
     setSelectedId(lead.id);
     if (!lead.revisado) {
-      const { data, error } = await supabase
+      // marcado optimista; la página completa también lo intenta
+      void supabase
         .from("leads_interinos")
         .update({ revisado: true, revisado_at: new Date().toISOString() })
-        .eq("id", lead.id)
-        .select()
-        .single();
-      if (!error && data) {
-        setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
-      }
+        .eq("id", lead.id);
     }
+    navigate({ to: "/admin/casos/$id", params: { id: lead.id } });
   };
 
   const filtered = useMemo(() => {
@@ -293,7 +289,7 @@ function AdminCasos() {
     toast.success(`${ids.length} casos eliminados`);
   };
 
-  const selectedLead = leads.find((l) => l.id === selectedId) || null;
+  };
 
   if (authLoading) {
     return (
