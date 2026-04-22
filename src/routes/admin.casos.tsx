@@ -272,12 +272,9 @@ function AdminCasos() {
   const bulkDelete = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
-    if (
-      !confirm(
-        `¿Eliminar ${ids.length} caso${ids.length === 1 ? "" : "s"}? Esta acción no se puede deshacer.`,
-      )
-    )
-      return;
+    const plural = ids.length === 1 ? "" : "s";
+    const msg = `¿Eliminar ${ids.length} caso${plural}? Esta acción no se puede deshacer.`;
+    if (!confirm(msg)) return;
     setBulkBusy(true);
     const { error } = await supabase.from("leads_interinos").delete().in("id", ids);
     setBulkBusy(false);
