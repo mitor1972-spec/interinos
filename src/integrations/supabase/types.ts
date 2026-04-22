@@ -267,19 +267,27 @@ export type Database = {
       }
       leads_interinos: {
         Row: {
+          accion_pendiente: string | null
           administracion: string
           anos_servicio: number
+          apud_acta_recibido: boolean
+          area_sector: Database["public"]["Enums"]["area_sector"] | null
           asignado_a: string | null
+          cobro_realizado: boolean
           contratos_sucesivos: boolean
           created_at: string
           diagnostico_mensaje: string | null
           diagnostico_titulo: string | null
           documentos_disponibles: string[]
           email: string
+          encargo_firmado: boolean
           estado: Database["public"]["Enums"]["estado_caso"]
+          factura_emitida: boolean
+          fecha_solicitud_inicial: string | null
           id: string
           mensaje_libre: string | null
           metodo_pago: Database["public"]["Enums"]["metodo_pago"] | null
+          motivo_especifico: string | null
           nombre: string
           notas_abogado: string | null
           pago_completado: boolean
@@ -287,33 +295,51 @@ export type Database = {
           pago_importe: number | null
           pago_referencia: string | null
           perfil: Database["public"]["Enums"]["perfil_tipo"]
+          profesional_interviniente: string | null
           provincia: string
           puntuacion_viabilidad: number
+          resultado_contacto: Database["public"]["Enums"]["resultado_contacto"]
           resultado_viabilidad: Database["public"]["Enums"]["resultado_viabilidad"]
           revisado: boolean
           revisado_at: string | null
           semaforo: Database["public"]["Enums"]["semaforo_tipo"]
+          servicio_especifico: string | null
+          siguiente_accion:
+            | Database["public"]["Enums"]["siguiente_accion"]
+            | null
           situacion_actual: string
           stripe_payment_id: string | null
           telefono: string
+          tipo_reclamacion:
+            | Database["public"]["Enums"]["tipo_reclamacion"]
+            | null
           tipo_relacion: string
           updated_at: string
           urgencia: boolean
+          urgencia_percibida: number | null
         }
         Insert: {
+          accion_pendiente?: string | null
           administracion: string
           anos_servicio: number
+          apud_acta_recibido?: boolean
+          area_sector?: Database["public"]["Enums"]["area_sector"] | null
           asignado_a?: string | null
+          cobro_realizado?: boolean
           contratos_sucesivos?: boolean
           created_at?: string
           diagnostico_mensaje?: string | null
           diagnostico_titulo?: string | null
           documentos_disponibles?: string[]
           email: string
+          encargo_firmado?: boolean
           estado?: Database["public"]["Enums"]["estado_caso"]
+          factura_emitida?: boolean
+          fecha_solicitud_inicial?: string | null
           id?: string
           mensaje_libre?: string | null
           metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
+          motivo_especifico?: string | null
           nombre: string
           notas_abogado?: string | null
           pago_completado?: boolean
@@ -321,33 +347,51 @@ export type Database = {
           pago_importe?: number | null
           pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
+          profesional_interviniente?: string | null
           provincia: string
           puntuacion_viabilidad?: number
+          resultado_contacto?: Database["public"]["Enums"]["resultado_contacto"]
           resultado_viabilidad?: Database["public"]["Enums"]["resultado_viabilidad"]
           revisado?: boolean
           revisado_at?: string | null
           semaforo: Database["public"]["Enums"]["semaforo_tipo"]
+          servicio_especifico?: string | null
+          siguiente_accion?:
+            | Database["public"]["Enums"]["siguiente_accion"]
+            | null
           situacion_actual: string
           stripe_payment_id?: string | null
           telefono: string
+          tipo_reclamacion?:
+            | Database["public"]["Enums"]["tipo_reclamacion"]
+            | null
           tipo_relacion: string
           updated_at?: string
           urgencia?: boolean
+          urgencia_percibida?: number | null
         }
         Update: {
+          accion_pendiente?: string | null
           administracion?: string
           anos_servicio?: number
+          apud_acta_recibido?: boolean
+          area_sector?: Database["public"]["Enums"]["area_sector"] | null
           asignado_a?: string | null
+          cobro_realizado?: boolean
           contratos_sucesivos?: boolean
           created_at?: string
           diagnostico_mensaje?: string | null
           diagnostico_titulo?: string | null
           documentos_disponibles?: string[]
           email?: string
+          encargo_firmado?: boolean
           estado?: Database["public"]["Enums"]["estado_caso"]
+          factura_emitida?: boolean
+          fecha_solicitud_inicial?: string | null
           id?: string
           mensaje_libre?: string | null
           metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
+          motivo_especifico?: string | null
           nombre?: string
           notas_abogado?: string | null
           pago_completado?: boolean
@@ -355,20 +399,38 @@ export type Database = {
           pago_importe?: number | null
           pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
+          profesional_interviniente?: string | null
           provincia?: string
           puntuacion_viabilidad?: number
+          resultado_contacto?: Database["public"]["Enums"]["resultado_contacto"]
           resultado_viabilidad?: Database["public"]["Enums"]["resultado_viabilidad"]
           revisado?: boolean
           revisado_at?: string | null
           semaforo?: Database["public"]["Enums"]["semaforo_tipo"]
+          servicio_especifico?: string | null
+          siguiente_accion?:
+            | Database["public"]["Enums"]["siguiente_accion"]
+            | null
           situacion_actual?: string
           stripe_payment_id?: string | null
           telefono?: string
+          tipo_reclamacion?:
+            | Database["public"]["Enums"]["tipo_reclamacion"]
+            | null
           tipo_relacion?: string
           updated_at?: string
           urgencia?: boolean
+          urgencia_percibida?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_interinos_profesional_interviniente_fkey"
+            columns: ["profesional_interviniente"]
+            isOneToOne: false
+            referencedRelation: "abogados"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provincia_abogado: {
         Row: {
@@ -459,6 +521,15 @@ export type Database = {
     }
     Enums: {
       app_role: "lawyer" | "admin" | "client" | "perito"
+      area_sector:
+        | "sanidad_publica"
+        | "educacion_publica"
+        | "universidad_publica"
+        | "age"
+        | "ccaa"
+        | "ayuntamiento"
+        | "organismo_publico"
+        | "otro"
       documento_categoria:
         | "contrato"
         | "nomina"
@@ -476,8 +547,35 @@ export type Database = {
       estado_valoracion: "borrador" | "enviada" | "aceptada" | "rechazada"
       metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
+      resultado_contacto:
+        | "pendiente"
+        | "contactado_interesado"
+        | "contactado_no_interesado"
+        | "no_contesta"
+        | "cita_programada"
+        | "en_negociacion"
+        | "cerrado_positivo"
+        | "cerrado_negativo"
       resultado_viabilidad: "inviable" | "revision" | "viable" | "urgente"
       semaforo_tipo: "rojo" | "ambar" | "verde"
+      siguiente_accion:
+        | "llamarle"
+        | "enviar_propuesta"
+        | "esperar_documentacion"
+        | "enviar_al_abogado"
+        | "derivar_perito"
+        | "presentar_reclamacion_administrativa"
+        | "preparar_demanda"
+        | "archivar"
+      tipo_reclamacion:
+        | "abuso_temporalidad_funcionario"
+        | "abuso_temporalidad_estatutario"
+        | "abuso_temporalidad_laboral"
+        | "indefinido_no_fijo"
+        | "cese_despido_improcedente"
+        | "estabilizacion_sin_plaza"
+        | "responsabilidad_patrimonial"
+        | "otro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -606,6 +704,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["lawyer", "admin", "client", "perito"],
+      area_sector: [
+        "sanidad_publica",
+        "educacion_publica",
+        "universidad_publica",
+        "age",
+        "ccaa",
+        "ayuntamiento",
+        "organismo_publico",
+        "otro",
+      ],
       documento_categoria: [
         "contrato",
         "nomina",
@@ -625,8 +733,38 @@ export const Constants = {
       estado_valoracion: ["borrador", "enviada", "aceptada", "rechazada"],
       metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
+      resultado_contacto: [
+        "pendiente",
+        "contactado_interesado",
+        "contactado_no_interesado",
+        "no_contesta",
+        "cita_programada",
+        "en_negociacion",
+        "cerrado_positivo",
+        "cerrado_negativo",
+      ],
       resultado_viabilidad: ["inviable", "revision", "viable", "urgente"],
       semaforo_tipo: ["rojo", "ambar", "verde"],
+      siguiente_accion: [
+        "llamarle",
+        "enviar_propuesta",
+        "esperar_documentacion",
+        "enviar_al_abogado",
+        "derivar_perito",
+        "presentar_reclamacion_administrativa",
+        "preparar_demanda",
+        "archivar",
+      ],
+      tipo_reclamacion: [
+        "abuso_temporalidad_funcionario",
+        "abuso_temporalidad_estatutario",
+        "abuso_temporalidad_laboral",
+        "indefinido_no_fijo",
+        "cese_despido_improcedente",
+        "estabilizacion_sin_plaza",
+        "responsabilidad_patrimonial",
+        "otro",
+      ],
     },
   },
 } as const
