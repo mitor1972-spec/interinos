@@ -37,6 +37,7 @@ import {
 interface Props {
   leads: Lead[];
   onOpenLead: (l: Lead) => void;
+  onApplyFilter?: (preset: "todos" | "pendientes" | "urgentes" | "cobrados" | "clientes") => void;
 }
 
 function tiempoRelativo(iso: string): string {
