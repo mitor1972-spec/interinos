@@ -289,6 +289,7 @@ function DrawerContent({
   onChangeEstado,
   onToggleUrgente,
   onEdit,
+  onDelete,
   onDocumentosChange,
   onLeadUpdated,
 }: {
@@ -304,6 +305,7 @@ function DrawerContent({
   onChangeEstado: (v: EstadoCaso) => void;
   onToggleUrgente: () => void;
   onEdit: () => void;
+  onDelete: () => void;
   onDocumentosChange: (n: number) => void;
   onLeadUpdated: (lead: Lead) => void;
 }) {
