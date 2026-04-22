@@ -18,6 +18,7 @@ import {
   History,
   Wand2,
   PhoneCall,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +46,7 @@ interface Props {
   lead: Lead | null;
   onClose: () => void;
   onUpdated: (lead: Lead) => void;
+  onDeleted?: (leadId: string) => void;
 }
 
 /** Genera el motivo de urgencia legible a partir de los datos del caso. */
