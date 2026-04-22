@@ -197,6 +197,25 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
     }
   };
 
+  const deleteLead = async () => {
+    if (!lead) return;
+    const ok = confirm(
+      `¿Eliminar definitivamente el caso de "${lead.nombre}"?\n\nEsta acción no se puede deshacer y borrará también sus documentos, valoraciones e historial.`,
+    );
+    if (!ok) return;
+    const { error } = await supabase
+      .from("leads_interinos")
+      .delete()
+      .eq("id", lead.id);
+    if (error) {
+      toast.error("No se pudo eliminar el caso");
+      return;
+    }
+    toast.success("Caso eliminado");
+    onDeleted?.(lead.id);
+    onClose();
+  };
+
   const open = !!lead;
 
   return (
