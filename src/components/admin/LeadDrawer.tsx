@@ -163,18 +163,25 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
   const toggleUrgente = async () => {
     if (!lead) return;
     const nuevo = !lead.urgencia;
+    // Recalcular semáforo y resultado de forma coherente
+    const nuevoSemaforo = nuevo
+      ? "rojo"
+      : lead.semaforo === "rojo"
+        ? "ambar"
+        : lead.semaforo;
+    const nuevoResultado = nuevo
+      ? lead.resultado_viabilidad === "inviable"
+        ? "inviable"
+        : "urgente"
+      : lead.resultado_viabilidad === "urgente"
+        ? "viable"
+        : lead.resultado_viabilidad;
     const { data, error } = await supabase
       .from("leads_interinos")
       .update({
         urgencia: nuevo,
-        resultado_viabilidad: nuevo
-          ? lead.resultado_viabilidad === "inviable"
-            ? "inviable"
-            : "urgente"
-          : lead.resultado_viabilidad === "urgente"
-            ? "viable"
-            : lead.resultado_viabilidad,
-        semaforo: nuevo ? "rojo" : lead.semaforo,
+        resultado_viabilidad: nuevoResultado,
+        semaforo: nuevoSemaforo,
       })
       .eq("id", lead.id)
       .select()
@@ -186,13 +193,28 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
     if (data) {
       toast.success(nuevo ? "Marcado como urgente" : "Urgencia retirada");
       onUpdated(data);
-      await registrarCambios(lead.id, [
+      const cambios: Parameters<typeof registrarCambios>[1] = [
         {
           campo: "urgencia",
           valor_anterior: lead.urgencia ? "Sí" : "No",
           valor_nuevo: nuevo ? "Sí" : "No",
         },
-      ]);
+      ];
+      if (nuevoSemaforo !== lead.semaforo) {
+        cambios.push({
+          campo: "semaforo",
+          valor_anterior: lead.semaforo,
+          valor_nuevo: nuevoSemaforo,
+        });
+      }
+      if (nuevoResultado !== lead.resultado_viabilidad) {
+        cambios.push({
+          campo: "resultado_viabilidad",
+          valor_anterior: lead.resultado_viabilidad,
+          valor_nuevo: nuevoResultado,
+        });
+      }
+      await registrarCambios(lead.id, cambios);
       setHistorialKey((k) => k + 1);
     }
   };
