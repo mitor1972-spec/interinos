@@ -67,7 +67,7 @@ function motivoUrgencia(lead: Lead): string {
   return "Caso prioritario — revisar con el cliente";
 }
 
-export function LeadDrawer({ lead, onClose, onUpdated }: Props) {
+export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
   const [notas, setNotas] = useState("");
   const [estado, setEstado] = useState<EstadoCaso>("Nuevo");
   const [saving, setSaving] = useState(false);
