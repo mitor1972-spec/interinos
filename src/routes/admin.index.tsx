@@ -152,20 +152,15 @@ function AdminPanel() {
     navigate({ to: "/admin/login" });
   };
 
-  // Marca el lead como revisado al abrirlo (si no lo estaba)
+  // Navega a la ficha completa del caso y marca como revisado
   const openLead = async (lead: Lead) => {
-    setSelectedId(lead.id);
     if (!lead.revisado) {
-      const { data, error } = await supabase
+      void supabase
         .from("leads_interinos")
         .update({ revisado: true, revisado_at: new Date().toISOString() })
-        .eq("id", lead.id)
-        .select()
-        .single();
-      if (!error && data) {
-        setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
-      }
+        .eq("id", lead.id);
     }
+    navigate({ to: "/admin/casos/$id", params: { id: lead.id } });
   };
 
   const filtered = useMemo(() => {
