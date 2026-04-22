@@ -686,6 +686,7 @@ function AdminPanel() {
             </div>
           )}
         </div>
+      </div>
 
       <BulkActionsBar
         count={selectedIds.size}
