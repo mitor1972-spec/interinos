@@ -25,8 +25,9 @@ const SECTIONS = [
   {
     icon: Mail,
     title: "Notificaciones por email",
-    description: "Plantillas y disparadores para nuevos leads, pagos e informes.",
-    available: false,
+    description: "Configurar el envío de emails al abogado y a clientes (Resend).",
+    to: "/admin/configuracion/email",
+    available: true,
   },
   {
     icon: Shield,
