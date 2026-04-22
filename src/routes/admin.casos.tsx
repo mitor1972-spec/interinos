@@ -575,16 +575,28 @@ function AdminCasos() {
                           onChangeEstado={(estado) =>
                             updateOne(l.id, { estado }, `Estado: ${estado}`)
                           }
-                          onToggleUrgente={() =>
-                            updateOne(
+                          onToggleUrgente={() => {
+                            const nuevo = !l.urgencia;
+                            return updateOne(
                               l.id,
                               {
-                                urgencia: !l.urgencia,
-                                semaforo: !l.urgencia ? "rojo" : l.semaforo,
+                                urgencia: nuevo,
+                                semaforo: nuevo
+                                  ? "rojo"
+                                  : l.semaforo === "rojo"
+                                    ? "ambar"
+                                    : l.semaforo,
+                                resultado_viabilidad: nuevo
+                                  ? l.resultado_viabilidad === "inviable"
+                                    ? "inviable"
+                                    : "urgente"
+                                  : l.resultado_viabilidad === "urgente"
+                                    ? "viable"
+                                    : l.resultado_viabilidad,
                               },
-                              !l.urgencia ? "Marcado como urgente" : "Urgencia retirada",
-                            )
-                          }
+                              nuevo ? "Marcado como urgente" : "Urgencia retirada",
+                            );
+                          }}
                           onDelete={() => deleteOne(l.id)}
                         />
                       </td>

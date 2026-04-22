@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   ChevronRight,
@@ -19,6 +19,7 @@ interface Props {
 /**
  * Menú de 3 puntos con acciones rápidas por fila de la tabla.
  * Stop-propagation para que el click en el menú no abra el drawer del lead.
+ * Se abre hacia arriba automáticamente si no hay espacio debajo.
  */
 export function RowMenu({
   onView,
@@ -29,7 +30,11 @@ export function RowMenu({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [estadoOpen, setEstadoOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
+  const [estadoUp, setEstadoUp] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -43,9 +48,28 @@ export function RowMenu({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
 
+  // Decidir dirección de apertura según espacio disponible
+  useLayoutEffect(() => {
+    if (!open || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const menuHeight = 220; // altura aproximada del menú principal
+    setOpenUp(spaceBelow < menuHeight && rect.top > menuHeight);
+  }, [open]);
+
+  // Decidir dirección del submenú "Cambiar estado"
+  useLayoutEffect(() => {
+    if (!estadoOpen || !menuRef.current) return;
+    const rect = menuRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.top;
+    const submenuHeight = 200;
+    setEstadoUp(spaceBelow < submenuHeight && rect.bottom > submenuHeight);
+  }, [estadoOpen]);
+
   return (
     <div ref={ref} className="relative inline-block" onClick={(e) => e.stopPropagation()}>
       <button
+        ref={buttonRef}
         type="button"
         aria-label="Acciones"
         onClick={(e) => {
@@ -59,7 +83,12 @@ export function RowMenu({
       </button>
 
       {open && (
-        <ul className="absolute right-0 z-30 mt-1 w-52 overflow-visible rounded-xl border border-border bg-background py-1 text-sm shadow-elegant">
+        <ul
+          ref={menuRef}
+          className={`absolute right-0 z-30 w-52 overflow-visible rounded-xl border border-border bg-background py-1 text-sm shadow-elegant ${
+            openUp ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
           <li>
             <button
               type="button"
@@ -91,7 +120,11 @@ export function RowMenu({
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {estadoOpen && (
-              <ul className="absolute left-full top-0 z-40 -ml-1 w-44 overflow-hidden rounded-xl border border-border bg-background py-1 shadow-elegant">
+              <ul
+                className={`absolute left-full z-40 -ml-1 w-44 overflow-hidden rounded-xl border border-border bg-background py-1 shadow-elegant ${
+                  estadoUp ? "bottom-0" : "top-0"
+                }`}
+              >
                 {ESTADOS.map((e) => (
                   <li key={e}>
                     <button
