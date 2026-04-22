@@ -250,6 +250,7 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
                 onChangeEstado={updateEstado}
                 onToggleUrgente={toggleUrgente}
                 onEdit={() => setEditing(true)}
+                onDelete={deleteLead}
                 onDocumentosChange={setDocumentosCount}
                 onLeadUpdated={(updated) => {
                   onUpdated(updated);
