@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import {
   LogOut,
@@ -81,6 +81,33 @@ function AdminPanel() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: "created_at", dir: "desc" });
+  const casosRef = useRef<HTMLDivElement | null>(null);
+
+  // Aplica un preset de filtros desde una KPI o el menú "Todos los casos"
+  const applyFilterPreset = (
+    preset: "todos" | "pendientes" | "urgentes" | "cobrados" | "clientes",
+  ) => {
+    setSearch("");
+    setFilterSem("todos");
+    setFilterPerfil("todos");
+    setFilterEstado("todos");
+    setFilterPago("todos");
+    if (preset === "pendientes") setFilterEstado("Nuevo");
+    else if (preset === "urgentes") setFilterSem("rojo");
+    else if (preset === "cobrados") setFilterPago("si");
+    else if (preset === "clientes") setFilterEstado("Cliente");
+    setTimeout(() => {
+      casosRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 30);
+  };
+
+  // Si llegamos con #casos en la URL (desde el menú lateral), hacemos scroll
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#casos" && !loading) {
+      casosRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [loading]);
 
   // Redirige si no hay sesión
   useEffect(() => {
@@ -409,11 +436,16 @@ function AdminPanel() {
       subtitle="Solicitudes de diagnóstico recibidas desde la web pública."
       actions={headerActions}
     >
-      {/* Dashboard overview con KPIs, actividad y gráfico semanal */}
-      <DashboardOverview leads={leads} onOpenLead={openLead} />
+      {/* Dashboard overview con KPIs (clickables), actividad y gráfico semanal */}
+      <DashboardOverview leads={leads} onOpenLead={openLead} onApplyFilter={applyFilterPreset} />
 
-      {/* Filtros */}
-      <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
+      {/* Sección "Todos los casos" — anclada para enlace del menú */}
+      <div ref={casosRef} id="casos" className="mt-6 scroll-mt-24">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-primary">Todos los casos</h2>
+          <span className="text-xs text-muted-foreground">{filtered.length} de {leads.length}</span>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -654,6 +686,7 @@ function AdminPanel() {
             </div>
           )}
         </div>
+      </div>
 
       <BulkActionsBar
         count={selectedIds.size}
