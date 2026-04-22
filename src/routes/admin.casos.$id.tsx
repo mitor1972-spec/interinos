@@ -63,6 +63,7 @@ export const Route = createFileRoute("/admin/casos/$id")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  codeSplitGroupings: [["loader", "component"]],
   component: AdminCasoDetalle,
 });
 
