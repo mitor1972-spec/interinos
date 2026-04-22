@@ -101,7 +101,11 @@ export function InlineSelect<T extends string>({
     }
   };
 
-  useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), []);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <InlineFieldShell label={label} status={status} error={error} className={className} hint={hint}>
