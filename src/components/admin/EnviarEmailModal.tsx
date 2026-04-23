@@ -99,6 +99,11 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       toast.error(
         "El envío de emails no está conectado. Ve a Configuración → Email para activarlo.",
       );
+    } else if (res.code === "resend_test_mode_restriction") {
+      toast.error(
+        res.error ||
+          "El envío está en modo prueba: usa solo tu correo de test y sin CC.",
+      );
     } else {
       toast.error(res.error || "Error al enviar. Inténtalo de nuevo.");
     }
