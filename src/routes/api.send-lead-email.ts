@@ -125,6 +125,9 @@ export const Route = createFileRoute("/api/send-lead-email")({
           const fromAddress =
             process.env.MAIL_FROM_ADDRESS ||
             "Hispajuris <onboarding@resend.dev>";
+          const isTestingSender = /onboarding@resend\.dev/i.test(fromAddress);
+          const normalizedTo = to.trim();
+          const normalizedCc = cc?.trim() || "";
 
           const fullSubject = subject.startsWith("[Obadal]")
             ? subject
@@ -132,14 +135,17 @@ export const Route = createFileRoute("/api/send-lead-email")({
 
           const payload: Record<string, unknown> = {
             from: fromAddress,
-            to: [to.trim()],
+            to: [normalizedTo],
             subject: fullSubject,
             html: textToHtml(message),
             text: message,
             reply_to: "empleopublico@hispajuris.es",
           };
-          if (cc && cc.trim()) {
-            payload.cc = [cc.trim()];
+
+          // En modo prueba, el proveedor solo permite un destinatario de test;
+          // enviamos sin CC para que el autoenvío de prueba sí funcione.
+          if (normalizedCc && !isTestingSender) {
+            payload.cc = [normalizedCc];
           }
 
           const resp = await fetch(`${GATEWAY_URL}/emails`, {
@@ -155,6 +161,30 @@ export const Route = createFileRoute("/api/send-lead-email")({
           const respJson = await resp.json().catch(() => ({}) as any);
           if (!resp.ok) {
             console.error("Resend error", resp.status, respJson);
+
+            const providerMessage =
+              typeof respJson?.message === "string" ? respJson.message : "";
+            const allowedEmail =
+              providerMessage.match(/own email address \(([^)]+)\)/i)?.[1] ||
+              null;
+
+            if (allowedEmail) {
+              return new Response(
+                JSON.stringify({
+                  error:
+                    normalizedTo.toLowerCase() === allowedEmail.toLowerCase()
+                      ? `El envío sigue en modo prueba. Ya puedes enviártelo a ${allowedEmail}, pero solo sin CC ni otros destinatarios.`
+                      : `El envío está en modo prueba: solo puedes enviar a ${allowedEmail}. Para enviar a otros correos, primero hay que verificar un dominio de envío.`,
+                  code: "resend_test_mode_restriction",
+                  allowedEmail,
+                }),
+                {
+                  status: 409,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
+
             return new Response(
               JSON.stringify({
                 error:
