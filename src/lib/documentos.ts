@@ -110,3 +110,63 @@ export async function urlFirmada(path: string, expiresIn = 60): Promise<string |
   }
   return data?.signedUrl ?? null;
 }
+
+/** Marca un documento como aceptado por el abogado. */
+export async function aceptarDocumento(docId: string): Promise<{ ok: boolean; error?: string }> {
+  const { data: userData } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("lead_documentos")
+    .update({
+      estado: "aceptado",
+      motivo_rechazo: null,
+      revisado_por: userData.user?.id ?? null,
+      revisado_por_email: userData.user?.email ?? null,
+      revisado_at: new Date().toISOString(),
+    })
+    .eq("id", docId);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+/** Marca un documento como rechazado y dispara la notificación al cliente. */
+export async function rechazarDocumento(
+  docId: string,
+  motivo: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const motivoTrim = motivo.trim();
+  if (motivoTrim.length < 5) {
+    return { ok: false, error: "Indica un motivo de al menos 5 caracteres" };
+  }
+  const { data: userData } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("lead_documentos")
+    .update({
+      estado: "rechazado",
+      motivo_rechazo: motivoTrim,
+      revisado_por: userData.user?.id ?? null,
+      revisado_por_email: userData.user?.email ?? null,
+      revisado_at: new Date().toISOString(),
+      notificacion_rechazo_at: null, // forzamos reenvío si ya estaba
+    })
+    .eq("id", docId);
+  if (error) return { ok: false, error: error.message };
+
+  // Disparar email — no bloqueamos la UI si falla
+  try {
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess.session?.access_token;
+    if (token) {
+      void fetch("/api/notify-doc-rechazado", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ documentoId: docId }),
+      });
+    }
+  } catch (err) {
+    console.warn("notify-doc-rechazado:", err);
+  }
+  return { ok: true };
+}
