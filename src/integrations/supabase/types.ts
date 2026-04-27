@@ -184,6 +184,65 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_documento_extracciones: {
+        Row: {
+          categoria: Database["public"]["Enums"]["documento_categoria"]
+          created_at: string
+          datos: Json | null
+          documento_id: string
+          error_mensaje: string | null
+          estado: Database["public"]["Enums"]["extraccion_estado"]
+          id: string
+          intentos: number
+          lead_id: string
+          modelo: string | null
+          updated_at: string
+          validado_at: string | null
+          validado_por: string | null
+          validado_por_email: string | null
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["documento_categoria"]
+          created_at?: string
+          datos?: Json | null
+          documento_id: string
+          error_mensaje?: string | null
+          estado?: Database["public"]["Enums"]["extraccion_estado"]
+          id?: string
+          intentos?: number
+          lead_id: string
+          modelo?: string | null
+          updated_at?: string
+          validado_at?: string | null
+          validado_por?: string | null
+          validado_por_email?: string | null
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["documento_categoria"]
+          created_at?: string
+          datos?: Json | null
+          documento_id?: string
+          error_mensaje?: string | null
+          estado?: Database["public"]["Enums"]["extraccion_estado"]
+          id?: string
+          intentos?: number
+          lead_id?: string
+          modelo?: string | null
+          updated_at?: string
+          validado_at?: string | null
+          validado_por?: string | null
+          validado_por_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_documento_extracciones_documento_id_fkey"
+            columns: ["documento_id"]
+            isOneToOne: true
+            referencedRelation: "lead_documentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_documentos: {
         Row: {
           categoria: Database["public"]["Enums"]["documento_categoria"]
@@ -683,6 +742,12 @@ export type Database = {
         | "Cliente"
         | "Descartado"
       estado_valoracion: "borrador" | "enviada" | "aceptada" | "rechazada"
+      extraccion_estado:
+        | "pendiente"
+        | "procesando"
+        | "completado"
+        | "error"
+        | "validado"
       metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
       resultado_contacto:
@@ -871,6 +936,13 @@ export const Constants = {
         "Descartado",
       ],
       estado_valoracion: ["borrador", "enviada", "aceptada", "rechazada"],
+      extraccion_estado: [
+        "pendiente",
+        "procesando",
+        "completado",
+        "error",
+        "validado",
+      ],
       metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
       resultado_contacto: [
