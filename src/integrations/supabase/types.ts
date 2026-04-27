@@ -247,11 +247,17 @@ export type Database = {
         Row: {
           categoria: Database["public"]["Enums"]["documento_categoria"]
           created_at: string
+          estado: Database["public"]["Enums"]["documento_estado"]
           id: string
           lead_id: string
           mime_type: string | null
+          motivo_rechazo: string | null
           nombre_original: string
           notas: string | null
+          notificacion_rechazo_at: string | null
+          revisado_at: string | null
+          revisado_por: string | null
+          revisado_por_email: string | null
           storage_path: string
           subido_por: string | null
           subido_por_email: string | null
@@ -261,11 +267,17 @@ export type Database = {
         Insert: {
           categoria?: Database["public"]["Enums"]["documento_categoria"]
           created_at?: string
+          estado?: Database["public"]["Enums"]["documento_estado"]
           id?: string
           lead_id: string
           mime_type?: string | null
+          motivo_rechazo?: string | null
           nombre_original: string
           notas?: string | null
+          notificacion_rechazo_at?: string | null
+          revisado_at?: string | null
+          revisado_por?: string | null
+          revisado_por_email?: string | null
           storage_path: string
           subido_por?: string | null
           subido_por_email?: string | null
@@ -275,11 +287,17 @@ export type Database = {
         Update: {
           categoria?: Database["public"]["Enums"]["documento_categoria"]
           created_at?: string
+          estado?: Database["public"]["Enums"]["documento_estado"]
           id?: string
           lead_id?: string
           mime_type?: string | null
+          motivo_rechazo?: string | null
           nombre_original?: string
           notas?: string | null
+          notificacion_rechazo_at?: string | null
+          revisado_at?: string | null
+          revisado_por?: string | null
+          revisado_por_email?: string | null
           storage_path?: string
           subido_por?: string | null
           subido_por_email?: string | null
@@ -738,6 +756,7 @@ export type Database = {
         | "otro"
         | "dni"
         | "apud_acta"
+      documento_estado: "pendiente" | "aceptado" | "rechazado"
       estado_caso:
         | "Nuevo"
         | "En estudio"
@@ -931,6 +950,7 @@ export const Constants = {
         "dni",
         "apud_acta",
       ],
+      documento_estado: ["pendiente", "aceptado", "rechazado"],
       estado_caso: [
         "Nuevo",
         "En estudio",

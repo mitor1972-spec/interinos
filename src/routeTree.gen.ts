@@ -21,6 +21,7 @@ import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
 import { Route as ApiSendLeadEmailRouteImport } from './routes/api.send-lead-email'
 import { Route as ApiNotifyDocsCompletosRouteImport } from './routes/api.notify-docs-completos'
+import { Route as ApiNotifyDocRechazadoRouteImport } from './routes/api.notify-doc-rechazado'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInformesRouteImport } from './routes/admin.informes'
@@ -93,6 +94,11 @@ const ApiSendLeadEmailRoute = ApiSendLeadEmailRouteImport.update({
 const ApiNotifyDocsCompletosRoute = ApiNotifyDocsCompletosRouteImport.update({
   id: '/api/notify-docs-completos',
   path: '/api/notify-docs-completos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotifyDocRechazadoRoute = ApiNotifyDocRechazadoRouteImport.update({
+  id: '/api/notify-doc-rechazado',
+  path: '/api/notify-doc-rechazado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
@@ -340,6 +352,7 @@ export interface RootRouteChildren {
   AdminInformesRoute: typeof AdminInformesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  ApiNotifyDocRechazadoRoute: typeof ApiNotifyDocRechazadoRoute
   ApiNotifyDocsCompletosRoute: typeof ApiNotifyDocsCompletosRoute
   ApiSendLeadEmailRoute: typeof ApiSendLeadEmailRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/api/notify-docs-completos'
       fullPath: '/api/notify-docs-completos'
       preLoaderRoute: typeof ApiNotifyDocsCompletosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notify-doc-rechazado': {
+      id: '/api/notify-doc-rechazado'
+      path: '/api/notify-doc-rechazado'
+      fullPath: '/api/notify-doc-rechazado'
+      preLoaderRoute: typeof ApiNotifyDocRechazadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/usuarios': {
@@ -558,6 +578,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminInformesRoute: AdminInformesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  ApiNotifyDocRechazadoRoute: ApiNotifyDocRechazadoRoute,
   ApiNotifyDocsCompletosRoute: ApiNotifyDocsCompletosRoute,
   ApiSendLeadEmailRoute: ApiSendLeadEmailRoute,
   ClienteLoginRoute: ClienteLoginRoute,
