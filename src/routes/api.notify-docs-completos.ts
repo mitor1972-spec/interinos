@@ -146,7 +146,8 @@ export const Route = createFileRoute("/api/notify-docs-completos")({
           }
 
           const fromAddress =
-            process.env.MAIL_FROM_ADDRESS || "Hispajuris <onboarding@resend.dev>";
+            process.env.MAIL_FROM_ADDRESS ||
+            "Plataforma Obadal — Hispajuris <notificaciones@asesor.legal>";
           const subject = `[Asesor.Legal] ${lead.nombre} ha completado toda su documentación`;
           const fichaUrl = `https://interinos.asesor.legal/admin/casos/${leadId}`;
           const messagePlain = `Hola${abogadoNombre ? " " + abogadoNombre : ""},

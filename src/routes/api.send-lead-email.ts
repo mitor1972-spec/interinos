@@ -120,11 +120,10 @@ export const Route = createFileRoute("/api/send-lead-email")({
             );
           }
 
-          // Remitente: por defecto onboarding@resend.dev hasta que el usuario
-          // verifique su dominio en Resend.
+          // Remitente verificado en el dominio asesor.legal
           const fromAddress =
             process.env.MAIL_FROM_ADDRESS ||
-            "Hispajuris <onboarding@resend.dev>";
+            "Plataforma Obadal — Hispajuris <notificaciones@asesor.legal>";
           const isTestingSender = /onboarding@resend\.dev/i.test(fromAddress);
           const normalizedTo = to.trim();
           const normalizedCc = cc?.trim() || "";
