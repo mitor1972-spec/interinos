@@ -296,6 +296,26 @@ function ClienteHome() {
       </header>
 
       <main className="container mx-auto max-w-4xl px-4 py-8">
+        {isDemo && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-yellow-400 bg-yellow-50 px-4 py-3 text-sm text-yellow-900 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-yellow-950">
+                Modo demo
+              </span>
+              <span className="font-medium">
+                Vista de prueba con datos ficticios — solo visible para usuarios internos.
+              </span>
+            </div>
+            {hasStaffRole && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 rounded-full border border-yellow-600/40 bg-white/60 px-3 py-1 text-xs font-semibold text-yellow-900 hover:bg-white"
+              >
+                <Shield className="h-3.5 w-3.5" /> Volver al panel admin
+              </Link>
+            )}
+          </div>
+        )}
         {/* Cabecera estado del caso */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
