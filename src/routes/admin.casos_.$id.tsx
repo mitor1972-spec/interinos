@@ -372,6 +372,11 @@ function AdminCasoDetalle() {
             </Section>
           )}
 
+          {/* Generar documento desde plantilla — acceso rápido arriba */}
+          <Section title="📄 Generar escrito (Word / PDF)" icon={FileText} highlight>
+            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
+          </Section>
+
           {/* Contacto */}
           <Section title="Contacto" icon={Mail}>
             <div className="grid gap-2 text-sm sm:grid-cols-2">
