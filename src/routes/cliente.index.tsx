@@ -30,6 +30,7 @@ import {
 } from "@/lib/documentosRequeridos";
 import { calcularCompletitud, colorBarra } from "@/lib/completitud";
 import type { Lead } from "@/lib/leads";
+import { buildLeadDemo, esLeadDemo } from "@/lib/leadDemo";
 
 export const Route = createFileRoute("/cliente/")({
   head: () => ({
@@ -63,6 +64,7 @@ function ClienteHome() {
   const [uploadingCat, setUploadingCat] = useState<DocCategoria | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [hasStaffRole, setHasStaffRole] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -81,9 +83,8 @@ function ClienteHome() {
         .select("role")
         .eq("user_id", uid);
       const roleList = Array.isArray(roles) ? roles.map((r) => r.role) : [];
-      if (active) {
-        setHasStaffRole(roleList.includes("admin") || roleList.includes("lawyer"));
-      }
+      const staff = roleList.includes("admin") || roleList.includes("lawyer");
+      if (active) setHasStaffRole(staff);
 
       const { data: leadData, error: leadErr } = await supabase
         .from("leads_interinos")
@@ -95,6 +96,13 @@ function ClienteHome() {
 
       if (!active) return;
       if (leadErr || !leadData) {
+        // Si es admin/abogado, mostramos un caso DEMO ficticio en vez de
+        // un error. Esto les permite previsualizar la vista de cliente.
+        if (staff) {
+          setLead(buildLeadDemo(sess.session.user.email));
+          setDocs([]);
+          setIsDemo(true);
+        }
         setLoading(false);
         return;
       }
@@ -116,6 +124,10 @@ function ClienteHome() {
 
   const handleUpload = async (categoria: DocCategoria, file: File) => {
     if (!lead) return;
+    if (isDemo || esLeadDemo(lead.id)) {
+      toast.info("Modo demo: las subidas están deshabilitadas en la vista de prueba.");
+      return;
+    }
     setUploadingCat(categoria);
     const res = await subirDocumento({ leadId: lead.id, file, categoria });
     setUploadingCat(null);
@@ -284,6 +296,26 @@ function ClienteHome() {
       </header>
 
       <main className="container mx-auto max-w-4xl px-4 py-8">
+        {isDemo && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-yellow-400 bg-yellow-50 px-4 py-3 text-sm text-yellow-900 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-yellow-950">
+                Modo demo
+              </span>
+              <span className="font-medium">
+                Vista de prueba con datos ficticios — solo visible para usuarios internos.
+              </span>
+            </div>
+            {hasStaffRole && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 rounded-full border border-yellow-600/40 bg-white/60 px-3 py-1 text-xs font-semibold text-yellow-900 hover:bg-white"
+              >
+                <Shield className="h-3.5 w-3.5" /> Volver al panel admin
+              </Link>
+            )}
+          </div>
+        )}
         {/* Cabecera estado del caso */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
