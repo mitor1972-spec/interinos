@@ -259,6 +259,7 @@ export function LeadDatosExtraidos({ leadId }: Props) {
   const [loading, setLoading] = useState(true);
   const [reintentando, setReintentando] = useState<string | null>(null);
   const [validando, setValidando] = useState<string | null>(null);
+  const [extrayendoTodo, setExtrayendoTodo] = useState(false);
 
   const cargar = async () => {
     setLoading(true);
@@ -330,6 +331,157 @@ export function LeadDatosExtraidos({ leadId }: Props) {
     void cargar();
   };
 
+  // Identifica documentos sin extracción asociada
+  const docIdsConExtraccion = useMemo(
+    () => new Set(exs.map((e) => e.documento_id)),
+    [exs],
+  );
+  const docsSinExtraer = useMemo(
+    () => docs.filter((d) => !docIdsConExtraccion.has(d.id)),
+    [docs, docIdsConExtraccion],
+  );
+
+  // Última fecha de extracción/validación
+  const ultimaActualizacion = useMemo(() => {
+    if (exs.length === 0) return null;
+    const ts = exs
+      .map((e) => new Date(e.validado_at ?? e.updated_at).getTime())
+      .filter((n) => !isNaN(n));
+    if (ts.length === 0) return null;
+    return new Date(Math.max(...ts));
+  }, [exs]);
+
+  const hayProcesando = exs.some(
+    (e) => e.estado === "procesando" || e.estado === "pendiente",
+  );
+
+  const handleExtraerTodos = async (force = false) => {
+    const objetivo = force ? docs : docsSinExtraer;
+    if (objetivo.length === 0) {
+      toast.info("No hay documentos para procesar.");
+      return;
+    }
+    setExtrayendoTodo(true);
+    let okCount = 0;
+    for (const d of objetivo) {
+      const r = await lanzarExtraccion(d.id, { force });
+      if (r.ok) okCount++;
+    }
+    setExtrayendoTodo(false);
+    toast.success(`Lanzada extracción de ${okCount}/${objetivo.length} documento(s).`);
+    setTimeout(() => void cargar(), 2000);
+  };
+
+  // ─── Cabecera de control siempre visible ───
+  const renderCabecera = () => {
+    // Caso 1: sin documentos subidos
+    if (docs.length === 0) {
+      return (
+        <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
+          <Sparkles className="mx-auto h-6 w-6 text-muted-foreground" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sube documentos para poder extraer datos automáticamente.
+          </p>
+        </div>
+      );
+    }
+
+    // Caso 2: hay documentos pero no se ha extraído nada
+    if (exs.length === 0) {
+      return (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-primary">
+                Listos para analizar con IA
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {docs.length} documento{docs.length === 1 ? "" : "s"} subido
+                {docs.length === 1 ? "" : "s"} · sin analizar todavía.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleExtraerTodos(false)}
+              disabled={extrayendoTodo}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-60"
+            >
+              {extrayendoTodo ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analizando documentos…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  🔍 Extraer datos con IA
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Caso 3: ya hay extracciones — mostrar controles
+    return (
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Sparkles className="h-4 w-4 text-primary" />
+            {ultimaActualizacion && (
+              <span>
+                Última extracción:{" "}
+                <strong className="text-foreground">
+                  {ultimaActualizacion.toLocaleString("es-ES", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </strong>
+              </span>
+            )}
+            {hayProcesando && (
+              <span className="ml-2 inline-flex items-center gap-1 text-primary">
+                <Loader2 className="h-3 w-3 animate-spin" /> procesando…
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {docsSinExtraer.length > 0 && (
+              <button
+                type="button"
+                onClick={() => handleExtraerTodos(false)}
+                disabled={extrayendoTodo}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+              >
+                {extrayendoTodo ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                Analizar {docsSinExtraer.length} nuevo
+                {docsSinExtraer.length === 1 ? "" : "s"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => handleExtraerTodos(true)}
+              disabled={extrayendoTodo}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60"
+            >
+              {extrayendoTodo ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              🔄 Volver a extraer todo
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
@@ -338,17 +490,14 @@ export function LeadDatosExtraidos({ leadId }: Props) {
     );
   }
 
+  // Si no hay documentos ni extracciones, solo mostramos la cabecera
+  if (docs.length === 0 && exs.length === 0) {
+    return renderCabecera();
+  }
+
+  // Si hay docs pero ninguna extracción, mostramos solo la cabecera con el botón
   if (exs.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-8 text-center">
-        <Sparkles className="mx-auto h-6 w-6 text-muted-foreground" />
-        <p className="mt-2 text-sm text-muted-foreground">
-          Aún no hay datos extraídos. Cuando el cliente suba documentos, la IA
-          los analizará automáticamente y verás aquí cronología, alertas
-          legales y resumen económico.
-        </p>
-      </div>
-    );
+    return renderCabecera();
   }
 
   const pendientes = exs.filter((e) => e.estado !== "validado");
