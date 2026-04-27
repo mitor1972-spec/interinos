@@ -575,11 +575,6 @@ function AdminCasoDetalle() {
             <LeadValidacionIA leadId={lead.id} />
           </Section>
 
-          {/* Generar documento desde plantilla */}
-          <Section title="Generar escrito desde plantilla" icon={FileText}>
-            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
-          </Section>
-
           {/* Valoración del perito */}
           <Section title="Valoración económica" icon={Award}>
             <LeadValoracion leadId={lead.id} canEdit={isAdmin} />
