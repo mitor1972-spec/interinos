@@ -728,9 +728,21 @@ export function LeadDatosExtraidos({ leadId }: Props) {
                     </button>
                   )}
                   {e.estado === "validado" && (
-                    <span className="inline-flex items-center gap-1 text-xs text-success">
+                    <span
+                      className="inline-flex items-center gap-1 text-xs text-success"
+                      title={
+                        e.validado_por_email
+                          ? `Validado por ${e.validado_por_email}${e.validado_at ? ` el ${new Date(e.validado_at).toLocaleString("es-ES")}` : ""}`
+                          : "Validado"
+                      }
+                    >
                       <CheckCircle2 className="h-3 w-3" />
                       Validado
+                      {e.validado_por_email && (
+                        <span className="ml-1 text-muted-foreground">
+                          · {e.validado_por_email.split("@")[0]}
+                        </span>
+                      )}
                     </span>
                   )}
                 </div>
