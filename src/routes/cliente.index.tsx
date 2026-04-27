@@ -260,6 +260,9 @@ function ClienteHome() {
       ? 100
       : Math.round((docsObligatoriosSubidos.length / docsObligatorios.length) * 100);
 
+  // Documentos rechazados por el abogado — disparan alerta roja
+  const docsRechazados = docs.filter((d) => (d as any).estado === "rechazado");
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
