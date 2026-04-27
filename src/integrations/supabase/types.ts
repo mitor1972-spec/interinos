@@ -314,6 +314,51 @@ export type Database = {
           },
         ]
       }
+      lead_documentos_generados: {
+        Row: {
+          created_at: string
+          formato: Database["public"]["Enums"]["documento_generado_formato"]
+          generado_por: string | null
+          generado_por_email: string | null
+          id: string
+          lead_id: string
+          nombre_archivo: string
+          notas: string | null
+          plantilla_id: string | null
+          plantilla_nombre: string | null
+          storage_path: string
+          tamano_bytes: number | null
+        }
+        Insert: {
+          created_at?: string
+          formato?: Database["public"]["Enums"]["documento_generado_formato"]
+          generado_por?: string | null
+          generado_por_email?: string | null
+          id?: string
+          lead_id: string
+          nombre_archivo: string
+          notas?: string | null
+          plantilla_id?: string | null
+          plantilla_nombre?: string | null
+          storage_path: string
+          tamano_bytes?: number | null
+        }
+        Update: {
+          created_at?: string
+          formato?: Database["public"]["Enums"]["documento_generado_formato"]
+          generado_por?: string | null
+          generado_por_email?: string | null
+          id?: string
+          lead_id?: string
+          nombre_archivo?: string
+          notas?: string | null
+          plantilla_id?: string | null
+          plantilla_nombre?: string | null
+          storage_path?: string
+          tamano_bytes?: number | null
+        }
+        Relationships: []
+      }
       lead_historial: {
         Row: {
           campo: string
@@ -354,6 +399,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_validaciones_ia: {
+        Row: {
+          avisos: Json
+          created_at: string
+          datos_analizados: Json | null
+          generado_por: string | null
+          generado_por_email: string | null
+          id: string
+          incoherencias: Json
+          lead_id: string
+          modelo: string | null
+          resumen: string | null
+        }
+        Insert: {
+          avisos?: Json
+          created_at?: string
+          datos_analizados?: Json | null
+          generado_por?: string | null
+          generado_por_email?: string | null
+          id?: string
+          incoherencias?: Json
+          lead_id: string
+          modelo?: string | null
+          resumen?: string | null
+        }
+        Update: {
+          avisos?: Json
+          created_at?: string
+          datos_analizados?: Json | null
+          generado_por?: string | null
+          generado_por_email?: string | null
+          id?: string
+          incoherencias?: Json
+          lead_id?: string
+          modelo?: string | null
+          resumen?: string | null
+        }
+        Relationships: []
       }
       lead_valoraciones: {
         Row: {
@@ -599,6 +683,48 @@ export type Database = {
           },
         ]
       }
+      plantillas_reclamacion: {
+        Row: {
+          activa: boolean
+          contenido_html: string
+          creado_por: string | null
+          creado_por_email: string | null
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["plantilla_tipo"]
+          updated_at: string
+          variables_disponibles: Json
+        }
+        Insert: {
+          activa?: boolean
+          contenido_html?: string
+          creado_por?: string | null
+          creado_por_email?: string | null
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          tipo?: Database["public"]["Enums"]["plantilla_tipo"]
+          updated_at?: string
+          variables_disponibles?: Json
+        }
+        Update: {
+          activa?: boolean
+          contenido_html?: string
+          creado_por?: string | null
+          creado_por_email?: string | null
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["plantilla_tipo"]
+          updated_at?: string
+          variables_disponibles?: Json
+        }
+        Relationships: []
+      }
       provincia_abogado: {
         Row: {
           abogado_id: string
@@ -757,6 +883,7 @@ export type Database = {
         | "dni"
         | "apud_acta"
       documento_estado: "pendiente" | "aceptado" | "rechazado"
+      documento_generado_formato: "docx" | "pdf" | "html"
       estado_caso:
         | "Nuevo"
         | "En estudio"
@@ -772,6 +899,14 @@ export type Database = {
         | "validado"
       metodo_pago: "stripe" | "transferencia" | "bizum" | "efectivo" | "otro"
       perfil_tipo: "laboral" | "funcionario" | "desconocido"
+      plantilla_tipo:
+        | "demanda"
+        | "recurso_alzada"
+        | "recurso_reposicion"
+        | "papeleta_conciliacion"
+        | "reclamacion_previa"
+        | "escrito_generico"
+        | "otro"
       resultado_contacto:
         | "pendiente"
         | "contactado_interesado"
@@ -951,6 +1086,7 @@ export const Constants = {
         "apud_acta",
       ],
       documento_estado: ["pendiente", "aceptado", "rechazado"],
+      documento_generado_formato: ["docx", "pdf", "html"],
       estado_caso: [
         "Nuevo",
         "En estudio",
@@ -968,6 +1104,15 @@ export const Constants = {
       ],
       metodo_pago: ["stripe", "transferencia", "bizum", "efectivo", "otro"],
       perfil_tipo: ["laboral", "funcionario", "desconocido"],
+      plantilla_tipo: [
+        "demanda",
+        "recurso_alzada",
+        "recurso_reposicion",
+        "papeleta_conciliacion",
+        "reclamacion_previa",
+        "escrito_generico",
+        "otro",
+      ],
       resultado_contacto: [
         "pendiente",
         "contactado_interesado",
