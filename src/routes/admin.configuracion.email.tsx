@@ -147,13 +147,9 @@ function ConfiguracionEmailPage() {
           </h3>
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <Dato label="From por defecto">
-              Hispajuris &lt;onboarding@resend.dev&gt;
+              Plataforma Obadal — Hispajuris &lt;notificaciones@asesor.legal&gt;
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Cambiará automáticamente a{" "}
-                <code className="rounded bg-muted px-1">
-                  empleopublico@hispajuris.es
-                </code>{" "}
-                cuando verifiques el dominio.
+                Dominio <code className="rounded bg-muted px-1">asesor.legal</code> verificado en Resend.
               </p>
             </Dato>
             <Dato label="Reply-to">empleopublico@hispajuris.es</Dato>
