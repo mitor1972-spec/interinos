@@ -29,6 +29,7 @@ import { EnviarEmailModal } from "@/components/admin/EnviarEmailModal";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
+import { LeadDatosExtraidos } from "@/components/admin/LeadDatosExtraidos";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
 import { CompletitudBar } from "@/components/admin/CompletitudBar";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
@@ -549,6 +550,11 @@ function AdminCasoDetalle() {
           {/* Documentos */}
           <Section title="Documentos del caso" icon={FileText}>
             <LeadDocumentos leadId={lead.id} onChange={setDocumentosCount} />
+          </Section>
+
+          {/* Datos extraídos por IA */}
+          <Section title="Datos extraídos por IA" icon={Sparkles}>
+            <LeadDatosExtraidos leadId={lead.id} />
           </Section>
 
           {/* Valoración del perito */}
