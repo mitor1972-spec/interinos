@@ -62,22 +62,33 @@ export async function subirDocumento(params: {
   if (upErr) return { ok: false, error: upErr.message };
 
   const { data: userData } = await supabase.auth.getUser();
-  const { error: dbErr } = await supabase.from("lead_documentos").insert({
-    lead_id: leadId,
-    storage_path: path,
-    nombre_original: file.name,
-    mime_type: file.type || null,
-    tamano_bytes: file.size,
-    categoria,
-    notas: notas?.trim() || null,
-    subido_por: userData.user?.id ?? null,
-    subido_por_email: userData.user?.email ?? null,
-  });
-  if (dbErr) {
+  const { data: insertado, error: dbErr } = await supabase
+    .from("lead_documentos")
+    .insert({
+      lead_id: leadId,
+      storage_path: path,
+      nombre_original: file.name,
+      mime_type: file.type || null,
+      tamano_bytes: file.size,
+      categoria,
+      notas: notas?.trim() || null,
+      subido_por: userData.user?.id ?? null,
+      subido_por_email: userData.user?.email ?? null,
+    })
+    .select("id")
+    .single();
+  if (dbErr || !insertado) {
     // limpia el archivo huérfano
     await supabase.storage.from(BUCKET).remove([path]);
-    return { ok: false, error: dbErr.message };
+    return { ok: false, error: dbErr?.message ?? "Error guardando documento" };
   }
+
+  // Disparar extracción IA en background — no bloqueamos la subida.
+  // Si falla, queda registrada en la tabla de extracciones como 'error'.
+  void supabase.functions
+    .invoke("extraer-documento", { body: { documento_id: insertado.id } })
+    .catch((err) => console.warn("Extracción IA falló:", err));
+
   return { ok: true };
 }
 
