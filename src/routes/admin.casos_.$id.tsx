@@ -372,6 +372,11 @@ function AdminCasoDetalle() {
             </Section>
           )}
 
+          {/* Generar documento desde plantilla — acceso rápido arriba */}
+          <Section title="📄 Generar escrito (Word / PDF)" icon={FileText} highlight>
+            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
+          </Section>
+
           {/* Contacto */}
           <Section title="Contacto" icon={Mail}>
             <div className="grid gap-2 text-sm sm:grid-cols-2">
@@ -568,11 +573,6 @@ function AdminCasoDetalle() {
           {/* Validación IA de coherencia */}
           <Section title="Validación IA de coherencia" icon={Sparkles}>
             <LeadValidacionIA leadId={lead.id} />
-          </Section>
-
-          {/* Generar documento desde plantilla */}
-          <Section title="Generar escrito desde plantilla" icon={FileText}>
-            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
           </Section>
 
           {/* Valoración del perito */}
