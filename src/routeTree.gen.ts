@@ -32,6 +32,7 @@ import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendar
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
 import { Route as AdminConfiguracionEmailRouteImport } from './routes/admin.configuracion.email'
 import { Route as AdminCasosIdRouteImport } from './routes/admin.casos_.$id'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -148,6 +149,12 @@ const AdminCasosIdRoute = AdminCasosIdRouteImport.update({
   path: '/admin/casos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/perito/': typeof PeritoIndexRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -198,6 +206,7 @@ export interface FileRoutesByTo {
   '/perito': typeof PeritoIndexRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,6 +233,7 @@ export interface FileRoutesById {
   '/perito/': typeof PeritoIndexRoute
   '/admin/casos_/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/perito/'
     | '/admin/casos/$id'
     | '/admin/configuracion/email'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/perito'
     | '/admin/casos/$id'
     | '/admin/configuracion/email'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -301,6 +313,7 @@ export interface FileRouteTypes {
     | '/perito/'
     | '/admin/casos_/$id'
     | '/admin/configuracion/email'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -326,6 +339,7 @@ export interface RootRouteChildren {
   ClienteIndexRoute: typeof ClienteIndexRoute
   PeritoIndexRoute: typeof PeritoIndexRoute
   AdminCasosIdRoute: typeof AdminCasosIdRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -491,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCasosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -528,6 +549,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClienteIndexRoute: ClienteIndexRoute,
   PeritoIndexRoute: PeritoIndexRoute,
   AdminCasosIdRoute: AdminCasosIdRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
