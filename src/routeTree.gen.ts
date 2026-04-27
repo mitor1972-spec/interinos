@@ -23,6 +23,7 @@ import { Route as ApiSendLeadEmailRouteImport } from './routes/api.send-lead-ema
 import { Route as ApiNotifyDocsCompletosRouteImport } from './routes/api.notify-docs-completos'
 import { Route as ApiNotifyDocRechazadoRouteImport } from './routes/api.notify-doc-rechazado'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as AdminPlantillasRouteImport } from './routes/admin.plantillas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInformesRouteImport } from './routes/admin.informes'
 import { Route as AdminFinanzasRouteImport } from './routes/admin.finanzas'
@@ -106,6 +107,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/admin/usuarios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPlantillasRoute = AdminPlantillasRouteImport.update({
+  id: '/admin/plantillas',
+  path: '/admin/plantillas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/plantillas': typeof AdminPlantillasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/plantillas': typeof AdminPlantillasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/admin/finanzas': typeof AdminFinanzasRoute
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/plantillas': typeof AdminPlantillasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/notify-doc-rechazado': typeof ApiNotifyDocRechazadoRoute
   '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/plantillas'
     | '/admin/usuarios'
     | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/plantillas'
     | '/admin/usuarios'
     | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/admin/finanzas'
     | '/admin/informes'
     | '/admin/login'
+    | '/admin/plantillas'
     | '/admin/usuarios'
     | '/api/notify-doc-rechazado'
     | '/api/notify-docs-completos'
@@ -351,6 +363,7 @@ export interface RootRouteChildren {
   AdminFinanzasRoute: typeof AdminFinanzasRoute
   AdminInformesRoute: typeof AdminInformesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminPlantillasRoute: typeof AdminPlantillasRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ApiNotifyDocRechazadoRoute: typeof ApiNotifyDocRechazadoRoute
   ApiNotifyDocsCompletosRoute: typeof ApiNotifyDocsCompletosRoute
@@ -468,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/plantillas': {
+      id: '/admin/plantillas'
+      path: '/admin/plantillas'
+      fullPath: '/admin/plantillas'
+      preLoaderRoute: typeof AdminPlantillasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -577,6 +597,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminFinanzasRoute: AdminFinanzasRoute,
   AdminInformesRoute: AdminInformesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminPlantillasRoute: AdminPlantillasRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   ApiNotifyDocRechazadoRoute: ApiNotifyDocRechazadoRoute,
   ApiNotifyDocsCompletosRoute: ApiNotifyDocsCompletosRoute,
