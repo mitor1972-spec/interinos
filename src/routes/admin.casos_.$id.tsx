@@ -30,6 +30,8 @@ import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
 import { LeadDatosExtraidos } from "@/components/admin/LeadDatosExtraidos";
+import { LeadGenerarDocumento } from "@/components/admin/LeadGenerarDocumento";
+import { LeadValidacionIA } from "@/components/admin/LeadValidacionIA";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
 import { CompletitudBar } from "@/components/admin/CompletitudBar";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
@@ -561,6 +563,16 @@ function AdminCasoDetalle() {
           {/* Datos extraídos por IA */}
           <Section title="Datos extraídos por IA" icon={Sparkles}>
             <LeadDatosExtraidos leadId={lead.id} />
+          </Section>
+
+          {/* Validación IA de coherencia */}
+          <Section title="Validación IA de coherencia" icon={Sparkles}>
+            <LeadValidacionIA leadId={lead.id} />
+          </Section>
+
+          {/* Generar documento desde plantilla */}
+          <Section title="Generar escrito desde plantilla" icon={FileText}>
+            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
           </Section>
 
           {/* Valoración del perito */}
