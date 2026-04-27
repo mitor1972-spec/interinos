@@ -549,7 +549,13 @@ function AdminCasoDetalle() {
 
           {/* Documentos */}
           <Section title="Documentos del caso" icon={FileText}>
-            <LeadDocumentos leadId={lead.id} onChange={setDocumentosCount} />
+            <LeadDocumentos
+              leadId={lead.id}
+              tipoRelacion={lead.tipo_relacion}
+              areaSector={lead.area_sector}
+              situacionActual={lead.situacion_actual}
+              onChange={setDocumentosCount}
+            />
           </Section>
 
           {/* Datos extraídos por IA */}
