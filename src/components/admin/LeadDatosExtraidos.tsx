@@ -504,6 +504,8 @@ export function LeadDatosExtraidos({ leadId }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Cabecera de control de extracción IA */}
+      {renderCabecera()}
       {/* Identidad (DNI) */}
       {dni && (
         <div className="rounded-lg border border-border bg-card px-4 py-3">
