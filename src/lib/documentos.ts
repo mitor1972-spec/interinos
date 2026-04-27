@@ -7,8 +7,10 @@ export type DocCategoria = Database["public"]["Enums"]["documento_categoria"];
 export const CATEGORIAS: { value: DocCategoria; label: string }[] = [
   { value: "contrato", label: "Contrato / Nombramiento" },
   { value: "nomina", label: "Nóminas" },
-  { value: "vida_laboral", label: "Vida laboral" },
-  { value: "cese", label: "Resolución de cese" },
+  { value: "vida_laboral", label: "Vida laboral administrativa" },
+  { value: "cese", label: "Resolución de cese / Despido" },
+  { value: "dni", label: "DNI (ambas caras)" },
+  { value: "apud_acta", label: "Apud Acta" },
   { value: "sentencia", label: "Sentencia previa" },
   { value: "justificante_pago", label: "Justificante de pago" },
   { value: "otro", label: "Otro" },
