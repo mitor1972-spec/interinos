@@ -191,15 +191,32 @@ function ClienteHome() {
   }
 
   const completitud = calcularCompletitud(lead, docs.length);
-  const docsByCategoria = new Map<string, LeadDocumento[]>();
+  const docsByCategoria = new Map<DocCategoria, LeadDocumento[]>();
   for (const d of docs) {
     const arr = docsByCategoria.get(d.categoria) ?? [];
     arr.push(d);
     docsByCategoria.set(d.categoria, arr);
   }
-  const obligatoriosFaltan = REQUIRED_DOCS.filter(
-    (r) => r.required && (docsByCategoria.get(r.categoria)?.length ?? 0) === 0,
+
+  const perfil = detectarPerfilDocumental(lead.tipo_relacion, lead.area_sector);
+  const cesado = clienteHaSidoCesado(lead.situacion_actual);
+  const docsRequeridos = getDocumentosRequeridos(perfil);
+
+  // Calcula obligatoriedad efectiva (incluye los condicionales si está cesado).
+  const esObligatorio = (req: DocRequerido) =>
+    req.required || (cesado && req.requiredSiCese === true);
+
+  const docsObligatorios = docsRequeridos.filter(esObligatorio);
+  const docsObligatoriosSubidos = docsObligatorios.filter(
+    (r) => (docsByCategoria.get(r.categoria)?.length ?? 0) > 0,
   );
+  const obligatoriosFaltan = docsObligatorios.filter(
+    (r) => (docsByCategoria.get(r.categoria)?.length ?? 0) === 0,
+  );
+  const pctDocs =
+    docsObligatorios.length === 0
+      ? 100
+      : Math.round((docsObligatoriosSubidos.length / docsObligatorios.length) * 100);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -274,87 +291,81 @@ function ClienteHome() {
           </div>
         </div>
 
-        {/* Banner documentos */}
-        <div className="mt-6">
-          {obligatoriosFaltan.length > 0 ? (
-            <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              <strong>Faltan documentos obligatorios:</strong>{" "}
-              {obligatoriosFaltan.map((d) => d.label).join(", ")}.
-            </div>
-          ) : (
-            <div className="rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
-              <strong>Documentación mínima completa</strong> — lista para
-              revisión por el abogado.
-            </div>
-          )}
-        </div>
-
-        {/* Lista de documentos */}
+        {/* Bloque documentos */}
         <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
-          <h2 className="text-lg font-bold text-primary">Tus documentos</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sube los documentos requeridos. Tamaño máximo por archivo: 15 MB.
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-primary">Tu documentación</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Perfil detectado:{" "}
+                <strong className="text-foreground">{nombrePerfil(perfil)}</strong>
+                {cesado && (
+                  <span className="ml-2 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">
+                    Caso con cese
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Documentación obligatoria
+              </div>
+              <div className="mt-0.5 text-2xl font-bold text-primary">{pctDocs}%</div>
+              <div className="text-xs text-muted-foreground">
+                {docsObligatoriosSubidos.length} de {docsObligatorios.length} subidos
+              </div>
+            </div>
+          </div>
+
+          {/* Barra de progreso global */}
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full rounded-full transition-all ${colorBarra(pctDocs)}`}
+              style={{ width: `${pctDocs}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {obligatoriosFaltan.length === 0
+              ? "Has subido todos los documentos obligatorios."
+              : `Documentación ${pctDocs}% completa — faltan ${obligatoriosFaltan.length} documento${obligatoriosFaltan.length === 1 ? "" : "s"} obligatorio${obligatoriosFaltan.length === 1 ? "" : "s"}.`}
           </p>
 
-          <div className="mt-5 space-y-3">
-            {REQUIRED_DOCS.map((req) => {
+          {/* Banner de estado */}
+          <div className="mt-4">
+            {obligatoriosFaltan.length === 0 ? (
+              <div className="rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+                <strong>Documentación completa</strong> — tu caso está listo para
+                ser revisado por el abogado. Te avisaremos en cuanto empiece la
+                revisión.
+              </div>
+            ) : (
+              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <strong>Faltan documentos obligatorios:</strong>{" "}
+                {obligatoriosFaltan.map((d) => d.label).join(" · ")}.
+              </div>
+            )}
+          </div>
+
+          <p className="mt-5 text-xs text-muted-foreground">
+            Tamaño máximo por archivo: 15 MB. Formatos admitidos: PDF, JPG, PNG, DOCX.
+          </p>
+
+          <div className="mt-3 space-y-3">
+            {docsRequeridos.map((req) => {
               const subidos = docsByCategoria.get(req.categoria) ?? [];
               const hasDoc = subidos.length > 0;
               const isUploading = uploadingCat === req.categoria;
-              const cat = CATEGORIAS.find((c) => c.value === req.categoria);
+              const obligatorio = esObligatorio(req);
               return (
-                <div
+                <DocItem
                   key={req.categoria}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3"
-                >
-                  <div className="flex items-start gap-3">
-                    {hasDoc ? (
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />
-                    ) : req.required ? (
-                      <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
-                    ) : (
-                      <FileText className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                    )}
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">
-                        {req.label}
-                        {req.required && (
-                          <span className="ml-2 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">
-                            Obligatorio
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-0.5 text-xs text-muted-foreground">
-                        {hasDoc
-                          ? `${subidos.length} archivo${subidos.length === 1 ? "" : "s"} subido${subidos.length === 1 ? "" : "s"} · pendiente de revisión`
-                          : cat
-                            ? `Categoría: ${cat.label}`
-                            : ""}
-                      </div>
-                    </div>
-                  </div>
-                  <label
-                    className={`inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-muted ${
-                      isUploading ? "pointer-events-none opacity-60" : ""
-                    }`}
-                  >
-                    {isUploading ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Upload className="h-3.5 w-3.5" />
-                    )}
-                    {hasDoc ? "Añadir más" : "Subir"}
-                    <input
-                      type="file"
-                      hidden
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleUpload(req.categoria as DocCategoria, f);
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                </div>
+                  req={req}
+                  subidos={subidos}
+                  hasDoc={hasDoc}
+                  isUploading={isUploading}
+                  obligatorio={obligatorio}
+                  onUpload={(file) => handleUpload(req.categoria, file)}
+                />
               );
             })}
           </div>
