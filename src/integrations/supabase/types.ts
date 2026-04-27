@@ -436,6 +436,7 @@ export type Database = {
           motivo_especifico: string | null
           nombre: string
           notas_abogado: string | null
+          notificacion_docs_completos_at: string | null
           pago_completado: boolean
           pago_fecha: string | null
           pago_importe: number | null
@@ -488,6 +489,7 @@ export type Database = {
           motivo_especifico?: string | null
           nombre: string
           notas_abogado?: string | null
+          notificacion_docs_completos_at?: string | null
           pago_completado?: boolean
           pago_fecha?: string | null
           pago_importe?: number | null
@@ -540,6 +542,7 @@ export type Database = {
           motivo_especifico?: string | null
           nombre?: string
           notas_abogado?: string | null
+          notificacion_docs_completos_at?: string | null
           pago_completado?: boolean
           pago_fecha?: string | null
           pago_importe?: number | null

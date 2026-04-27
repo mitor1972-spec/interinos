@@ -126,6 +126,36 @@ function ClienteHome() {
     toast.success("Documento subido correctamente");
     const documentos = await listarDocumentos(lead.id);
     setDocs(documentos);
+
+    // Si con esta subida se han completado todos los obligatorios y aún no
+    // hemos avisado al abogado, lanzamos la notificación. El endpoint es
+    // idempotente: si ya se envió, no hace nada.
+    try {
+      const perfil = detectarPerfilDocumental(lead.tipo_relacion, lead.area_sector);
+      const cesado = clienteHaSidoCesado(lead.situacion_actual);
+      const requeridos = getDocumentosRequeridos(perfil).filter(
+        (d) => d.required || (cesado && d.requiredSiCese),
+      );
+      const subidasCats = new Set(documentos.map((d) => d.categoria));
+      const completos = requeridos.every((d) => subidasCats.has(d.categoria));
+      if (completos && !(lead as any).notificacion_docs_completos_at) {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess.session?.access_token;
+        if (token) {
+          await fetch("/api/notify-docs-completos", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ leadId: lead.id }),
+          });
+        }
+      }
+    } catch (err) {
+      // Silencioso: no debemos romper la UX por un fallo de notificación
+      console.warn("notify-docs-completos:", err);
+    }
   };
 
   if (loading) {

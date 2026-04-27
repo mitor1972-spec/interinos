@@ -20,6 +20,7 @@ import { Route as PeritoAyudaIaRouteImport } from './routes/perito.ayuda-ia'
 import { Route as ClienteRegistroRouteImport } from './routes/cliente.registro'
 import { Route as ClienteLoginRouteImport } from './routes/cliente.login'
 import { Route as ApiSendLeadEmailRouteImport } from './routes/api.send-lead-email'
+import { Route as ApiNotifyDocsCompletosRouteImport } from './routes/api.notify-docs-completos'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInformesRouteImport } from './routes/admin.informes'
@@ -87,6 +88,11 @@ const ClienteLoginRoute = ClienteLoginRouteImport.update({
 const ApiSendLeadEmailRoute = ApiSendLeadEmailRouteImport.update({
   id: '/api/send-lead-email',
   path: '/api/send-lead-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotifyDocsCompletosRoute = ApiNotifyDocsCompletosRouteImport.update({
+  id: '/api/notify-docs-completos',
+  path: '/api/notify-docs-completos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/admin/informes': typeof AdminInformesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/notify-docs-completos': typeof ApiNotifyDocsCompletosRoute
   '/api/send-lead-email': typeof ApiSendLeadEmailRoute
   '/cliente/login': typeof ClienteLoginRoute
   '/cliente/registro': typeof ClienteRegistroRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/admin/informes'
     | '/admin/login'
     | '/admin/usuarios'
+    | '/api/notify-docs-completos'
     | '/api/send-lead-email'
     | '/cliente/login'
     | '/cliente/registro'
@@ -328,6 +340,7 @@ export interface RootRouteChildren {
   AdminInformesRoute: typeof AdminInformesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  ApiNotifyDocsCompletosRoute: typeof ApiNotifyDocsCompletosRoute
   ApiSendLeadEmailRoute: typeof ApiSendLeadEmailRoute
   ClienteLoginRoute: typeof ClienteLoginRoute
   ClienteRegistroRoute: typeof ClienteRegistroRoute
@@ -419,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/api/send-lead-email'
       fullPath: '/api/send-lead-email'
       preLoaderRoute: typeof ApiSendLeadEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notify-docs-completos': {
+      id: '/api/notify-docs-completos'
+      path: '/api/notify-docs-completos'
+      fullPath: '/api/notify-docs-completos'
+      preLoaderRoute: typeof ApiNotifyDocsCompletosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/usuarios': {
@@ -538,6 +558,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminInformesRoute: AdminInformesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  ApiNotifyDocsCompletosRoute: ApiNotifyDocsCompletosRoute,
   ApiSendLeadEmailRoute: ApiSendLeadEmailRoute,
   ClienteLoginRoute: ClienteLoginRoute,
   ClienteRegistroRoute: ClienteRegistroRoute,
