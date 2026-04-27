@@ -674,6 +674,8 @@ export type Database = {
         | "sentencia"
         | "justificante_pago"
         | "otro"
+        | "dni"
+        | "apud_acta"
       estado_caso:
         | "Nuevo"
         | "En estudio"
@@ -858,6 +860,8 @@ export const Constants = {
         "sentencia",
         "justificante_pago",
         "otro",
+        "dni",
+        "apud_acta",
       ],
       estado_caso: [
         "Nuevo",
