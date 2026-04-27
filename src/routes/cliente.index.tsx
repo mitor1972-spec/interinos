@@ -22,6 +22,12 @@ import {
   type LeadDocumento,
   type DocCategoria,
 } from "@/lib/documentos";
+import {
+  detectarPerfilDocumental,
+  getDocumentosRequeridos,
+  nombrePerfil,
+  type DocRequerido,
+} from "@/lib/documentosRequeridos";
 import { calcularCompletitud, colorBarra } from "@/lib/completitud";
 import type { Lead } from "@/lib/leads";
 
@@ -35,19 +41,19 @@ export const Route = createFileRoute("/cliente/")({
   component: ClienteHome,
 });
 
-interface RequiredDoc {
-  categoria: DocCategoria | "apud_acta";
-  label: string;
-  required: boolean;
+/** Heurística sencilla para detectar si el cliente está cesado a partir
+ *  del campo libre `situacion_actual`. */
+function clienteHaSidoCesado(situacion: string | null | undefined): boolean {
+  const s = (situacion ?? "").toLowerCase();
+  return (
+    s.includes("cesado") ||
+    s.includes("cesarme") ||
+    s.includes("cese") ||
+    s.includes("despid") ||
+    s.includes("fin de contrato") ||
+    s.includes("ya no trabajo")
+  );
 }
-
-const REQUIRED_DOCS: RequiredDoc[] = [
-  { categoria: "contrato", label: "Contrato o nombramiento", required: true },
-  { categoria: "vida_laboral", label: "Vida laboral SEPE", required: true },
-  { categoria: "nomina", label: "Últimas 3 nóminas", required: false },
-  { categoria: "cese", label: "Resolución de cese (si aplica)", required: false },
-  { categoria: "sentencia", label: "Sentencias previas (opcional)", required: false },
-];
 
 function ClienteHome() {
   const navigate = useNavigate();
