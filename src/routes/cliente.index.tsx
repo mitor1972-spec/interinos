@@ -319,6 +319,33 @@ function ClienteHome() {
             )}
           </div>
         )}
+        {docsRechazados.length > 0 && (
+          <div className="mb-4 rounded-xl border-2 border-destructive/60 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-none" />
+              <div>
+                <strong className="font-bold">
+                  Tienes {docsRechazados.length} documento
+                  {docsRechazados.length === 1 ? "" : "s"} rechazado
+                  {docsRechazados.length === 1 ? "" : "s"} — revisa tu documentación
+                </strong>
+                <ul className="mt-2 space-y-1 text-xs text-foreground/80">
+                  {docsRechazados.map((d) => (
+                    <li key={d.id}>
+                      <strong>{d.nombre_original}</strong>
+                      {(d as any).motivo_rechazo && (
+                        <> — {(d as any).motivo_rechazo}</>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-xs">
+                  Sube de nuevo los documentos correctos en la sección inferior.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Cabecera estado del caso */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
