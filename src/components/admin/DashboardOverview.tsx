@@ -85,26 +85,27 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Fila 1 — KPIs principales (clickables → filtran tabla) */}
+      {/* Fila 1 — KPIs principales con colores diferenciados */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <KPI
           label="Total leads"
           value={metrics.total}
           icon={Users}
+          bg="#1a3a5c"
           onClick={() => onApplyFilter?.("todos")}
         />
         <KPI
           label="Pendiente revisar"
           value={metrics.pendientes}
           icon={Bell}
-          tone="warning"
+          bg="#e8a020"
           onClick={() => onApplyFilter?.("pendientes")}
         />
         <KPI
           label="Urgentes"
           value={metrics.urgentes}
           icon={AlertCircle}
-          tone="destructive"
+          bg="#dc2626"
           onClick={() => onApplyFilter?.("urgentes")}
         />
         <KPI
@@ -112,14 +113,14 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
           value={formatEuros(metrics.cobradosEur)}
           hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
           icon={Euro}
-          tone="success"
+          bg="#16a34a"
           onClick={() => onApplyFilter?.("cobrados")}
         />
         <KPI
           label="Conversión"
           value={`${metrics.conversion}%`}
           icon={TrendingUp}
-          tone="primary"
+          bg="#2563eb"
           onClick={() => onApplyFilter?.("clientes")}
         />
       </div>
@@ -201,17 +202,20 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
       {/* Fila 3 — Mini financiero */}
       <div className="grid gap-4 lg:grid-cols-3">
         <MiniFin
+          bg="#dcfce7"
           label="Ingresos este mes"
           value={formatEuros(compa.esteMes)}
           delta={compa.variacionPct}
           deltaLabel={`vs ${formatEuros(compa.mesAnterior)} mes anterior`}
         />
         <MiniFin
+          bg="#fef9c3"
           label="Pendiente cobro Fase I"
           value={formatEuros(finanzas.pendienteCobroEur)}
           deltaLabel={`${finanzas.pendienteCobroNum} caso${finanzas.pendienteCobroNum === 1 ? "" : "s"} sin pagar`}
         />
         <MiniFin
+          bg="#dbeafe"
           label="Estimación cuota litis"
           value={`${formatEuros(finanzas.estimacionCuotaLitisMin)} – ${formatEuros(finanzas.estimacionCuotaLitisMax)}`}
           deltaLabel="Sobre casos en estado Cliente"
@@ -229,7 +233,7 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
             </p>
           </div>
         </div>
-        <div className="h-64">
+        <div style={{ height: "200px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={semanas} margin={{ top: 6, right: 12, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -298,39 +302,31 @@ interface KPIProps {
   value: string | number;
   hint?: string;
   icon: typeof Users;
-  tone?: "default" | "warning" | "destructive" | "success" | "primary";
+  bg: string;
   onClick?: () => void;
 }
 
-function KPI({ label, value, hint, icon: Icon, tone = "default", onClick }: KPIProps) {
-  const toneClasses: Record<string, string> = {
-    default: "bg-muted/40 text-foreground",
-    warning: "bg-warning/15 text-warning-foreground",
-    destructive: "bg-destructive/15 text-destructive",
-    success: "bg-success/15 text-success",
-    primary: "bg-primary/10 text-primary",
-  };
+function KPI({ label, value, hint, icon: Icon, bg, onClick }: KPIProps) {
   const Wrapper: "button" | "div" = onClick ? "button" : "div";
   return (
     <Wrapper
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      className={`rounded-2xl border border-border bg-card p-4 text-left shadow-card transition ${
-        onClick ? "cursor-pointer hover:border-accent hover:shadow-md" : ""
+      style={{ backgroundColor: bg }}
+      className={`rounded-2xl p-4 text-left text-white shadow-card transition ${
+        onClick ? "cursor-pointer hover:brightness-110 hover:shadow-md" : ""
       }`}
     >
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-white/80">
           {label}
         </span>
-        <span
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${toneClasses[tone]}`}
-        >
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
           <Icon className="h-3.5 w-3.5" />
         </span>
       </div>
-      <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
+      <div className="mt-2 text-2xl font-bold text-white">{value}</div>
+      {hint && <div className="mt-0.5 text-[11px] text-white/80">{hint}</div>}
     </Wrapper>
   );
 }
@@ -345,12 +341,16 @@ interface PanelListaProps {
 
 function PanelLista({ title, icon: Icon, tone, empty, children }: PanelListaProps) {
   const isEmpty = Array.isArray(children) ? children.length === 0 : !children;
+  const borderColor = tone === "destructive" ? "#dc2626" : "#1a3a5c";
   const ringClass =
     tone === "destructive"
       ? "bg-destructive/10 text-destructive"
       : "bg-primary/10 text-primary";
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+    <div
+      className="rounded-2xl border border-border bg-white p-5 shadow-card"
+      style={{ borderLeft: `3px solid ${borderColor}` }}
+    >
       <div className="mb-3 flex items-center gap-2">
         <span
           className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${ringClass}`}
@@ -375,13 +375,17 @@ interface MiniFinProps {
   value: string;
   delta?: number;
   deltaLabel: string;
+  bg?: string;
   link?: { to: string; label: string };
 }
 
-function MiniFin({ label, value, delta, deltaLabel, link }: MiniFinProps) {
+function MiniFin({ label, value, delta, deltaLabel, bg, link }: MiniFinProps) {
   const positive = (delta ?? 0) >= 0;
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+    <div
+      className="rounded-2xl border border-border p-4 shadow-card"
+      style={bg ? { backgroundColor: bg } : undefined}
+    >
       <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </div>

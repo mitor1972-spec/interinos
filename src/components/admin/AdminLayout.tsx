@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { RoleSwitcher } from "@/components/admin/RoleSwitcher";
+import { RoleSwitcherVertical } from "@/components/admin/RoleSwitcher";
 
 interface NavItem {
   to: string;
@@ -81,7 +81,7 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
           </div>
           <span className="text-sm font-bold text-primary">Hispajuris</span>
         </Link>
-        {isAdmin ? <RoleSwitcher /> : <span className="w-9" />}
+        <span className="w-9" />
       </header>
 
       <div className="flex">
@@ -183,15 +183,6 @@ function SidebarContent({
         </div>
       </Link>
 
-      {isAdmin && (
-        <div className="border-b border-border px-4 py-3">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Cambiar vista
-          </p>
-          <RoleSwitcher />
-        </div>
-      )}
-
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {items.map((item) => {
           const Icon = item.icon;
@@ -215,6 +206,15 @@ function SidebarContent({
           );
         })}
       </nav>
+
+      {isAdmin && (
+        <div className="border-t border-border px-3 py-3">
+          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Cambiar vista
+          </p>
+          <RoleSwitcherVertical />
+        </div>
+      )}
 
       <div className="border-t border-border px-4 py-3">
         <p className="mb-2 truncate text-[11px] text-muted-foreground" title={email}>
