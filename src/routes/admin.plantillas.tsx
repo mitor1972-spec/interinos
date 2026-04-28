@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus, Pencil, Trash2, FileType2, ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,10 @@ import {
   crearPlantilla,
   actualizarPlantilla,
   eliminarPlantilla,
+  asegurarPlantillaBase,
+  interpolarPlantilla,
   PLANTILLA_TIPOS,
+  PLANTILLA_BASE_HTML,
   VARIABLES_CANONICAS,
   type Plantilla,
   type PlantillaTipo,
