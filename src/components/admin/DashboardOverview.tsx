@@ -85,26 +85,27 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Fila 1 — KPIs principales (clickables → filtran tabla) */}
+      {/* Fila 1 — KPIs principales con colores diferenciados */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <KPI
           label="Total leads"
           value={metrics.total}
           icon={Users}
+          bg="#1a3a5c"
           onClick={() => onApplyFilter?.("todos")}
         />
         <KPI
           label="Pendiente revisar"
           value={metrics.pendientes}
           icon={Bell}
-          tone="warning"
+          bg="#e8a020"
           onClick={() => onApplyFilter?.("pendientes")}
         />
         <KPI
           label="Urgentes"
           value={metrics.urgentes}
           icon={AlertCircle}
-          tone="destructive"
+          bg="#dc2626"
           onClick={() => onApplyFilter?.("urgentes")}
         />
         <KPI
@@ -112,14 +113,14 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
           value={formatEuros(metrics.cobradosEur)}
           hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
           icon={Euro}
-          tone="success"
+          bg="#16a34a"
           onClick={() => onApplyFilter?.("cobrados")}
         />
         <KPI
           label="Conversión"
           value={`${metrics.conversion}%`}
           icon={TrendingUp}
-          tone="primary"
+          bg="#2563eb"
           onClick={() => onApplyFilter?.("clientes")}
         />
       </div>
