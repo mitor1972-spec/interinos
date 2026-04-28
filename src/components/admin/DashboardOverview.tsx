@@ -84,28 +84,27 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
   }, [leads]);
 
   return (
-    <div className="space-y-6">
-      {/* Fila 1 — KPIs principales con colores diferenciados */}
+    <div className="space-y-5">
+      {/* Fila 1 — KPIs todos en azul marino, diferenciados por badge */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <KPI
           label="Total leads"
           value={metrics.total}
           icon={Users}
-          bg="#1a3a5c"
           onClick={() => onApplyFilter?.("todos")}
         />
         <KPI
           label="Pendiente revisar"
           value={metrics.pendientes}
           icon={Bell}
-          bg="#e8a020"
+          badgeColor="#e8a020"
           onClick={() => onApplyFilter?.("pendientes")}
         />
         <KPI
           label="Urgentes"
           value={metrics.urgentes}
           icon={AlertCircle}
-          bg="#dc2626"
+          badgeColor="#dc2626"
           onClick={() => onApplyFilter?.("urgentes")}
         />
         <KPI
@@ -113,14 +112,12 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
           value={formatEuros(metrics.cobradosEur)}
           hint={`${metrics.cobradosNum} pago${metrics.cobradosNum === 1 ? "" : "s"}`}
           icon={Euro}
-          bg="#16a34a"
           onClick={() => onApplyFilter?.("cobrados")}
         />
         <KPI
           label="Conversión"
           value={`${metrics.conversion}%`}
           icon={TrendingUp}
-          bg="#2563eb"
           onClick={() => onApplyFilter?.("clientes")}
         />
       </div>
@@ -177,7 +174,7 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
               <button
                 key={l.id}
                 onClick={() => onOpenLead(l)}
-                className="group flex w-full items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-left transition hover:border-destructive hover:bg-destructive/10"
+                className="group flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2.5 text-left transition hover:border-destructive hover:bg-destructive/5"
               >
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold text-foreground">
@@ -188,7 +185,10 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="rounded-full bg-destructive/15 px-2 py-0.5 font-semibold text-destructive">
+                  <span
+                    className="rounded-full px-2 py-0.5 font-semibold text-white"
+                    style={{ backgroundColor: "#dc2626" }}
+                  >
                     {dias === 0 ? "hoy" : `${dias}d`}
                   </span>
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition group-hover:text-destructive" />
@@ -199,23 +199,20 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
         </PanelLista>
       </div>
 
-      {/* Fila 3 — Mini financiero */}
+      {/* Fila 3 — Mini financiero (todas en gris claro con borde superior azul) */}
       <div className="grid gap-4 lg:grid-cols-3">
         <MiniFin
-          bg="#dcfce7"
           label="Ingresos este mes"
           value={formatEuros(compa.esteMes)}
           delta={compa.variacionPct}
           deltaLabel={`vs ${formatEuros(compa.mesAnterior)} mes anterior`}
         />
         <MiniFin
-          bg="#fef9c3"
           label="Pendiente cobro Fase I"
           value={formatEuros(finanzas.pendienteCobroEur)}
           deltaLabel={`${finanzas.pendienteCobroNum} caso${finanzas.pendienteCobroNum === 1 ? "" : "s"} sin pagar`}
         />
         <MiniFin
-          bg="#dbeafe"
           label="Estimación cuota litis"
           value={`${formatEuros(finanzas.estimacionCuotaLitisMin)} – ${formatEuros(finanzas.estimacionCuotaLitisMax)}`}
           deltaLabel="Sobre casos en estado Cliente"
@@ -223,17 +220,17 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
         />
       </div>
 
-      {/* Fila 4 — Gráfico semanal */}
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        <div className="mb-4 flex items-end justify-between">
+      {/* Fila 4 — Gráfico (al final, compacto) */}
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <div className="mb-3 flex items-end justify-between">
           <div>
             <h3 className="text-sm font-bold text-primary">Leads por semana</h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Últimas 8 semanas · barras = leads, línea = % conversión a Cliente
             </p>
           </div>
         </div>
-        <div style={{ height: "200px" }}>
+        <div style={{ height: "180px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={semanas} margin={{ top: 6, right: 12, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -275,8 +272,8 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
                 yAxisId="left"
                 dataKey="total"
                 name="Leads"
-                fill="hsl(var(--primary))"
-                radius={[6, 6, 0, 0]}
+                fill="#1a3a5c"
+                radius={[4, 4, 0, 0]}
               />
               <Line
                 yAxisId="right"
@@ -302,31 +299,40 @@ interface KPIProps {
   value: string | number;
   hint?: string;
   icon: typeof Users;
-  bg: string;
+  badgeColor?: string;
   onClick?: () => void;
 }
 
-function KPI({ label, value, hint, icon: Icon, bg, onClick }: KPIProps) {
+function KPI({ label, value, hint, icon: Icon, badgeColor, onClick }: KPIProps) {
   const Wrapper: "button" | "div" = onClick ? "button" : "div";
   return (
     <Wrapper
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      style={{ backgroundColor: bg }}
-      className={`rounded-2xl p-4 text-left text-white shadow-card transition ${
+      style={{ backgroundColor: "#1a3a5c", maxHeight: "80px" }}
+      className={`relative flex flex-col justify-between rounded-xl px-3 py-2.5 text-left text-white shadow-card transition ${
         onClick ? "cursor-pointer hover:brightness-110 hover:shadow-md" : ""
       }`}
     >
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-white/80">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-white/75">
           {label}
         </span>
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
-          <Icon className="h-3.5 w-3.5" />
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-white/15">
+          <Icon className="h-3 w-3" />
         </span>
       </div>
-      <div className="mt-2 text-2xl font-bold text-white">{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-white/80">{hint}</div>}
+      <div className="mt-0.5 flex items-end gap-1.5">
+        <div className="text-xl font-bold leading-none text-white">{value}</div>
+        {badgeColor && (
+          <span
+            className="inline-block h-2 w-2 rounded-full"
+            style={{ backgroundColor: badgeColor }}
+            aria-hidden
+          />
+        )}
+      </div>
+      {hint && <div className="mt-0.5 text-[10px] text-white/75">{hint}</div>}
     </Wrapper>
   );
 }
