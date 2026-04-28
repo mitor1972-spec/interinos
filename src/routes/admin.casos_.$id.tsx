@@ -752,19 +752,22 @@ type BlockTone =
 const COLOR_A = "#1a3a5c";
 const COLOR_B = "#15803d";
 const COLOR_C = "#374151";
-const BODY_BG = "#f8fafc";
+// Body bg coordinado por color de cabecera
+const BODY_A = "#f0f4f8"; // azul muy claro
+const BODY_B = "#f0fdf4"; // verde muy claro
+const BODY_C = "#f9fafb"; // gris muy claro
 
 const BLOCK_TONES: Record<BlockTone, { header: string; body: string }> = {
-  cliente:    { header: COLOR_A, body: BODY_BG }, // A
-  diagnostico:{ header: COLOR_B, body: BODY_BG }, // B
-  gestion:    { header: COLOR_C, body: BODY_BG }, // C
-  documentos: { header: COLOR_A, body: BODY_BG }, // A
-  ia:         { header: COLOR_B, body: BODY_BG }, // B
-  validacion: { header: COLOR_C, body: BODY_BG }, // C
-  escrito:    { header: COLOR_A, body: BODY_BG }, // A
-  valoracion: { header: COLOR_B, body: BODY_BG }, // B
-  notas:      { header: COLOR_C, body: BODY_BG }, // C
-  historial:  { header: COLOR_C, body: BODY_BG }, // C
+  cliente:    { header: COLOR_A, body: BODY_A },
+  diagnostico:{ header: COLOR_B, body: BODY_B },
+  gestion:    { header: COLOR_C, body: BODY_C },
+  documentos: { header: COLOR_A, body: BODY_A },
+  ia:         { header: COLOR_B, body: BODY_B },
+  validacion: { header: COLOR_C, body: BODY_C },
+  escrito:    { header: COLOR_A, body: BODY_A },
+  valoracion: { header: COLOR_B, body: BODY_B },
+  notas:      { header: COLOR_C, body: BODY_C },
+  historial:  { header: COLOR_C, body: BODY_C },
 };
 
 function Block({
