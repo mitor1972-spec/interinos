@@ -523,8 +523,8 @@ function AdminCasoDetalle() {
             <LeadValidacionIA leadId={lead.id} />
           </Block>
 
-          {/* 7. GENERAR ESCRITO */}
-          <Block title="Generar escrito (Word / PDF)" icon={FileText} tone="escrito">
+          {/* 7. DESCARGAR INFORME PDF */}
+          <Block title="Descargar informe PDF" icon={FileText} tone="escrito">
             <LeadGenerarDocumento lead={lead} />
           </Block>
 
@@ -615,8 +615,6 @@ function AdminCasoDetalle() {
                   label="Enviar al abogado"
                 />
               )}
-              <QuickAction onClick={descargarPDF} icon={Download} label="Descargar PDF" />
-              <QuickAction onClick={descargarWord} icon={FileText} label="Descargar Word" />
               <button
                 disabled
                 className="inline-flex cursor-not-allowed items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[12px] font-semibold text-muted-foreground"
@@ -762,8 +760,8 @@ const BLOCK_TONES: Record<BlockTone, { header: string; body: string }> = {
   gestion:    { header: COLOR_C, body: BODY_BG }, // C
   documentos: { header: COLOR_A, body: BODY_BG }, // A
   ia:         { header: COLOR_B, body: BODY_BG }, // B
-  validacion: { header: COLOR_A, body: BODY_BG }, // A
-  escrito:    { header: COLOR_C, body: BODY_BG }, // C
+  validacion: { header: COLOR_C, body: BODY_BG }, // C
+  escrito:    { header: COLOR_A, body: BODY_BG }, // A
   valoracion: { header: COLOR_B, body: BODY_BG }, // B
   notas:      { header: COLOR_C, body: BODY_BG }, // C
   historial:  { header: COLOR_C, body: BODY_BG }, // C
