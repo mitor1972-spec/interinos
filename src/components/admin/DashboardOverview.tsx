@@ -375,13 +375,17 @@ interface MiniFinProps {
   value: string;
   delta?: number;
   deltaLabel: string;
+  bg?: string;
   link?: { to: string; label: string };
 }
 
-function MiniFin({ label, value, delta, deltaLabel, link }: MiniFinProps) {
+function MiniFin({ label, value, delta, deltaLabel, bg, link }: MiniFinProps) {
   const positive = (delta ?? 0) >= 0;
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+    <div
+      className="rounded-2xl border border-border p-4 shadow-card"
+      style={bg ? { backgroundColor: bg } : undefined}
+    >
       <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </div>
