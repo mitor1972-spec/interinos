@@ -92,23 +92,39 @@ function AdminPlantillas() {
             </h1>
             <p className="text-sm text-muted-foreground">
               Define modelos de demanda, recursos y escritos con variables tipo{" "}
-              <code className="rounded bg-muted px-1.5">{`{{cliente.nombre}}`}</code>.
+              <code className="rounded bg-muted px-1.5">{`{{cliente_nombre}}`}</code>.
             </p>
           </div>
-          <button
-            onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-light"
-          >
-            <Plus className="h-4 w-4" /> Nueva plantilla
-          </button>
+          <div className="flex items-center gap-2">
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value as "" | PlantillaTipo)}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-sm"
+            >
+              <option value="">Todos los tipos</option>
+              {PLANTILLA_TIPOS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setCreating(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-light"
+            >
+              <Plus className="h-4 w-4" /> Nueva plantilla
+            </button>
+          </div>
         </div>
 
         {loadingList ? (
           <p className="text-sm text-muted-foreground">Cargando…</p>
-        ) : items.length === 0 ? (
+        ) : itemsFiltrados.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No hay plantillas. Crea la primera para que los abogados puedan generar escritos.
+              {items.length === 0
+                ? "No hay plantillas. Crea la primera para que los abogados puedan generar escritos."
+                : "Ninguna plantilla con ese filtro."}
             </p>
           </div>
         ) : (
