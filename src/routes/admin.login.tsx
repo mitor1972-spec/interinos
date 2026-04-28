@@ -220,9 +220,18 @@ function LoginPage() {
             </div>
           )}
 
-          <p className="mt-5 text-center text-xs text-muted-foreground">
-            ¿No tienes cuenta? Pide acceso al administrador.
-          </p>
+          <div className="mt-5 rounded-xl border border-border bg-muted/30 p-3 text-center">
+            <p className="text-xs font-semibold text-foreground">¿No tienes cuenta?</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Para solicitar acceso contacta con el administrador:
+            </p>
+            <a
+              href="mailto:empleopublico@hispajuris.es"
+              className="mt-1 inline-block text-[12px] font-semibold text-accent hover:underline"
+            >
+              empleopublico@hispajuris.es
+            </a>
+          </div>
         </div>
 
         <Link to="/" className="mt-6 block text-center text-xs text-primary-foreground/70 hover:text-accent">
