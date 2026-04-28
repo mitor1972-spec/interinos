@@ -338,12 +338,16 @@ interface PanelListaProps {
 
 function PanelLista({ title, icon: Icon, tone, empty, children }: PanelListaProps) {
   const isEmpty = Array.isArray(children) ? children.length === 0 : !children;
+  const borderColor = tone === "destructive" ? "#dc2626" : "#1a3a5c";
   const ringClass =
     tone === "destructive"
       ? "bg-destructive/10 text-destructive"
       : "bg-primary/10 text-primary";
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+    <div
+      className="rounded-2xl border border-border bg-white p-5 shadow-card"
+      style={{ borderLeft: `3px solid ${borderColor}` }}
+    >
       <div className="mb-3 flex items-center gap-2">
         <span
           className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${ringClass}`}
