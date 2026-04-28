@@ -845,10 +845,28 @@ function Widget({ title, children }: { title: string; children: React.ReactNode 
 function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span
+        style={{
+          fontSize: "10px",
+          fontWeight: 600,
+          color: "#6b7280",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          marginBottom: "2px",
+        }}
+      >
         {label}
       </span>
-      <span className="mt-0.5 text-[13px] text-foreground">{value || "—"}</span>
+      <span
+        style={{
+          fontSize: "14px",
+          fontWeight: 600,
+          color: "#111827",
+          marginBottom: "12px",
+        }}
+      >
+        {value || "—"}
+      </span>
     </div>
   );
 }
