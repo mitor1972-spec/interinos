@@ -213,7 +213,7 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
   tr { page-break-inside: avoid; break-inside: avoid; }
   ul { margin: 4px 0 4px 20px; }
   li { page-break-inside: avoid; break-inside: avoid; }
-  .nota { background: #f8fafc; border-left: 3px solid #1a3a5c; padding: 8px 10px; margin: 6px 0; font-size: 10.5pt; page-break-inside: avoid; break-inside: avoid; }
+  .nota { background: #f8fafc; border-left: 2px solid #1a3a5c; padding: 5px 8px; margin: 4px 0; font-size: 9pt; page-break-inside: avoid; break-inside: avoid; }
   @media print {
     .no-print { display: none !important; }
     header.cab { display: none; }
