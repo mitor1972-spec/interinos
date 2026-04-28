@@ -180,7 +180,7 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 <style>
   @page {
     size: A4;
-    margin: 28mm 16mm 28mm 16mm;
+    margin: 18mm 14mm 18mm 14mm;
     @bottom-center {
       content: "Documento confidencial — Plataforma Obadal  ·  Página " counter(page) " de " counter(pages);
       font-size: 9pt;
