@@ -16,27 +16,37 @@ export const PLANTILLA_TIPOS: { value: PlantillaTipo; label: string }[] = [
   { value: "otro", label: "Otro" },
 ];
 
-/** Variables canónicas disponibles para plantillas. Se interpolan como {{clave}}. */
-export const VARIABLES_CANONICAS: { key: string; descripcion: string }[] = [
-  { key: "cliente.nombre", descripcion: "Nombre completo del cliente" },
-  { key: "cliente.email", descripcion: "Email del cliente" },
-  { key: "cliente.telefono", descripcion: "Teléfono del cliente" },
-  { key: "cliente.dni", descripcion: "DNI del cliente (extraído del documento)" },
-  { key: "cliente.fecha_nacimiento", descripcion: "Fecha de nacimiento" },
-  { key: "cliente.provincia", descripcion: "Provincia" },
-  { key: "caso.administracion", descripcion: "Administración demandada" },
-  { key: "caso.tipo_relacion", descripcion: "Tipo de relación (laboral / funcionarial)" },
-  { key: "caso.anos_servicio", descripcion: "Años totales de servicio" },
-  { key: "caso.fecha_primer_nombramiento", descripcion: "Fecha del primer nombramiento" },
-  { key: "caso.fecha_ultimo_nombramiento", descripcion: "Fecha del último nombramiento" },
-  { key: "economia.salario_bruto_mensual", descripcion: "Último salario bruto mensual" },
-  { key: "economia.salario_diario", descripcion: "Salario diario calculado" },
-  { key: "economia.indemnizacion_actual", descripcion: "Indemnización sistema actual (20 días/año)" },
-  { key: "economia.indemnizacion_tjue", descripcion: "Indemnización TJUE sin tope" },
-  { key: "economia.diferencia_perjuicio", descripcion: "Diferencia (perjuicio estimado)" },
-  { key: "abogado.nombre", descripcion: "Nombre del abogado asignado" },
-  { key: "abogado.email", descripcion: "Email del abogado asignado" },
-  { key: "fecha.hoy", descripcion: "Fecha de hoy (DD/MM/YYYY)" },
+/** Variables canónicas disponibles para plantillas. Se interpolan como {{clave}}.
+ *  Se admiten dos formatos equivalentes: con punto (cliente.nombre) y con
+ *  guion bajo (cliente_nombre). El motor del backend resuelve ambos. */
+export const VARIABLES_CANONICAS: { key: string; descripcion: string; grupo: string }[] = [
+  // Cliente
+  { grupo: "Cliente", key: "cliente_nombre", descripcion: "Nombre completo del cliente" },
+  { grupo: "Cliente", key: "cliente_dni", descripcion: "DNI del cliente (extraído del documento)" },
+  { grupo: "Cliente", key: "cliente_email", descripcion: "Email del cliente" },
+  { grupo: "Cliente", key: "cliente_telefono", descripcion: "Teléfono del cliente" },
+  { grupo: "Cliente", key: "cliente_provincia", descripcion: "Provincia" },
+  { grupo: "Cliente", key: "cliente_fecha_nacimiento", descripcion: "Fecha de nacimiento" },
+  // Caso
+  { grupo: "Caso", key: "administracion", descripcion: "Administración demandada" },
+  { grupo: "Caso", key: "tipo_relacion", descripcion: "Funcionario / Laboral / Estatutario" },
+  { grupo: "Caso", key: "area_sector", descripcion: "Área o sector (sanidad, educación…)" },
+  { grupo: "Caso", key: "fecha_inicio_relacion", descripcion: "Fecha del primer nombramiento" },
+  { grupo: "Caso", key: "fecha_cese", descripcion: "Fecha del último nombramiento / cese" },
+  { grupo: "Caso", key: "anos_servicio_total", descripcion: "Años totales de servicio" },
+  { grupo: "Caso", key: "nombramientos_lista", descripcion: "Lista de nombramientos detectados" },
+  { grupo: "Caso", key: "documentos_aportados", descripcion: "Lista de documentos aportados" },
+  // Económico
+  { grupo: "Económico", key: "salario_bruto_anual", descripcion: "Salario bruto anual estimado" },
+  { grupo: "Económico", key: "salario_bruto_mensual", descripcion: "Último salario bruto mensual" },
+  { grupo: "Económico", key: "salario_diario", descripcion: "Salario diario calculado" },
+  { grupo: "Económico", key: "indem_sistema_actual", descripcion: "Indemnización sistema actual (20 días/año)" },
+  { grupo: "Económico", key: "indem_tjue_sin_tope", descripcion: "Indemnización TJUE sin tope" },
+  { grupo: "Económico", key: "diferencia_perjuicio", descripcion: "Diferencia (perjuicio estimado)" },
+  // Otros
+  { grupo: "Otros", key: "abogado_nombre", descripcion: "Nombre del abogado asignado" },
+  { grupo: "Otros", key: "abogado_email", descripcion: "Email del abogado asignado" },
+  { grupo: "Otros", key: "fecha_hoy", descripcion: "Fecha de hoy (DD/MM/YYYY)" },
 ];
 
 export async function listarPlantillas(opts: { soloActivas?: boolean } = {}): Promise<Plantilla[]> {
