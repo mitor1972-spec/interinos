@@ -35,6 +35,7 @@ function AdminPlantillas() {
   const [loadingList, setLoadingList] = useState(true);
   const [editing, setEditing] = useState<Plantilla | null>(null);
   const [creating, setCreating] = useState(false);
+  const [filtroTipo, setFiltroTipo] = useState<"" | PlantillaTipo>("");
 
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -44,6 +45,7 @@ function AdminPlantillas() {
 
   async function recargar() {
     setLoadingList(true);
+    await asegurarPlantillaBase();
     const data = await listarPlantillas();
     setItems(data);
     setLoadingList(false);
@@ -52,6 +54,11 @@ function AdminPlantillas() {
   useEffect(() => {
     void recargar();
   }, []);
+
+  const itemsFiltrados = useMemo(
+    () => (filtroTipo ? items.filter((p) => p.tipo === filtroTipo) : items),
+    [items, filtroTipo],
+  );
 
   async function toggleActiva(p: Plantilla) {
     const r = await actualizarPlantilla(p.id, { activa: !p.activa });
