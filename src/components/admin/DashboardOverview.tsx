@@ -266,6 +266,8 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
+                wrapperStyle={{ pointerEvents: "none" }}
+                isAnimationActive={false}
               />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar
@@ -274,6 +276,7 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
                 name="Leads"
                 fill="#1a3a5c"
                 radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
               />
               <Line
                 yAxisId="right"
@@ -283,6 +286,7 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
                 stroke="hsl(var(--accent))"
                 strokeWidth={2}
                 dot={{ r: 3, fill: "hsl(var(--accent))" }}
+                isAnimationActive={false}
               />
             </ComposedChart>
           </ResponsiveContainer>
