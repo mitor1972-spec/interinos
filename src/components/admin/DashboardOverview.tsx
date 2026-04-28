@@ -202,17 +202,20 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
       {/* Fila 3 — Mini financiero */}
       <div className="grid gap-4 lg:grid-cols-3">
         <MiniFin
+          bg="#dcfce7"
           label="Ingresos este mes"
           value={formatEuros(compa.esteMes)}
           delta={compa.variacionPct}
           deltaLabel={`vs ${formatEuros(compa.mesAnterior)} mes anterior`}
         />
         <MiniFin
+          bg="#fef9c3"
           label="Pendiente cobro Fase I"
           value={formatEuros(finanzas.pendienteCobroEur)}
           deltaLabel={`${finanzas.pendienteCobroNum} caso${finanzas.pendienteCobroNum === 1 ? "" : "s"} sin pagar`}
         />
         <MiniFin
+          bg="#dbeafe"
           label="Estimación cuota litis"
           value={`${formatEuros(finanzas.estimacionCuotaLitisMin)} – ${formatEuros(finanzas.estimacionCuotaLitisMax)}`}
           deltaLabel="Sobre casos en estado Cliente"
@@ -230,7 +233,7 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
             </p>
           </div>
         </div>
-        <div className="h-64">
+        <div style={{ height: "200px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={semanas} margin={{ top: 6, right: 12, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
