@@ -149,7 +149,7 @@ function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} method="post" action="#" noValidate className="mt-6 space-y-4">
             <label className="block">
               <span className="text-sm font-semibold text-foreground">Email</span>
               <input
