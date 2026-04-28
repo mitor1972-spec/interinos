@@ -51,7 +51,7 @@ async function cargarDocumentos(leadId: string): Promise<LeadDocumento[]> {
   return (data ?? []) as LeadDocumento[];
 }
 
-function bloque(titulo: string, htmlInterior: string): string {
+function bloque(titulo: string, htmlInterior: string, saltoPagina = false): string {
   return `<section class="bloque${saltoPagina ? " salto-pagina" : ""}">
     <h2>${esc(titulo)}</h2>
     ${htmlInterior}
