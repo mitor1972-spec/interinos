@@ -30,6 +30,7 @@ import { LeadGenerarDocumento } from "@/components/admin/LeadGenerarDocumento";
 import { LeadValidacionIA } from "@/components/admin/LeadValidacionIA";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
+import { AsignacionPerito } from "@/components/admin/AsignacionPerito";
 import { PagoManualCompact } from "@/components/admin/PagoManualCompact";
 import { descargarInformePDF, descargarInformeWord } from "@/lib/informeCaso";
 import {
@@ -625,11 +626,9 @@ function AdminCasoDetalle() {
             </div>
           </Widget>
 
-          {/* W5 — PERITO (placeholder simple por ahora) */}
+          {/* W5 — PERITO */}
           <Widget title="Perito asignado">
-            <p className="text-[12px] text-muted-foreground">
-              Sin perito asignado. La valoración económica se completará cuando se asigne.
-            </p>
+            <AsignacionPerito leadId={lead.id} canManage={viewAsAdmin} />
           </Widget>
 
           {/* Metadatos pequeños */}
