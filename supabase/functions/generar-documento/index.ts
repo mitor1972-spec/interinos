@@ -47,11 +47,16 @@ function safe(v: unknown): string {
 }
 
 // Sustituye {{clave}} y {{clave|default}} en el contenido HTML.
+// Acepta variables con punto (cliente.nombre) o guion bajo (cliente_nombre).
 function interpolar(html: string, vars: Record<string, string>): string {
   return html.replace(/\{\{\s*([\w.]+)(?:\s*\|\s*([^}]+))?\s*\}\}/g, (_m, key, def) => {
-    const val = vars[key as string];
-    if (val === undefined || val === null || val === "") return (def ?? "").trim();
-    return val;
+    const k = String(key);
+    const v =
+      vars[k] ??
+      vars[k.replace(/\./g, "_")] ??
+      vars[k.replace(/_/g, ".")];
+    if (v === undefined || v === null || v === "") return (def ?? "").trim();
+    return v;
   });
 }
 
