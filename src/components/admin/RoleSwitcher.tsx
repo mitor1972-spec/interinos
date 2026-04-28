@@ -55,6 +55,44 @@ export function RoleSwitcher() {
   );
 }
 
+export function RoleSwitcherVertical() {
+  const { role, setRole } = useImpersonation();
+  const navigate = useNavigate();
+
+  const handleChange = (next: ImpersonatedRole) => {
+    setRole(next);
+    if (next === "cliente") navigate({ to: "/cliente" });
+    else if (next === "abogado") navigate({ to: "/abogado" });
+    else if (next === "perito") navigate({ to: "/perito" });
+    else navigate({ to: "/admin" });
+  };
+
+  return (
+    <div className="flex flex-col gap-1">
+      {OPTIONS.map((opt) => {
+        const Icon = opt.icon;
+        const active = role === opt.value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => handleChange(opt.value)}
+            className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12px] font-semibold transition ${
+              active
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+            aria-pressed={active}
+          >
+            <Icon className="h-3.5 w-3.5 flex-none" />
+            <span>{opt.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ImpersonationBanner() {
   const { role, setRole, isImpersonating } = useImpersonation();
   if (!isImpersonating) return null;
