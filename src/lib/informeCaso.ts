@@ -287,6 +287,10 @@ export async function descargarInformeWord(lead: Lead): Promise<void> {
   a.download = `${baseFilename}.doc`;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => {
+    if (document.body.contains(a)) {
+      document.body.removeChild(a);
+    }
+    URL.revokeObjectURL(url);
+  }, 100);
 }
