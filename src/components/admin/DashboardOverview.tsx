@@ -381,7 +381,6 @@ interface MiniFinProps {
   value: string;
   delta?: number;
   deltaLabel: string;
-  bg?: string;
   link?: { to: string; label: string };
 }
 
