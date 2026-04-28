@@ -797,14 +797,26 @@ function Block({
   }
   return (
     <section
-      className="overflow-hidden rounded-lg border border-border shadow-sm"
-      style={{ backgroundColor: colors.body }}
+      className="overflow-hidden"
+      style={{
+        backgroundColor: colors.body,
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+      }}
     >
       <div
-        className="flex items-center justify-between gap-2 px-4 py-2"
-        style={{ backgroundColor: colors.header }}
+        className="flex items-center justify-between gap-2"
+        style={{
+          backgroundColor: colors.header,
+          padding: "10px 16px",
+          borderRadius: "8px 8px 0 0",
+        }}
       >
-        <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-white">
+        <h3
+          className="flex items-center gap-2 text-white"
+          style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}
+        >
           {Icon && <Icon className="h-3.5 w-3.5" />}
           {title}
         </h3>
@@ -814,7 +826,7 @@ function Block({
           </span>
         )}
       </div>
-      <div className="p-4">{children}</div>
+      <div style={{ padding: "16px", borderRadius: "0 0 8px 8px" }}>{children}</div>
     </section>
   );
 }
