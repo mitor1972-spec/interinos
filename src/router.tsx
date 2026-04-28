@@ -43,10 +43,16 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
             Try again
           </button>
           <a
-            href="/"
+            href="/admin/login"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Ir al login
+          </a>
+          <a
+            href="/admin"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            Ir al panel
           </a>
         </div>
       </div>
