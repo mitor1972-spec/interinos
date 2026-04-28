@@ -51,8 +51,8 @@ async function cargarDocumentos(leadId: string): Promise<LeadDocumento[]> {
   return (data ?? []) as LeadDocumento[];
 }
 
-function bloque(titulo: string, htmlInterior: string): string {
-  return `<section class="bloque">
+function bloque(titulo: string, htmlInterior: string, saltoPagina = false): string {
+  return `<section class="bloque${saltoPagina ? " salto-pagina" : ""}">
     <h2>${esc(titulo)}</h2>
     ${htmlInterior}
   </section>`;
@@ -178,25 +178,47 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 <meta charset="utf-8" />
 <title>Caso ${esc(lead.nombre)} — Expediente ${esc(expediente)}</title>
 <style>
-  @page { size: A4; margin: 18mm 16mm 22mm 16mm; }
+  @page {
+    size: A4;
+    margin: 28mm 16mm 28mm 16mm;
+    @bottom-center {
+      content: "Documento confidencial — Plataforma Obadal  ·  Página " counter(page) " de " counter(pages);
+      font-size: 9pt;
+      color: #666;
+    }
+    @top-center {
+      content: "Hispajuris · Asesor.Legal  —  Expediente ${esc(expediente)}";
+      font-size: 9pt;
+      color: #1a3a5c;
+      font-weight: bold;
+    }
+  }
   body { font-family: Georgia, "Times New Roman", serif; color: #111; font-size: 11pt; line-height: 1.45; }
   header.cab { border-bottom: 2px solid #1a3a5c; padding-bottom: 10px; margin-bottom: 18px; }
   header.cab .marca { font-size: 14pt; font-weight: bold; color: #1a3a5c; letter-spacing: 0.5px; }
   header.cab .meta { display: flex; justify-content: space-between; font-size: 10pt; color: #444; margin-top: 4px; }
-  h1 { font-size: 18pt; color: #1a3a5c; margin: 4px 0 12px; }
-  h2 { font-size: 13pt; color: #1a3a5c; border-bottom: 1px solid #cfd8e3; padding-bottom: 3px; margin: 18px 0 8px; }
-  h3 { font-size: 11pt; margin: 10px 0 4px; color: #1a3a5c; }
-  .bloque { margin-bottom: 14px; page-break-inside: avoid; }
+  h1 { font-size: 18pt; color: #1a3a5c; margin: 4px 0 12px; page-break-after: avoid; }
+  h2 { font-size: 13pt; color: #1a3a5c; border-bottom: 1px solid #cfd8e3; padding-bottom: 3px; margin: 18px 0 8px; page-break-after: avoid; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 10px 0 4px; color: #1a3a5c; page-break-after: avoid; break-after: avoid; }
+  .bloque { margin-bottom: 14px; page-break-inside: avoid; break-inside: avoid; }
+  .salto-pagina { page-break-before: always; break-before: page; }
+  table { page-break-inside: avoid; break-inside: avoid; }
   table.tabla { width: 100%; border-collapse: collapse; margin: 4px 0; }
   table.tabla th, table.tabla td { padding: 5px 8px; border: 1px solid #d0d7de; vertical-align: top; text-align: left; font-size: 10.5pt; }
   table.tabla th { background: #f1f5f9; width: 38%; font-weight: 600; color: #1a3a5c; }
   table.tabla.lista th { width: auto; }
+  table.tabla.lista thead { display: table-header-group; }
+  table.tabla.lista tfoot { display: table-footer-group; }
   table.tabla.lista thead th { background: #1a3a5c; color: #fff; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
   ul { margin: 4px 0 4px 20px; }
-  .nota { background: #f8fafc; border-left: 3px solid #1a3a5c; padding: 8px 10px; margin: 6px 0; font-size: 10.5pt; }
-  footer.pie { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9pt; color: #666; border-top: 1px solid #cfd8e3; padding-top: 4px; }
-  @media print { .no-print { display: none !important; } }
-  .toolbar { position: sticky; top: 0; background: #1a3a5c; color: #fff; padding: 10px; text-align: center; margin: -18mm -16mm 18px; }
+  li { page-break-inside: avoid; break-inside: avoid; }
+  .nota { background: #f8fafc; border-left: 3px solid #1a3a5c; padding: 8px 10px; margin: 6px 0; font-size: 10.5pt; page-break-inside: avoid; break-inside: avoid; }
+  @media print {
+    .no-print { display: none !important; }
+    header.cab { display: none; }
+  }
+  .toolbar { position: sticky; top: 0; background: #1a3a5c; color: #fff; padding: 10px; text-align: center; margin: -18mm -16mm 18px; z-index: 100; }
   .toolbar button { background: #fff; color: #1a3a5c; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin: 0 4px; }
 </style>
 </head>
@@ -218,13 +240,11 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 
   ${bloque("1. Datos personales del cliente", datosPersonales)}
   ${bloque("2. Datos del caso", datosCaso)}
-  ${bloque("3. Diagnóstico", diagnostico)}
-  ${bloque("4. Gestión Hispajuris", gestion)}
-  ${bloque("5. Documentación aportada", docsHtml)}
+  ${bloque("3. Diagnóstico", diagnostico, true)}
+  ${bloque("4. Gestión Hispajuris", gestion, true)}
+  ${bloque("5. Documentación aportada", docsHtml, true)}
   ${bloque("6. Notas internas del abogado", notas)}
   ${bloque("7. Historial de cambios", historialHtml)}
-
-  <footer class="pie">Documento confidencial — Plataforma Obadal</footer>
 </body>
 </html>`;
 
