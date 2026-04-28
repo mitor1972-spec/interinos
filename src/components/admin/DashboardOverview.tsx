@@ -299,39 +299,31 @@ interface KPIProps {
   value: string | number;
   hint?: string;
   icon: typeof Users;
-  tone?: "default" | "warning" | "destructive" | "success" | "primary";
+  bg: string;
   onClick?: () => void;
 }
 
-function KPI({ label, value, hint, icon: Icon, tone = "default", onClick }: KPIProps) {
-  const toneClasses: Record<string, string> = {
-    default: "bg-muted/40 text-foreground",
-    warning: "bg-warning/15 text-warning-foreground",
-    destructive: "bg-destructive/15 text-destructive",
-    success: "bg-success/15 text-success",
-    primary: "bg-primary/10 text-primary",
-  };
+function KPI({ label, value, hint, icon: Icon, bg, onClick }: KPIProps) {
   const Wrapper: "button" | "div" = onClick ? "button" : "div";
   return (
     <Wrapper
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      className={`rounded-2xl border border-border bg-card p-4 text-left shadow-card transition ${
-        onClick ? "cursor-pointer hover:border-accent hover:shadow-md" : ""
+      style={{ backgroundColor: bg }}
+      className={`rounded-2xl p-4 text-left text-white shadow-card transition ${
+        onClick ? "cursor-pointer hover:brightness-110 hover:shadow-md" : ""
       }`}
     >
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-white/80">
           {label}
         </span>
-        <span
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${toneClasses[tone]}`}
-        >
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
           <Icon className="h-3.5 w-3.5" />
         </span>
       </div>
-      <div className="mt-2 text-2xl font-bold text-primary">{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
+      <div className="mt-2 text-2xl font-bold text-white">{value}</div>
+      {hint && <div className="mt-0.5 text-[11px] text-white/80">{hint}</div>}
     </Wrapper>
   );
 }
