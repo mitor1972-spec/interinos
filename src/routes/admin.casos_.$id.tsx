@@ -752,19 +752,22 @@ type BlockTone =
 const COLOR_A = "#1a3a5c";
 const COLOR_B = "#15803d";
 const COLOR_C = "#374151";
-const BODY_BG = "#f8fafc";
+// Body bg coordinado por color de cabecera
+const BODY_A = "#f0f4f8"; // azul muy claro
+const BODY_B = "#f0fdf4"; // verde muy claro
+const BODY_C = "#f9fafb"; // gris muy claro
 
 const BLOCK_TONES: Record<BlockTone, { header: string; body: string }> = {
-  cliente:    { header: COLOR_A, body: BODY_BG }, // A
-  diagnostico:{ header: COLOR_B, body: BODY_BG }, // B
-  gestion:    { header: COLOR_C, body: BODY_BG }, // C
-  documentos: { header: COLOR_A, body: BODY_BG }, // A
-  ia:         { header: COLOR_B, body: BODY_BG }, // B
-  validacion: { header: COLOR_C, body: BODY_BG }, // C
-  escrito:    { header: COLOR_A, body: BODY_BG }, // A
-  valoracion: { header: COLOR_B, body: BODY_BG }, // B
-  notas:      { header: COLOR_C, body: BODY_BG }, // C
-  historial:  { header: COLOR_C, body: BODY_BG }, // C
+  cliente:    { header: COLOR_A, body: BODY_A },
+  diagnostico:{ header: COLOR_B, body: BODY_B },
+  gestion:    { header: COLOR_C, body: BODY_C },
+  documentos: { header: COLOR_A, body: BODY_A },
+  ia:         { header: COLOR_B, body: BODY_B },
+  validacion: { header: COLOR_C, body: BODY_C },
+  escrito:    { header: COLOR_A, body: BODY_A },
+  valoracion: { header: COLOR_B, body: BODY_B },
+  notas:      { header: COLOR_C, body: BODY_C },
+  historial:  { header: COLOR_C, body: BODY_C },
 };
 
 function Block({
@@ -794,14 +797,26 @@ function Block({
   }
   return (
     <section
-      className="overflow-hidden rounded-lg border border-border shadow-sm"
-      style={{ backgroundColor: colors.body }}
+      className="overflow-hidden"
+      style={{
+        backgroundColor: colors.body,
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+      }}
     >
       <div
-        className="flex items-center justify-between gap-2 px-4 py-2"
-        style={{ backgroundColor: colors.header }}
+        className="flex items-center justify-between gap-2"
+        style={{
+          backgroundColor: colors.header,
+          padding: "10px 16px",
+          borderRadius: "8px 8px 0 0",
+        }}
       >
-        <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-white">
+        <h3
+          className="flex items-center gap-2 text-white"
+          style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}
+        >
           {Icon && <Icon className="h-3.5 w-3.5" />}
           {title}
         </h3>
@@ -811,7 +826,7 @@ function Block({
           </span>
         )}
       </div>
-      <div className="p-4">{children}</div>
+      <div style={{ padding: "16px", borderRadius: "0 0 8px 8px" }}>{children}</div>
     </section>
   );
 }
@@ -830,10 +845,28 @@ function Widget({ title, children }: { title: string; children: React.ReactNode 
 function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span
+        style={{
+          fontSize: "10px",
+          fontWeight: 600,
+          color: "#6b7280",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          marginBottom: "2px",
+        }}
+      >
         {label}
       </span>
-      <span className="mt-0.5 text-[13px] text-foreground">{value || "—"}</span>
+      <span
+        style={{
+          fontSize: "14px",
+          fontWeight: 600,
+          color: "#111827",
+          marginBottom: "12px",
+        }}
+      >
+        {value || "—"}
+      </span>
     </div>
   );
 }
