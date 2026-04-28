@@ -374,7 +374,7 @@ function AdminCasoDetalle() {
 
           {/* Generar documento desde plantilla — acceso rápido arriba */}
           <Section title="📄 Generar escrito (Word / PDF)" icon={FileText} highlight>
-            <LeadGenerarDocumento leadId={lead.id} isAdmin={isAdmin} />
+            <LeadGenerarDocumento lead={lead} />
           </Section>
 
           {/* Contacto */}
