@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus, Pencil, Trash2, FileType2, ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,10 @@ import {
   crearPlantilla,
   actualizarPlantilla,
   eliminarPlantilla,
+  asegurarPlantillaBase,
+  interpolarPlantilla,
   PLANTILLA_TIPOS,
+  PLANTILLA_BASE_HTML,
   VARIABLES_CANONICAS,
   type Plantilla,
   type PlantillaTipo,
@@ -32,6 +35,7 @@ function AdminPlantillas() {
   const [loadingList, setLoadingList] = useState(true);
   const [editing, setEditing] = useState<Plantilla | null>(null);
   const [creating, setCreating] = useState(false);
+  const [filtroTipo, setFiltroTipo] = useState<"" | PlantillaTipo>("");
 
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -41,6 +45,7 @@ function AdminPlantillas() {
 
   async function recargar() {
     setLoadingList(true);
+    await asegurarPlantillaBase();
     const data = await listarPlantillas();
     setItems(data);
     setLoadingList(false);
@@ -49,6 +54,11 @@ function AdminPlantillas() {
   useEffect(() => {
     void recargar();
   }, []);
+
+  const itemsFiltrados = useMemo(
+    () => (filtroTipo ? items.filter((p) => p.tipo === filtroTipo) : items),
+    [items, filtroTipo],
+  );
 
   async function toggleActiva(p: Plantilla) {
     const r = await actualizarPlantilla(p.id, { activa: !p.activa });
@@ -82,28 +92,44 @@ function AdminPlantillas() {
             </h1>
             <p className="text-sm text-muted-foreground">
               Define modelos de demanda, recursos y escritos con variables tipo{" "}
-              <code className="rounded bg-muted px-1.5">{`{{cliente.nombre}}`}</code>.
+              <code className="rounded bg-muted px-1.5">{`{{cliente_nombre}}`}</code>.
             </p>
           </div>
-          <button
-            onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-light"
-          >
-            <Plus className="h-4 w-4" /> Nueva plantilla
-          </button>
+          <div className="flex items-center gap-2">
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value as "" | PlantillaTipo)}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-sm"
+            >
+              <option value="">Todos los tipos</option>
+              {PLANTILLA_TIPOS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setCreating(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-light"
+            >
+              <Plus className="h-4 w-4" /> Nueva plantilla
+            </button>
+          </div>
         </div>
 
         {loadingList ? (
           <p className="text-sm text-muted-foreground">Cargando…</p>
-        ) : items.length === 0 ? (
+        ) : itemsFiltrados.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No hay plantillas. Crea la primera para que los abogados puedan generar escritos.
+              {items.length === 0
+                ? "No hay plantillas. Crea la primera para que los abogados puedan generar escritos."
+                : "Ninguna plantilla con ese filtro."}
             </p>
           </div>
         ) : (
           <div className="grid gap-3">
-            {items.map((p) => {
+            {itemsFiltrados.map((p) => {
               const tipoLabel = PLANTILLA_TIPOS.find((t) => t.value === p.tipo)?.label ?? p.tipo;
               return (
                 <div
@@ -184,8 +210,9 @@ function PlantillaModal({
   const [nombre, setNombre] = useState(plantilla?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(plantilla?.descripcion ?? "");
   const [tipo, setTipo] = useState<PlantillaTipo>(plantilla?.tipo ?? "demanda");
-  const [contenido, setContenido] = useState(plantilla?.contenido_html ?? PLANTILLA_INICIAL);
+  const [contenido, setContenido] = useState(plantilla?.contenido_html ?? PLANTILLA_BASE_HTML);
   const [saving, setSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   async function guardar() {
     if (!nombre.trim()) return toast.error("El nombre es obligatorio");
@@ -214,6 +241,18 @@ function PlantillaModal({
     setContenido((c) => `${c}{{${key}}}`);
   }
 
+  // Agrupar variables por grupo para el panel lateral
+  const variablesPorGrupo = useMemo(() => {
+    const m = new Map<string, typeof VARIABLES_CANONICAS>();
+    for (const v of VARIABLES_CANONICAS) {
+      if (!m.has(v.grupo)) m.set(v.grupo, []);
+      m.get(v.grupo)!.push(v);
+    }
+    return Array.from(m.entries());
+  }, []);
+
+  const previewHtml = useMemo(() => interpolarPlantilla(contenido), [contenido]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <div className="w-full max-w-5xl rounded-2xl bg-card p-6 shadow-xl">
@@ -233,7 +272,7 @@ function PlantillaModal({
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                  placeholder="Demanda interinos TJUE"
+                  placeholder="Reclamación administrativa — Funcionario interino"
                 />
               </label>
               <label className="block">
@@ -264,7 +303,7 @@ function PlantillaModal({
 
             <label className="block">
               <span className="text-xs font-semibold uppercase text-muted-foreground">
-                Contenido HTML (admite {`{{variables}}`})
+                Contenido (admite {`{{variables}}`})
               </span>
               <textarea
                 value={contenido}
@@ -282,27 +321,42 @@ function PlantillaModal({
             <p className="mb-3 text-xs text-muted-foreground">
               Click para insertar al final del contenido.
             </p>
-            <div className="max-h-[440px] space-y-1 overflow-y-auto">
-              {VARIABLES_CANONICAS.map((v) => (
-                <button
-                  key={v.key}
-                  onClick={() => insertarVariable(v.key)}
-                  className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-left text-xs hover:border-primary"
-                >
-                  <code className="text-primary">{`{{${v.key}}}`}</code>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">{v.descripcion}</p>
-                </button>
+            <div className="max-h-[440px] space-y-3 overflow-y-auto pr-1">
+              {variablesPorGrupo.map(([grupo, vars]) => (
+                <div key={grupo}>
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                    {grupo}
+                  </p>
+                  <div className="space-y-1">
+                    {vars.map((v) => (
+                      <button
+                        key={v.key}
+                        onClick={() => insertarVariable(v.key)}
+                        className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-left text-xs hover:border-primary"
+                      >
+                        <code className="text-primary">{`{{${v.key}}}`}</code>
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">{v.descripcion}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </aside>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
           <button
             onClick={onClose}
             className="rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
           >
             Cancelar
+          </button>
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+          >
+            <Eye className="h-4 w-4" /> Vista previa
           </button>
           <button
             onClick={guardar}
@@ -313,22 +367,34 @@ function PlantillaModal({
           </button>
         </div>
       </div>
+
+      {previewOpen && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/60 p-4">
+          <div className="w-full max-w-3xl rounded-2xl bg-card p-6 shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-lg font-bold">Vista previa con datos demo</h3>
+              <button onClick={() => setPreviewOpen(false)} className="text-muted-foreground hover:text-foreground">
+                ✕
+              </button>
+            </div>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Esta vista usa datos ficticios (caso “María García Demo”) para comprobar el aspecto de la plantilla.
+            </p>
+            <div
+              className="prose max-w-none rounded-xl border border-border bg-background p-6 text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+            <div className="mt-4 text-right">
+              <button
+                onClick={() => setPreviewOpen(false)}
+                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-const PLANTILLA_INICIAL = `<h1>Demanda</h1>
-<p>Don/Doña <strong>{{cliente.nombre}}</strong>, con DNI {{cliente.dni}}, domiciliado/a en {{cliente.provincia}}, ante el Juzgado comparezco y como mejor proceda en Derecho DIGO:</p>
-
-<h2>HECHOS</h2>
-<p><strong>PRIMERO.</strong> Que vengo prestando servicios para {{caso.administracion}} en régimen de {{caso.tipo_relacion}} desde el {{caso.fecha_primer_nombramiento}}, acumulando un total de {{caso.anos_servicio}} años de servicio.</p>
-<p><strong>SEGUNDO.</strong> Mi último salario bruto mensual asciende a {{economia.salario_bruto_mensual}}, equivalente a un salario diario de {{economia.salario_diario}}.</p>
-
-<h2>FUNDAMENTOS DE DERECHO</h2>
-<p>Resulta de aplicación la doctrina del TJUE (sentencias C-72/22, C-59/22) sobre abuso de la temporalidad en el empleo público.</p>
-
-<h2>SUPLICO</h2>
-<p>Que se reconozca la indemnización correspondiente, cifrada en <strong>{{economia.indemnizacion_tjue}}</strong> frente a los {{economia.indemnizacion_actual}} del sistema actual, lo que supone un perjuicio de {{economia.diferencia_perjuicio}}.</p>
-
-<p>En {{cliente.provincia}}, a {{fecha.hoy}}.</p>
-<p>Fdo: {{abogado.nombre}}</p>`;
