@@ -240,13 +240,11 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 
   ${bloque("1. Datos personales del cliente", datosPersonales)}
   ${bloque("2. Datos del caso", datosCaso)}
-  ${bloque("3. Diagnóstico", diagnostico)}
-  ${bloque("4. Gestión Hispajuris", gestion)}
-  ${bloque("5. Documentación aportada", docsHtml)}
+  ${bloque("3. Diagnóstico", diagnostico, true)}
+  ${bloque("4. Gestión Hispajuris", gestion, true)}
+  ${bloque("5. Documentación aportada", docsHtml, true)}
   ${bloque("6. Notas internas del abogado", notas)}
   ${bloque("7. Historial de cambios", historialHtml)}
-
-  <footer class="pie">Documento confidencial — Plataforma Obadal</footer>
 </body>
 </html>`;
 
