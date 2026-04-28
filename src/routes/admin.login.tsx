@@ -87,9 +87,8 @@ function LoginPage() {
 
       log(`Redirigiendo a ${target}...`);
       toast.success("Acceso correcto");
-      // Hard-navigation: evita el bug "Failed to fetch dynamically imported module"
-      // que aparece a veces en el preview de Lovable tras login.
-      window.location.assign(target);
+      // Hard redirect: evita el bug "Failed to fetch dynamically imported module"
+      window.location.href = target;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       log(`Excepción: ${msg}`);
