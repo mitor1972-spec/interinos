@@ -251,25 +251,26 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
   return { html, baseFilename };
 }
 
-/** Abre el informe en una nueva ventana lista para imprimir/guardar como PDF. */
+/** Abre el informe en una nueva ventana lista para imprimir/guardar como PDF.
+ *  Usa Blob URL en lugar de document.write() para no corromper el árbol DOM
+ *  que React gestiona en la pestaña actual (evita NotFoundError: removeChild). */
 export async function descargarInformePDF(lead: Lead): Promise<void> {
   const { html } = await construirHtmlInforme(lead);
-  const win = window.open("", "_blank");
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank", "noopener,noreferrer");
   if (!win) {
+    URL.revokeObjectURL(url);
     throw new Error("Permite ventanas emergentes para descargar el PDF");
   }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  // Pequeño delay para que cargue estilos antes de mostrar diálogo de impresión
+  // Liberar el Blob URL una vez la ventana ha tenido tiempo de cargarlo
   setTimeout(() => {
     try {
-      win.focus();
-      win.print();
+      URL.revokeObjectURL(url);
     } catch {
       /* noop */
     }
-  }, 400);
+  }, 5000);
 }
 
 /** Descarga el informe como .doc (Word lo abre nativamente desde HTML). */
