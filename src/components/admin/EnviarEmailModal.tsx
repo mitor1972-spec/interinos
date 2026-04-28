@@ -237,9 +237,8 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
               )}
             </button>
           </footer>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
 

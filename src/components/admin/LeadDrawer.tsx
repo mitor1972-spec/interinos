@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Phone,
@@ -246,49 +245,40 @@ export function LeadDrawer({ lead, onClose, onUpdated, onDeleted }: Props) {
 
   return (
     <>
-      <AnimatePresence>
-        {open && lead && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-              className="fixed inset-0 z-40 bg-primary/40 backdrop-blur-sm"
+      {open && lead && (
+        <>
+          <div
+            onClick={onClose}
+            className="fixed inset-0 z-40 bg-primary/40 backdrop-blur-sm animate-in fade-in duration-200"
+          />
+          <aside
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-background shadow-elegant animate-in slide-in-from-right duration-300"
+          >
+            <DrawerContent
+              lead={lead}
+              estado={estado}
+              notas={notas}
+              saving={saving}
+              savedAt={savedAt}
+              historialKey={historialKey}
+              documentosCount={documentosCount}
+              isAdmin={isAdmin}
+              onClose={onClose}
+              onChangeNotas={setNotas}
+              onChangeEstado={updateEstado}
+              onToggleUrgente={toggleUrgente}
+              onEdit={() => setEditing(true)}
+              onDelete={deleteLead}
+              onSendEmail={() => setEnviandoEmail(true)}
+              onDocumentosChange={setDocumentosCount}
+              onLeadUpdated={(updated) => {
+                onUpdated(updated);
+                setHistorialKey((k) => k + 1);
+              }}
             />
-            <motion.aside
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 240 }}
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-background shadow-elegant"
-            >
-              <DrawerContent
-                lead={lead}
-                estado={estado}
-                notas={notas}
-                saving={saving}
-                savedAt={savedAt}
-                historialKey={historialKey}
-                documentosCount={documentosCount}
-                isAdmin={isAdmin}
-                onClose={onClose}
-                onChangeNotas={setNotas}
-                onChangeEstado={updateEstado}
-                onToggleUrgente={toggleUrgente}
-                onEdit={() => setEditing(true)}
-                onDelete={deleteLead}
-                onSendEmail={() => setEnviandoEmail(true)}
-                onDocumentosChange={setDocumentosCount}
-                onLeadUpdated={(updated) => {
-                  onUpdated(updated);
-                  setHistorialKey((k) => k + 1);
-                }}
-              />
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+          </aside>
+        </>
+      )}
 
       {open && lead && editing && (
         <LeadEditModal
