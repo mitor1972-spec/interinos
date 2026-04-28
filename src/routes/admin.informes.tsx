@@ -233,8 +233,12 @@ function InformesPage() {
     a.download = `informe-${from}_${to}.csv`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      if (document.body.contains(a)) {
+        document.body.removeChild(a);
+      }
+      URL.revokeObjectURL(url);
+    }, 100);
   };
 
   if (authLoading) {
