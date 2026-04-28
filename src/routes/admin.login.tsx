@@ -98,23 +98,23 @@ function LoginPage() {
   };
 
   const handleClearSession = async () => {
-    setLoading(true);
     setErrorMsg(null);
     setDebugLog([]);
-    log("Limpiando sesión local y cookies de Supabase...");
+    log("Limpiando sesión, localStorage y sessionStorage...");
     try {
-      await supabase.auth.signOut();
-      // Limpieza agresiva por si quedó algo en localStorage
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith("sb-") || k.includes("supabase"))
-        .forEach((k) => localStorage.removeItem(k));
-      log("Sesión limpiada. Recargando página...");
-      setTimeout(() => window.location.reload(), 400);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      log(`Error limpiando sesión: ${msg}`);
-      setLoading(false);
+      // signOut sin esperar — si falla por sesión inválida, da igual
+      supabase.auth.signOut().catch(() => {});
+    } catch {
+      /* noop */
     }
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch {
+      /* noop */
+    }
+    // Hard redirect inmediato — no esperar
+    window.location.href = "/admin/login";
   };
 
   return (
