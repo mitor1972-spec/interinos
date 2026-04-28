@@ -738,22 +738,76 @@ function QuickAction({
   );
 }
 
+type BlockTone =
+  | "cliente"
+  | "diagnostico"
+  | "gestion"
+  | "documentos"
+  | "ia"
+  | "validacion"
+  | "escrito"
+  | "valoracion"
+  | "notas"
+  | "historial";
+
+const BLOCK_TONES: Record<BlockTone, { header: string; body: string }> = {
+  cliente: { header: "#1a3a5c", body: "#f8fafc" },
+  diagnostico: { header: "#15803d", body: "#f0fdf4" },
+  gestion: { header: "#92400e", body: "#fffbeb" },
+  documentos: { header: "#1d4ed8", body: "#eff6ff" },
+  ia: { header: "#7c3aed", body: "#faf5ff" },
+  validacion: { header: "#4338ca", body: "#eef2ff" },
+  escrito: { header: "#475569", body: "#f8fafc" },
+  valoracion: { header: "#0f766e", body: "#f0fdfa" },
+  notas: { header: "#374151", body: "#f9fafb" },
+  historial: { header: "#6b7280", body: "#f9fafb" },
+};
+
 function Block({
   title,
   icon: Icon,
+  tone,
+  badge,
   children,
 }: {
   title: string;
   icon?: React.ComponentType<{ className?: string }>;
+  tone?: BlockTone;
+  badge?: string;
   children: React.ReactNode;
 }) {
+  const colors = tone ? BLOCK_TONES[tone] : null;
+  if (!colors) {
+    return (
+      <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <h3 className="mb-3 flex items-center gap-1.5 border-b border-border pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          {Icon && <Icon className="h-3.5 w-3.5" />}
+          {title}
+        </h3>
+        <div>{children}</div>
+      </section>
+    );
+  }
   return (
-    <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <h3 className="mb-3 flex items-center gap-1.5 border-b border-border pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-        {Icon && <Icon className="h-3.5 w-3.5" />}
-        {title}
-      </h3>
-      <div>{children}</div>
+    <section
+      className="overflow-hidden rounded-lg border border-border shadow-sm"
+      style={{ backgroundColor: colors.body }}
+    >
+      <div
+        className="flex items-center justify-between gap-2 px-4 py-2"
+        style={{ backgroundColor: colors.header }}
+      >
+        <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-white">
+          {Icon && <Icon className="h-3.5 w-3.5" />}
+          {title}
+        </h3>
+        {badge && (
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="p-4">{children}</div>
     </section>
   );
 }
