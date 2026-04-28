@@ -27,14 +27,18 @@ function LoginPage() {
     setDebugLog((prev) => [...prev, `${new Date().toLocaleTimeString()} — ${msg}`]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     if (loading) return;
     setLoading(true);
     setErrorMsg(null);
     setDebugLog([]);
 
-    if (!email.trim() || !password) {
+    const emailValue = email.trim();
+    const passwordValue = password;
+
+    if (!emailValue || !passwordValue) {
       setErrorMsg("Introduce email y contraseña.");
       setLoading(false);
       return;
