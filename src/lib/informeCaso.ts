@@ -180,7 +180,7 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 <style>
   @page {
     size: A4;
-    margin: 28mm 16mm 28mm 16mm;
+    margin: 18mm 14mm 18mm 14mm;
     @bottom-center {
       content: "Documento confidencial — Plataforma Obadal  ·  Página " counter(page) " de " counter(pages);
       font-size: 9pt;
@@ -193,19 +193,19 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
       font-weight: bold;
     }
   }
-  body { font-family: Georgia, "Times New Roman", serif; color: #111; font-size: 11pt; line-height: 1.45; }
-  header.cab { border-bottom: 2px solid #1a3a5c; padding-bottom: 10px; margin-bottom: 18px; }
-  header.cab .marca { font-size: 14pt; font-weight: bold; color: #1a3a5c; letter-spacing: 0.5px; }
-  header.cab .meta { display: flex; justify-content: space-between; font-size: 10pt; color: #444; margin-top: 4px; }
-  h1 { font-size: 18pt; color: #1a3a5c; margin: 4px 0 12px; page-break-after: avoid; }
-  h2 { font-size: 13pt; color: #1a3a5c; border-bottom: 1px solid #cfd8e3; padding-bottom: 3px; margin: 18px 0 8px; page-break-after: avoid; break-after: avoid; }
-  h3 { font-size: 11pt; margin: 10px 0 4px; color: #1a3a5c; page-break-after: avoid; break-after: avoid; }
-  .bloque { margin-bottom: 14px; page-break-inside: avoid; break-inside: avoid; }
-  .salto-pagina { page-break-before: always; break-before: page; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1f2937; font-size: 9.5pt; line-height: 1.35; }
+  header.cab { border-bottom: 1.5px solid #1a3a5c; padding-bottom: 6px; margin-bottom: 10px; }
+  header.cab .marca { font-size: 12pt; font-weight: 700; color: #1a3a5c; letter-spacing: 0.3px; }
+  header.cab .meta { display: flex; justify-content: space-between; font-size: 8.5pt; color: #555; margin-top: 2px; }
+  h1 { font-size: 14pt; color: #1a3a5c; margin: 2px 0 8px; page-break-after: avoid; font-weight: 700; }
+  h2 { font-size: 10.5pt; color: #1a3a5c; border-bottom: 1px solid #cfd8e3; padding-bottom: 2px; margin: 10px 0 4px; page-break-after: avoid; break-after: avoid; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  h3 { font-size: 9.5pt; margin: 6px 0 3px; color: #1a3a5c; page-break-after: avoid; break-after: avoid; font-weight: 600; }
+  .bloque { margin-bottom: 8px; page-break-inside: avoid; break-inside: avoid; }
+  .salto-pagina { /* desactivado para informe compacto */ }
   table { page-break-inside: avoid; break-inside: avoid; }
-  table.tabla { width: 100%; border-collapse: collapse; margin: 4px 0; }
-  table.tabla th, table.tabla td { padding: 5px 8px; border: 1px solid #d0d7de; vertical-align: top; text-align: left; font-size: 10.5pt; }
-  table.tabla th { background: #f1f5f9; width: 38%; font-weight: 600; color: #1a3a5c; }
+  table.tabla { width: 100%; border-collapse: collapse; margin: 2px 0; }
+  table.tabla th, table.tabla td { padding: 3px 6px; border: 1px solid #e2e8f0; vertical-align: top; text-align: left; font-size: 9pt; }
+  table.tabla th { background: #f8fafc; width: 32%; font-weight: 600; color: #1a3a5c; }
   table.tabla.lista th { width: auto; }
   table.tabla.lista thead { display: table-header-group; }
   table.tabla.lista tfoot { display: table-footer-group; }
@@ -213,7 +213,7 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
   tr { page-break-inside: avoid; break-inside: avoid; }
   ul { margin: 4px 0 4px 20px; }
   li { page-break-inside: avoid; break-inside: avoid; }
-  .nota { background: #f8fafc; border-left: 3px solid #1a3a5c; padding: 8px 10px; margin: 6px 0; font-size: 10.5pt; page-break-inside: avoid; break-inside: avoid; }
+  .nota { background: #f8fafc; border-left: 2px solid #1a3a5c; padding: 5px 8px; margin: 4px 0; font-size: 9pt; page-break-inside: avoid; break-inside: avoid; }
   @media print {
     .no-print { display: none !important; }
     header.cab { display: none; }
@@ -240,9 +240,9 @@ export async function construirHtmlInforme(lead: Lead): Promise<{
 
   ${bloque("1. Datos personales del cliente", datosPersonales)}
   ${bloque("2. Datos del caso", datosCaso)}
-  ${bloque("3. Diagnóstico", diagnostico, true)}
-  ${bloque("4. Gestión Hispajuris", gestion, true)}
-  ${bloque("5. Documentación aportada", docsHtml, true)}
+  ${bloque("3. Diagnóstico", diagnostico)}
+  ${bloque("4. Gestión Hispajuris", gestion)}
+  ${bloque("5. Documentación aportada", docsHtml)}
   ${bloque("6. Notas internas del abogado", notas)}
   ${bloque("7. Historial de cambios", historialHtml)}
 </body>
