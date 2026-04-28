@@ -129,7 +129,7 @@ function AdminPlantillas() {
           </div>
         ) : (
           <div className="grid gap-3">
-            {items.map((p) => {
+            {itemsFiltrados.map((p) => {
               const tipoLabel = PLANTILLA_TIPOS.find((t) => t.value === p.tipo)?.label ?? p.tipo;
               return (
                 <div
