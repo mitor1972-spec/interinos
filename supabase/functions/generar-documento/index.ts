@@ -107,26 +107,47 @@ function buildContexto(args: {
   const hoy = new Date();
   const hoyES = `${String(hoy.getDate()).padStart(2, "0")}/${String(hoy.getMonth() + 1).padStart(2, "0")}/${hoy.getFullYear()}`;
 
+  // Listas auxiliares
+  const nombramientosLista = contratos
+    .map((c, i) => {
+      const ini = fmtFechaES(c?.fecha_inicio);
+      const fin = fmtFechaES(c?.fecha_fin);
+      const puesto = safe(c?.puesto ?? c?.categoria ?? "");
+      const r = `${i + 1}. ${ini}${fin ? ` – ${fin}` : ""}${puesto ? ` (${puesto})` : ""}`;
+      return r.trim();
+    })
+    .join("\n");
+  const documentosAportados = Array.from(new Set(extracciones.map((e) => String(e.categoria ?? "")).filter(Boolean))).join(", ");
+  const salarioBrutoAnual = salarioBrutoMensual !== null ? salarioBrutoMensual * 14 : null;
+
   return {
-    "cliente.nombre": safe(lead.nombre),
-    "cliente.email": safe(lead.email),
-    "cliente.telefono": safe(lead.telefono),
-    "cliente.dni": safe(dni?.numero ?? dni?.dni ?? ""),
-    "cliente.fecha_nacimiento": fmtFechaES(dni?.fecha_nacimiento),
-    "cliente.provincia": safe(lead.provincia),
-    "caso.administracion": safe(lead.administracion),
-    "caso.tipo_relacion": safe(lead.tipo_relacion),
-    "caso.anos_servicio": safe(lead.anos_servicio),
-    "caso.fecha_primer_nombramiento": fmtFechaES(fechaPrimer),
-    "caso.fecha_ultimo_nombramiento": fmtFechaES(fechaUltimo),
-    "economia.salario_bruto_mensual": fmtEUR(salarioBrutoMensual),
-    "economia.salario_diario": fmtEUR(salarioDiario),
-    "economia.indemnizacion_actual": fmtEUR(indActual),
-    "economia.indemnizacion_tjue": fmtEUR(indTjue),
-    "economia.diferencia_perjuicio": fmtEUR(diferencia),
-    "abogado.nombre": abogado?.nombre ?? "",
-    "abogado.email": abogado?.email ?? "",
-    "fecha.hoy": hoyES,
+    // Cliente (formato con guion bajo, preferido)
+    cliente_nombre: safe(lead.nombre),
+    cliente_email: safe(lead.email),
+    cliente_telefono: safe(lead.telefono),
+    cliente_dni: safe(dni?.numero ?? dni?.dni ?? ""),
+    cliente_fecha_nacimiento: fmtFechaES(dni?.fecha_nacimiento),
+    cliente_provincia: safe(lead.provincia),
+    // Caso
+    administracion: safe(lead.administracion),
+    tipo_relacion: safe(lead.tipo_relacion),
+    area_sector: safe(lead.area_sector),
+    fecha_inicio_relacion: fmtFechaES(fechaPrimer),
+    fecha_cese: fmtFechaES(fechaUltimo),
+    anos_servicio_total: safe(lead.anos_servicio),
+    nombramientos_lista: nombramientosLista,
+    documentos_aportados: documentosAportados,
+    // Económico
+    salario_bruto_anual: fmtEUR(salarioBrutoAnual),
+    salario_bruto_mensual: fmtEUR(salarioBrutoMensual),
+    salario_diario: fmtEUR(salarioDiario),
+    indem_sistema_actual: fmtEUR(indActual),
+    indem_tjue_sin_tope: fmtEUR(indTjue),
+    diferencia_perjuicio: fmtEUR(diferencia),
+    // Otros
+    abogado_nombre: abogado?.nombre ?? "",
+    abogado_email: abogado?.email ?? "",
+    fecha_hoy: hoyES,
   };
 }
 
