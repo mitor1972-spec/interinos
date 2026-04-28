@@ -27,24 +27,28 @@ function LoginPage() {
     setDebugLog((prev) => [...prev, `${new Date().toLocaleTimeString()} — ${msg}`]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     if (loading) return;
     setLoading(true);
     setErrorMsg(null);
     setDebugLog([]);
 
-    if (!email.trim() || !password) {
+    const emailValue = email.trim();
+    const passwordValue = password;
+
+    if (!emailValue || !passwordValue) {
       setErrorMsg("Introduce email y contraseña.");
       setLoading(false);
       return;
     }
 
     try {
-      log(`Enviando credenciales a Supabase Auth (${email.trim()})...`);
+      log(`Enviando credenciales a Supabase Auth (${emailValue})...`);
       const { data: signIn, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+        email: emailValue,
+        password: passwordValue,
       });
 
       if (error) {
@@ -145,7 +149,7 @@ function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} method="post" action="#" noValidate className="mt-6 space-y-4">
             <label className="block">
               <span className="text-sm font-semibold text-foreground">Email</span>
               <input
