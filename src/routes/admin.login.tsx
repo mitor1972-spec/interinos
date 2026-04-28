@@ -45,10 +45,10 @@ function LoginPage() {
     }
 
     try {
-      log(`Enviando credenciales a Supabase Auth (${email.trim()})...`);
+      log(`Enviando credenciales a Supabase Auth (${emailValue})...`);
       const { data: signIn, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+        email: emailValue,
+        password: passwordValue,
       });
 
       if (error) {
