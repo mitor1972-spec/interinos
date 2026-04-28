@@ -311,7 +311,7 @@ function AdminCasoDetalle() {
         {/* COLUMNA IZQUIERDA */}
         <div className="space-y-4">
           {/* 1. DATOS DEL CLIENTE */}
-          <Block title="Datos del cliente">
+          <Block title="Datos del cliente" tone="cliente">
             <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
               <DataRow label="Nombre completo" value={lead.nombre} />
               <DataRow
@@ -354,7 +354,7 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 2. DIAGNÓSTICO */}
-          <Block title="Diagnóstico">
+          <Block title="Diagnóstico" tone="diagnostico">
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="text-base">{sem.emoji}</span>
               <span className="font-semibold text-foreground capitalize">
@@ -393,7 +393,7 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 3. GESTIÓN HISPAJURIS */}
-          <Block title="Gestión Hispajuris">
+          <Block title="Gestión Hispajuris" tone="gestion">
             <div className="grid gap-3 sm:grid-cols-2">
               <InlineSelect
                 label="Tipo de reclamación"
@@ -503,7 +503,7 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 4. DOCUMENTOS */}
-          <Block title="Documentos del caso">
+          <Block title="Documentos del caso" tone="documentos">
             <LeadDocumentos
               leadId={lead.id}
               tipoRelacion={lead.tipo_relacion}
@@ -514,22 +514,22 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 5. DATOS EXTRAÍDOS POR IA */}
-          <Block title="Datos extraídos por IA" icon={Sparkles}>
+          <Block title="Datos extraídos por IA" icon={Sparkles} tone="ia">
             <LeadDatosExtraidos leadId={lead.id} />
           </Block>
 
           {/* 6. VALIDACIÓN IA */}
-          <Block title="Validación IA de coherencia" icon={Sparkles}>
+          <Block title="Validación IA de coherencia" icon={Sparkles} tone="validacion">
             <LeadValidacionIA leadId={lead.id} />
           </Block>
 
           {/* 7. GENERAR ESCRITO */}
-          <Block title="Generar escrito (Word / PDF)" icon={FileText}>
+          <Block title="Generar escrito (Word / PDF)" icon={FileText} tone="escrito">
             <LeadGenerarDocumento lead={lead} />
           </Block>
 
           {/* 8. VALORACIÓN ECONÓMICA */}
-          <Block title="Valoración económica" icon={Award}>
+          <Block title="Valoración económica" icon={Award} tone="valoracion">
             <p className="mb-2 text-[11px] text-muted-foreground">
               A rellenar por el perito asignado.
             </p>
@@ -537,7 +537,7 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 9. NOTAS INTERNAS */}
-          <Block title="Notas internas">
+          <Block title="Notas internas" tone="notas">
             <InlineText
               label="Notas (solo visibles internamente)"
               value={lead.notas_abogado}
@@ -549,7 +549,7 @@ function AdminCasoDetalle() {
           </Block>
 
           {/* 10. HISTORIAL */}
-          <Block title="Historial de cambios" icon={History}>
+          <Block title="Historial de cambios" icon={History} tone="historial">
             <LeadHistorial leadId={lead.id} reloadKey={historialKey} />
           </Block>
         </div>
