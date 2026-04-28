@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AbogadoLayout } from "@/components/abogado/AbogadoLayout";
-import { LeadDrawer } from "@/components/admin/LeadDrawer";
+
 import {
   semaforoConfig,
   perfilConfig,
@@ -44,7 +44,6 @@ function AbogadoPanel() {
   const navigate = useNavigate();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/admin/login" });
@@ -76,19 +75,8 @@ function AbogadoPanel() {
     if (session && isLawyer && !isAdmin) fetchLeads();
   }, [session, isLawyer, isAdmin]);
 
-  const openLead = async (lead: Lead) => {
-    setSelectedId(lead.id);
-    if (!lead.revisado) {
-      const { data, error } = await supabase
-        .from("leads_interinos")
-        .update({ revisado: true, revisado_at: new Date().toISOString() })
-        .eq("id", lead.id)
-        .select()
-        .single();
-      if (!error && data) {
-        setLeads((prev) => prev.map((l) => (l.id === data.id ? data : l)));
-      }
-    }
+  const openLead = (lead: Lead) => {
+    navigate({ to: "/abogado/casos/$id", params: { id: lead.id } });
   };
 
   const metrics = useMemo(() => {
@@ -147,7 +135,7 @@ function AbogadoPanel() {
     );
   }
 
-  const selectedLead = leads.find((l) => l.id === selectedId) || null;
+  
 
   const headerActions = (
     <>
@@ -296,13 +284,6 @@ function AbogadoPanel() {
         )}
       </div>
 
-      <LeadDrawer
-        lead={selectedLead}
-        onClose={() => setSelectedId(null)}
-        onUpdated={(updated) =>
-          setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
-        }
-      />
     </AbogadoLayout>
   );
 }

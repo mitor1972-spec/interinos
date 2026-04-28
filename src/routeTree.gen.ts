@@ -35,6 +35,7 @@ import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendar
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
 import { Route as AdminConfiguracionEmailRouteImport } from './routes/admin.configuracion.email'
 import { Route as AdminCasosIdRouteImport } from './routes/admin.casos_.$id'
+import { Route as AbogadoCasosIdRouteImport } from './routes/abogado.casos_.$id'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const IndexRoute = IndexRouteImport.update({
@@ -167,6 +168,11 @@ const AdminCasosIdRoute = AdminCasosIdRouteImport.update({
   path: '/admin/casos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbogadoCasosIdRoute = AbogadoCasosIdRouteImport.update({
+  id: '/abogado/casos_/$id',
+  path: '/abogado/casos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/perito/': typeof PeritoIndexRoute
+  '/abogado/casos/$id': typeof AbogadoCasosIdRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/cliente': typeof ClienteIndexRoute
   '/perito': typeof PeritoIndexRoute
+  '/abogado/casos/$id': typeof AbogadoCasosIdRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/cliente/': typeof ClienteIndexRoute
   '/perito/': typeof PeritoIndexRoute
+  '/abogado/casos_/$id': typeof AbogadoCasosIdRoute
   '/admin/casos_/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/cliente/'
     | '/perito/'
+    | '/abogado/casos/$id'
     | '/admin/casos/$id'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cliente'
     | '/perito'
+    | '/abogado/casos/$id'
     | '/admin/casos/$id'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/cliente/'
     | '/perito/'
+    | '/abogado/casos_/$id'
     | '/admin/casos_/$id'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
@@ -377,6 +389,7 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   ClienteIndexRoute: typeof ClienteIndexRoute
   PeritoIndexRoute: typeof PeritoIndexRoute
+  AbogadoCasosIdRoute: typeof AbogadoCasosIdRoute
   AdminCasosIdRoute: typeof AdminCasosIdRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -565,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCasosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abogado/casos_/$id': {
+      id: '/abogado/casos_/$id'
+      path: '/abogado/casos/$id'
+      fullPath: '/abogado/casos/$id'
+      preLoaderRoute: typeof AbogadoCasosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -611,6 +631,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   ClienteIndexRoute: ClienteIndexRoute,
   PeritoIndexRoute: PeritoIndexRoute,
+  AbogadoCasosIdRoute: AbogadoCasosIdRoute,
   AdminCasosIdRoute: AdminCasosIdRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }

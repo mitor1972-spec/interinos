@@ -11,8 +11,6 @@ import {
   Award,
   Pencil,
   History,
-  Trash2,
-  Send,
   Download,
   ChevronRight,
   Sparkles,
@@ -20,8 +18,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { AdminLayout } from "@/components/admin/AdminLayout";
-import { EnviarEmailModal } from "@/components/admin/EnviarEmailModal";
+import { AbogadoLayout } from "@/components/abogado/AbogadoLayout";
 import { LeadEditModal } from "@/components/admin/LeadEditModal";
 import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
@@ -29,9 +26,7 @@ import { LeadDatosExtraidos } from "@/components/admin/LeadDatosExtraidos";
 import { LeadGenerarDocumento } from "@/components/admin/LeadGenerarDocumento";
 import { LeadValidacionIA } from "@/components/admin/LeadValidacionIA";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
-import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
 import { AsignacionPerito } from "@/components/admin/AsignacionPerito";
-import { PagoManualCompact } from "@/components/admin/PagoManualCompact";
 import { descargarInformePDF, descargarInformeWord } from "@/lib/informeCaso";
 import {
   ESTADOS,
@@ -54,35 +49,27 @@ import {
 } from "@/lib/gestionHispajuris";
 import { patchLead } from "@/lib/leadsGestion";
 import { InlineSelect, InlineText, InlineToggle } from "@/components/admin/InlineField";
-import { listarAbogados, type AbogadoConDespacho } from "@/lib/abogados";
-import { useImpersonation } from "@/lib/impersonation";
 
-export const Route = createFileRoute("/admin/casos_/$id")({
+export const Route = createFileRoute("/abogado/casos_/$id")({
   head: () => ({
     meta: [
-      { title: "Ficha del caso · Hispajuris · Asesor.Legal" },
+      { title: "Ficha del caso · Panel abogado · Asesor.Legal" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: AdminCasoDetalle,
+  component: AbogadoCasoDetalle,
 });
 
-function AdminCasoDetalle() {
+function AbogadoCasoDetalle() {
   const { id } = Route.useParams();
-  const { session, isLawyer, isAdmin, loading: authLoading } = useAuth();
-  const { role: viewRole } = useImpersonation();
+  const { session, isLawyer, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-
-  // El admin puede impersonar como abogado → ocultar herramientas exclusivas.
-  const viewAsAdmin = isAdmin && viewRole === "admin";
 
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [enviandoEmail, setEnviandoEmail] = useState(false);
   const [historialKey, setHistorialKey] = useState(0);
   const [, setDocumentosCount] = useState(0);
-  const [abogados, setAbogados] = useState<AbogadoConDespacho[]>([]);
   const [busyExport, setBusyExport] = useState<"pdf" | "word" | null>(null);
 
   useEffect(() => {
@@ -103,7 +90,7 @@ function AdminCasoDetalle() {
     }
     if (!data) {
       toast.error("Caso no encontrado");
-      navigate({ to: "/admin/casos" });
+      navigate({ to: "/abogado" });
       return;
     }
     setLead(data);
@@ -119,10 +106,7 @@ function AdminCasoDetalle() {
   };
 
   useEffect(() => {
-    if (session && isLawyer) {
-      fetchLead();
-      listarAbogados().then((list) => setAbogados(list.filter((a) => a.activo)));
-    }
+    if (session && isLawyer) fetchLead();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, isLawyer, id]);
 
@@ -147,21 +131,6 @@ function AdminCasoDetalle() {
     } catch {
       /* noop */
     }
-  };
-
-  const deleteLead = async () => {
-    if (!lead) return;
-    const ok = confirm(
-      `¿Eliminar definitivamente el caso de "${lead.nombre}"?\n\nEsta acción no se puede deshacer.`,
-    );
-    if (!ok) return;
-    const { error } = await supabase.from("leads_interinos").delete().eq("id", lead.id);
-    if (error) {
-      toast.error("No se pudo eliminar el caso");
-      return;
-    }
-    toast.success("Caso eliminado");
-    navigate({ to: "/admin/casos" });
   };
 
   async function descargarPDF() {
@@ -206,16 +175,16 @@ function AdminCasoDetalle() {
 
   if (!isLawyer) {
     return (
-      <AdminLayout title="Acceso restringido">
+      <AbogadoLayout title="Acceso restringido">
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-6 w-6 text-destructive" />
             <p className="text-sm font-semibold text-destructive">
-              Tu cuenta no tiene permisos para ver los casos.
+              Tu cuenta no tiene permisos para ver este caso.
             </p>
           </div>
         </div>
-      </AdminLayout>
+      </AbogadoLayout>
     );
   }
 
@@ -226,16 +195,12 @@ function AdminCasoDetalle() {
   const reclamaciones = reclamacionesPorPerfil(lead.perfil);
 
   return (
-    <AdminLayout title="" subtitle="">
+    <AbogadoLayout title="" subtitle="">
       {/* Breadcrumb */}
       <nav className="mb-3">
         <ol className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <li>
-            <Link to="/admin" className="hover:text-foreground">Panel</Link>
-          </li>
-          <ChevronRight className="h-3 w-3" />
-          <li>
-            <Link to="/admin/casos" className="hover:text-foreground">Casos</Link>
+            <Link to="/abogado" className="hover:text-foreground">Mis casos</Link>
           </li>
           <ChevronRight className="h-3 w-3" />
           <li className="font-medium text-foreground">{lead.nombre}</li>
@@ -245,7 +210,6 @@ function AdminCasoDetalle() {
       {/* HEADER COMPACTO */}
       <header className="mb-5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Identidad + badges */}
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <h1 className="truncate text-lg font-bold text-primary">{lead.nombre}</h1>
@@ -275,18 +239,9 @@ function AdminCasoDetalle() {
             </div>
           </div>
 
-          {/* Acciones en línea */}
           <div className="flex flex-wrap items-center gap-1.5">
             <ActionBtn href={`tel:${lead.telefono}`} icon={Phone} label="Llamar" />
             <ActionBtn href={`mailto:${lead.email}`} icon={Mail} label="Email" />
-            {viewAsAdmin && (
-              <ActionBtn
-                onClick={() => setEnviandoEmail(true)}
-                icon={Send}
-                label="Enviar al abogado"
-                tone="accent"
-              />
-            )}
             <ActionBtn
               onClick={descargarPDF}
               icon={busyExport === "pdf" ? Loader2 : Download}
@@ -300,9 +255,6 @@ function AdminCasoDetalle() {
               spin={busyExport === "word"}
             />
             <ActionBtn onClick={() => setEditing(true)} icon={Pencil} label="Editar" />
-            {viewAsAdmin && (
-              <ActionBtn onClick={deleteLead} icon={Trash2} label="Eliminar" tone="danger" />
-            )}
           </div>
         </div>
       </header>
@@ -445,15 +397,6 @@ function AdminCasoDetalle() {
                 options={SIGUIENTES_ACCIONES}
                 onSave={(v) => updateField("siguiente_accion", v)}
               />
-              <InlineSelect
-                label="Profesional interviniente"
-                value={lead.profesional_interviniente}
-                options={abogados.map((a) => ({
-                  value: a.id,
-                  label: `${a.nombre}${a.despachos?.nombre ? ` · ${a.despachos.nombre}` : ""}`,
-                }))}
-                onSave={(v) => updateField("profesional_interviniente", v)}
-              />
               <InlineText
                 label="Fecha solicitud inicial"
                 value={lead.fecha_solicitud_inicial}
@@ -534,7 +477,7 @@ function AdminCasoDetalle() {
             <p className="mb-2 text-[11px] text-muted-foreground">
               A rellenar por el perito asignado.
             </p>
-            <LeadValoracion leadId={lead.id} canEdit={viewAsAdmin} />
+            <LeadValoracion leadId={lead.id} canEdit={false} />
           </Block>
 
           {/* 9. NOTAS INTERNAS */}
@@ -580,58 +523,46 @@ function AdminCasoDetalle() {
             </div>
           </Widget>
 
-          {/* W2 — PAGO */}
+          {/* W2 — PAGO (solo lectura) */}
           <Widget title="Pago Fase I">
-            <PagoManualCompact
-              lead={lead}
-              onSaved={(updated) => {
-                setLead(updated);
-                setHistorialKey((k) => k + 1);
-              }}
-            />
+            {lead.pago_completado ? (
+              <div className="rounded-lg border border-success/30 bg-success/10 p-2 text-[12px] text-success">
+                <p className="font-semibold">Pago completado</p>
+                {lead.pago_importe != null && (
+                  <p className="mt-0.5">
+                    Importe: {Number(lead.pago_importe).toFixed(2)} € ·{" "}
+                    {lead.metodo_pago ?? "—"}
+                  </p>
+                )}
+                {lead.pago_fecha && (
+                  <p className="text-[11px] text-muted-foreground">
+                    {formatDate(lead.pago_fecha)}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-[12px] text-muted-foreground">Pago pendiente</p>
+            )}
           </Widget>
 
-          {/* W3 — ABOGADO ASIGNADO (solo admin) */}
-          {viewAsAdmin && (
-            <Widget title="Abogado asignado">
-              <AsignacionAbogado
-                lead={lead}
-                onSaved={(updated) => {
-                  setLead(updated);
-                  setHistorialKey((k) => k + 1);
-                }}
-              />
-            </Widget>
-          )}
+          {/* W3 — PERITO (solo lectura para abogado) */}
+          <Widget title="Perito asignado">
+            <AsignacionPerito leadId={lead.id} canManage={false} />
+          </Widget>
 
           {/* W4 — ACCIONES RÁPIDAS */}
           <Widget title="Acciones rápidas">
             <div className="grid gap-1.5">
               <QuickAction href={`tel:${lead.telefono}`} icon={Phone} label="Llamar al cliente" />
               <QuickAction href={`mailto:${lead.email}`} icon={Mail} label="Enviar email" />
-              {viewAsAdmin && (
-                <QuickAction
-                  onClick={() => setEnviandoEmail(true)}
-                  icon={Send}
-                  label="Enviar al abogado"
-                />
-              )}
-              <button
-                disabled
-                className="inline-flex cursor-not-allowed items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[12px] font-semibold text-muted-foreground"
-                title="Próximamente"
-              >
-                <Download className="h-3.5 w-3.5" /> Exportar a Sheets
-              </button>
+              <QuickAction
+                onClick={descargarPDF}
+                icon={busyExport === "pdf" ? Loader2 : Download}
+                label="Descargar PDF"
+              />
             </div>
           </Widget>
 
-          {/* W5 — PERITO */}
-          <Widget title="Perito asignado">
-            <AsignacionPerito leadId={lead.id} canManage={viewAsAdmin} />
-          </Widget>
-
-          {/* Metadatos pequeños */}
           <p className="text-[10px] text-muted-foreground">
             ID: {lead.id.slice(0, 8)} · creado {formatDate(lead.created_at)}
           </p>
@@ -648,15 +579,7 @@ function AdminCasoDetalle() {
           }}
         />
       )}
-
-      {enviandoEmail && (
-        <EnviarEmailModal
-          lead={lead}
-          onClose={() => setEnviandoEmail(false)}
-          onSent={() => setHistorialKey((k) => k + 1)}
-        />
-      )}
-    </AdminLayout>
+    </AbogadoLayout>
   );
 }
 
@@ -667,22 +590,15 @@ function ActionBtn({
   onClick,
   icon: Icon,
   label,
-  tone,
   spin,
 }: {
   href?: string;
   onClick?: () => void;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  tone?: "accent" | "danger";
   spin?: boolean;
 }) {
-  const cls =
-    tone === "danger"
-      ? "border-destructive/40 bg-destructive/5 text-destructive hover:bg-destructive/10"
-      : tone === "accent"
-        ? "border-accent/40 bg-accent/10 text-accent-foreground hover:bg-accent/20"
-        : "border-border bg-background text-foreground hover:bg-muted";
+  const cls = "border-border bg-background text-foreground hover:bg-muted";
   const inner = (
     <>
       <Icon className={`h-3.5 w-3.5 ${spin ? "animate-spin" : ""}`} /> {label}
@@ -747,14 +663,12 @@ type BlockTone =
   | "notas"
   | "historial";
 
-// Solo 3 colores alternando: A=azul marino, B=verde oscuro, C=gris oscuro
 const COLOR_A = "#1a3a5c";
 const COLOR_B = "#15803d";
 const COLOR_C = "#374151";
-// Body bg coordinado por color de cabecera
-const BODY_A = "#f0f4f8"; // azul muy claro
-const BODY_B = "#f0fdf4"; // verde muy claro
-const BODY_C = "#f9fafb"; // gris muy claro
+const BODY_A = "#f0f4f8";
+const BODY_B = "#f0fdf4";
+const BODY_C = "#f9fafb";
 
 const BLOCK_TONES: Record<BlockTone, { header: string; body: string }> = {
   cliente:    { header: COLOR_A, body: BODY_A },
@@ -773,13 +687,11 @@ function Block({
   title,
   icon: Icon,
   tone,
-  badge,
   children,
 }: {
   title: string;
   icon?: React.ComponentType<{ className?: string }>;
   tone?: BlockTone;
-  badge?: string;
   children: React.ReactNode;
 }) {
   const colors = tone ? BLOCK_TONES[tone] : null;
@@ -819,11 +731,6 @@ function Block({
           {Icon && <Icon className="h-3.5 w-3.5" />}
           {title}
         </h3>
-        {badge && (
-          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
-            {badge}
-          </span>
-        )}
       </div>
       <div style={{ padding: "16px", borderRadius: "0 0 8px 8px" }}>{children}</div>
     </section>

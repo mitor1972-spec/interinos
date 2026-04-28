@@ -9,13 +9,13 @@ import { FormularioDiagnostico } from "@/components/FormularioDiagnostico";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Reclama Tu Plaza — Hispajuris · Asesor.Legal" },
+      { title: "Obadal · Plataforma de Reclamación para Interinos — Hispajuris" },
       {
         name: "description",
         content:
           "Empleados públicos temporales: analiza gratis tu caso de abuso de temporalidad tras la sentencia del TJUE (caso Obadal C-418/24).",
       },
-      { property: "og:title", content: "Reclama Tu Plaza — Hispajuris · Asesor.Legal" },
+      { property: "og:title", content: "Obadal · Plataforma de Reclamación para Interinos — Hispajuris" },
       {
         property: "og:description",
         content:

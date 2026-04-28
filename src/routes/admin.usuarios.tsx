@@ -1,9 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Loader2, AlertCircle, UserCog, Shield, Briefcase, User as UserIcon } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  UserCog,
+  Shield,
+  Briefcase,
+  User as UserIcon,
+  UserPlus,
+  Calculator,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { InvitarUsuarioModal } from "@/components/admin/InvitarUsuarioModal";
 
 export const Route = createFileRoute("/admin/usuarios")({
   head: () => ({
@@ -15,7 +25,7 @@ export const Route = createFileRoute("/admin/usuarios")({
   component: UsuariosPage,
 });
 
-type Role = "admin" | "lawyer" | "client";
+type Role = "admin" | "lawyer" | "client" | "perito";
 
 interface RoleRow {
   user_id: string;
@@ -40,6 +50,7 @@ interface UsuarioFila {
 const ROLE_META: Record<Role, { label: string; icon: typeof Shield; cls: string }> = {
   admin: { label: "Administrador", icon: Shield, cls: "bg-primary/10 text-primary border-primary/30" },
   lawyer: { label: "Abogado", icon: Briefcase, cls: "bg-accent/15 text-accent-foreground border-accent/30" },
+  perito: { label: "Perito", icon: Calculator, cls: "bg-warning/15 text-warning-foreground border-warning/30" },
   client: { label: "Cliente", icon: UserIcon, cls: "bg-muted text-muted-foreground border-border" },
 };
 
@@ -49,48 +60,50 @@ function UsuariosPage() {
   const [filas, setFilas] = useState<UsuarioFila[]>([]);
   const [tab, setTab] = useState<"equipo" | "clientes">("equipo");
   const [loading, setLoading] = useState(true);
+  const [showInvite, setShowInvite] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/admin/login" });
   }, [authLoading, session, navigate]);
 
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    const [rolesRes, dirRes] = await Promise.all([
+      supabase
+        .from("user_roles")
+        .select("user_id, role, created_at")
+        .order("created_at", { ascending: false }),
+      supabase.rpc("obtener_directorio_usuarios"),
+    ]);
+
+    const roles = (rolesRes.data ?? []) as RoleRow[];
+    const dir = (dirRes.data ?? []) as DirectorioRow[];
+    const dirMap = new Map(dir.map((d) => [d.user_id, d]));
+
+    const userMap = new Map<string, UsuarioFila>();
+    for (const r of roles) {
+      const info = dirMap.get(r.user_id);
+      const existing = userMap.get(r.user_id);
+      if (existing) {
+        if (!existing.roles.includes(r.role)) existing.roles.push(r.role);
+      } else {
+        userMap.set(r.user_id, {
+          user_id: r.user_id,
+          nombre: info?.nombre || info?.email || "(sin nombre)",
+          email: info?.email || "—",
+          roles: [r.role],
+          created_at: r.created_at,
+        });
+      }
+    }
+    setFilas(Array.from(userMap.values()));
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     if (!session || !isAdmin) return;
-    (async () => {
-      setLoading(true);
-      const [rolesRes, dirRes] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("user_id, role, created_at")
-          .order("created_at", { ascending: false }),
-        supabase.rpc("obtener_directorio_usuarios"),
-      ]);
-
-      const roles = (rolesRes.data ?? []) as RoleRow[];
-      const dir = (dirRes.data ?? []) as DirectorioRow[];
-      const dirMap = new Map(dir.map((d) => [d.user_id, d]));
-
-      // Agrupar roles por user_id (un usuario puede tener varios roles)
-      const userMap = new Map<string, UsuarioFila>();
-      for (const r of roles) {
-        const info = dirMap.get(r.user_id);
-        const existing = userMap.get(r.user_id);
-        if (existing) {
-          if (!existing.roles.includes(r.role)) existing.roles.push(r.role);
-        } else {
-          userMap.set(r.user_id, {
-            user_id: r.user_id,
-            nombre: info?.nombre || info?.email || "(sin nombre)",
-            email: info?.email || "—",
-            roles: [r.role],
-            created_at: r.created_at,
-          });
-        }
-      }
-      setFilas(Array.from(userMap.values()));
-      setLoading(false);
-    })();
-  }, [session, isAdmin]);
+    void cargar();
+  }, [session, isAdmin, cargar]);
 
   if (authLoading) {
     return (
@@ -115,14 +128,31 @@ function UsuariosPage() {
     );
   }
 
-  const equipo = filas.filter((f) => f.roles.some((r) => r === "admin" || r === "lawyer"));
-  const clientes = filas.filter((f) => f.roles.includes("client") && !f.roles.some((r) => r === "admin" || r === "lawyer"));
+  const equipo = filas.filter((f) =>
+    f.roles.some((r) => r === "admin" || r === "lawyer" || r === "perito"),
+  );
+  const clientes = filas.filter(
+    (f) =>
+      f.roles.includes("client") &&
+      !f.roles.some((r) => r === "admin" || r === "lawyer" || r === "perito"),
+  );
   const visibles = tab === "equipo" ? equipo : clientes;
+
+  const headerActions = (
+    <button
+      type="button"
+      onClick={() => setShowInvite(true)}
+      className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-light"
+    >
+      <UserPlus className="h-3.5 w-3.5" /> Añadir usuario
+    </button>
+  );
 
   return (
     <AdminLayout
       title="Usuarios y roles"
       subtitle="Personas con acceso al sistema y permisos asignados."
+      actions={headerActions}
     >
       {/* Tabs */}
       <div className="mb-4 inline-flex rounded-xl border border-border bg-muted/40 p-1">
@@ -196,10 +226,12 @@ function UsuariosPage() {
         </div>
       )}
 
-      <p className="mt-4 text-xs text-muted-foreground">
-        Para añadir nuevos usuarios o cambiar roles desde el panel, lanzaremos en la siguiente fase
-        el formulario de alta y la ficha editable. De momento puedes crear cuentas desde el backend.
-      </p>
+      {showInvite && (
+        <InvitarUsuarioModal
+          onClose={() => setShowInvite(false)}
+          onCreated={() => void cargar()}
+        />
+      )}
     </AdminLayout>
   );
 }
