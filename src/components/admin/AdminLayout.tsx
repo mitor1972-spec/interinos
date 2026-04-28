@@ -81,7 +81,7 @@ export function AdminLayout({ title, subtitle, actions, children }: Props) {
           </div>
           <span className="text-sm font-bold text-primary">Hispajuris</span>
         </Link>
-        {isAdmin ? <RoleSwitcher /> : <span className="w-9" />}
+        <span className="w-9" />
       </header>
 
       <div className="flex">
