@@ -1,0 +1,271 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { Lead } from "@/lib/leads";
+import { formatDate } from "@/lib/leads";
+import { categoriaLabel, type LeadDocumento } from "@/lib/documentos";
+import { fetchHistorial, labelCampo, type HistorialEntry } from "@/lib/historial";
+import { labelSiguienteAccion } from "@/lib/gestionHispajuris";
+import { reclamacionesPorPerfil } from "@/lib/leads";
+
+function esc(v: unknown): string {
+  if (v === null || v === undefined || v === "") return "—";
+  return String(v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function row(label: string, value: unknown): string {
+  return `<tr><th>${esc(label)}</th><td>${esc(value)}</td></tr>`;
+}
+
+function slug(s: string): string {
+  return (s || "caso")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 60);
+}
+
+function fechaHoy(): string {
+  return new Date().toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function fechaArchivo(): string {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+async function cargarDocumentos(leadId: string): Promise<LeadDocumento[]> {
+  const { data } = await supabase
+    .from("lead_documentos")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+  return (data ?? []) as LeadDocumento[];
+}
+
+function bloque(titulo: string, htmlInterior: string): string {
+  return `<section class="bloque">
+    <h2>${esc(titulo)}</h2>
+    ${htmlInterior}
+  </section>`;
+}
+
+export async function construirHtmlInforme(lead: Lead): Promise<{
+  html: string;
+  baseFilename: string;
+}> {
+  const [documentos, historial] = await Promise.all([
+    cargarDocumentos(lead.id),
+    fetchHistorial(lead.id),
+  ]);
+
+  const expediente = lead.id.slice(0, 8).toUpperCase();
+  const baseFilename = `Caso_${slug(lead.nombre)}_${fechaArchivo()}`;
+
+  const reclamaciones = reclamacionesPorPerfil(lead.perfil);
+
+  const datosPersonales = `
+    <table class="tabla">
+      ${row("Nombre", lead.nombre)}
+      ${row("Email", lead.email)}
+      ${row("Teléfono", lead.telefono)}
+      ${row("Provincia", lead.provincia)}
+      ${row("Recibido", formatDate(lead.created_at))}
+    </table>`;
+
+  const datosCaso = `
+    <table class="tabla">
+      ${row("Tipo de relación", lead.tipo_relacion)}
+      ${row("Administración", lead.administracion)}
+      ${row("Años de servicio", lead.anos_servicio)}
+      ${row("Situación actual", lead.situacion_actual)}
+      ${row("Contratos sucesivos", lead.contratos_sucesivos ? "Sí" : "No")}
+      ${row("Urgencia", lead.urgencia ? "Sí" : "No")}
+    </table>
+    ${
+      lead.mensaje_libre
+        ? `<p class="nota"><strong>Mensaje del cliente:</strong><br/>${esc(lead.mensaje_libre).replace(/\n/g, "<br/>")}</p>`
+        : ""
+    }`;
+
+  const diagnostico = `
+    <table class="tabla">
+      ${row("Semáforo", lead.semaforo)}
+      ${row("Resultado viabilidad", lead.resultado_viabilidad)}
+      ${row("Perfil", lead.perfil)}
+      ${row("Puntuación", `${lead.puntuacion_viabilidad} / 13`)}
+      ${row("Título diagnóstico", lead.diagnostico_titulo)}
+    </table>
+    ${
+      lead.diagnostico_mensaje
+        ? `<p class="nota">${esc(lead.diagnostico_mensaje)}</p>`
+        : ""
+    }
+    <h3>Qué podría reclamar</h3>
+    <ul>${reclamaciones.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>`;
+
+  const gestion = `
+    <table class="tabla">
+      ${row("Estado", lead.estado)}
+      ${row("Tipo de reclamación", lead.tipo_reclamacion)}
+      ${row("Motivo específico", lead.motivo_especifico)}
+      ${row("Área / Sector", lead.area_sector)}
+      ${row("Resultado contacto", lead.resultado_contacto)}
+      ${row("Siguiente acción", lead.siguiente_accion ? labelSiguienteAccion(lead.siguiente_accion) : null)}
+      ${row("Acción pendiente", lead.accion_pendiente)}
+      ${row("Encargo firmado", lead.encargo_firmado ? "Sí" : "No")}
+      ${row("Cobro realizado", lead.cobro_realizado ? "Sí" : "No")}
+      ${row("Factura emitida", lead.factura_emitida ? "Sí" : "No")}
+      ${row("Apud Acta recibido", lead.apud_acta_recibido ? "Sí" : "No")}
+      ${row("Pago completado", lead.pago_completado ? "Sí" : "No")}
+      ${row("Importe pagado", lead.pago_importe ? `${lead.pago_importe} €` : null)}
+      ${row("Método de pago", lead.metodo_pago)}
+      ${row("Fecha de pago", lead.pago_fecha ? formatDate(lead.pago_fecha) : null)}
+    </table>`;
+
+  const docsHtml = documentos.length
+    ? `<table class="tabla lista">
+        <thead><tr><th>Documento</th><th>Categoría</th><th>Estado</th><th>Subido</th></tr></thead>
+        <tbody>
+          ${documentos
+            .map(
+              (d) => `<tr>
+                <td>${esc(d.nombre_original)}</td>
+                <td>${esc(categoriaLabel(d.categoria))}</td>
+                <td>${esc(d.estado)}</td>
+                <td>${esc(formatDate(d.created_at))}</td>
+              </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>`
+    : `<p class="nota">Sin documentos aportados.</p>`;
+
+  const notas = lead.notas_abogado
+    ? `<p class="nota">${esc(lead.notas_abogado).replace(/\n/g, "<br/>")}</p>`
+    : `<p class="nota">Sin notas internas.</p>`;
+
+  const historialHtml = historial.length
+    ? `<table class="tabla lista">
+        <thead><tr><th>Fecha</th><th>Campo</th><th>Anterior</th><th>Nuevo</th><th>Usuario</th></tr></thead>
+        <tbody>
+          ${historial
+            .map(
+              (h: HistorialEntry) => `<tr>
+                <td>${esc(formatDate(h.created_at))}</td>
+                <td>${esc(labelCampo(h.campo))}</td>
+                <td>${esc(h.valor_anterior)}</td>
+                <td>${esc(h.valor_nuevo)}</td>
+                <td>${esc(h.usuario_email)}</td>
+              </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>`
+    : `<p class="nota">Sin cambios registrados.</p>`;
+
+  const html = `<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Caso ${esc(lead.nombre)} — Expediente ${esc(expediente)}</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 22mm 16mm; }
+  body { font-family: Georgia, "Times New Roman", serif; color: #111; font-size: 11pt; line-height: 1.45; }
+  header.cab { border-bottom: 2px solid #1a3a5c; padding-bottom: 10px; margin-bottom: 18px; }
+  header.cab .marca { font-size: 14pt; font-weight: bold; color: #1a3a5c; letter-spacing: 0.5px; }
+  header.cab .meta { display: flex; justify-content: space-between; font-size: 10pt; color: #444; margin-top: 4px; }
+  h1 { font-size: 18pt; color: #1a3a5c; margin: 4px 0 12px; }
+  h2 { font-size: 13pt; color: #1a3a5c; border-bottom: 1px solid #cfd8e3; padding-bottom: 3px; margin: 18px 0 8px; }
+  h3 { font-size: 11pt; margin: 10px 0 4px; color: #1a3a5c; }
+  .bloque { margin-bottom: 14px; page-break-inside: avoid; }
+  table.tabla { width: 100%; border-collapse: collapse; margin: 4px 0; }
+  table.tabla th, table.tabla td { padding: 5px 8px; border: 1px solid #d0d7de; vertical-align: top; text-align: left; font-size: 10.5pt; }
+  table.tabla th { background: #f1f5f9; width: 38%; font-weight: 600; color: #1a3a5c; }
+  table.tabla.lista th { width: auto; }
+  table.tabla.lista thead th { background: #1a3a5c; color: #fff; }
+  ul { margin: 4px 0 4px 20px; }
+  .nota { background: #f8fafc; border-left: 3px solid #1a3a5c; padding: 8px 10px; margin: 6px 0; font-size: 10.5pt; }
+  footer.pie { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9pt; color: #666; border-top: 1px solid #cfd8e3; padding-top: 4px; }
+  @media print { .no-print { display: none !important; } }
+  .toolbar { position: sticky; top: 0; background: #1a3a5c; color: #fff; padding: 10px; text-align: center; margin: -18mm -16mm 18px; }
+  .toolbar button { background: #fff; color: #1a3a5c; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin: 0 4px; }
+</style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <button onclick="window.print()">🖨️ Imprimir / Guardar como PDF</button>
+    <button onclick="window.close()">Cerrar</button>
+  </div>
+
+  <header class="cab">
+    <div class="marca">Hispajuris · Asesor.Legal</div>
+    <div class="meta">
+      <span>Expediente: <strong>${esc(expediente)}</strong></span>
+      <span>Fecha: <strong>${esc(fechaHoy())}</strong></span>
+    </div>
+  </header>
+
+  <h1>Informe del caso — ${esc(lead.nombre)}</h1>
+
+  ${bloque("1. Datos personales del cliente", datosPersonales)}
+  ${bloque("2. Datos del caso", datosCaso)}
+  ${bloque("3. Diagnóstico", diagnostico)}
+  ${bloque("4. Gestión Hispajuris", gestion)}
+  ${bloque("5. Documentación aportada", docsHtml)}
+  ${bloque("6. Notas internas del abogado", notas)}
+  ${bloque("7. Historial de cambios", historialHtml)}
+
+  <footer class="pie">Documento confidencial — Plataforma Obadal</footer>
+</body>
+</html>`;
+
+  return { html, baseFilename };
+}
+
+/** Abre el informe en una nueva ventana lista para imprimir/guardar como PDF. */
+export async function descargarInformePDF(lead: Lead): Promise<void> {
+  const { html } = await construirHtmlInforme(lead);
+  const win = window.open("", "_blank");
+  if (!win) {
+    throw new Error("Permite ventanas emergentes para descargar el PDF");
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  // Pequeño delay para que cargue estilos antes de mostrar diálogo de impresión
+  setTimeout(() => {
+    try {
+      win.focus();
+      win.print();
+    } catch {
+      /* noop */
+    }
+  }, 400);
+}
+
+/** Descarga el informe como .doc (Word lo abre nativamente desde HTML). */
+export async function descargarInformeWord(lead: Lead): Promise<void> {
+  const { html, baseFilename } = await construirHtmlInforme(lead);
+  // Word interpreta HTML con namespace de Office. Extensión .doc para máxima compat.
+  const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">${html.substring(html.indexOf("<head>"))}</html>`;
+  const blob = new Blob(["\ufeff", wordHtml], {
+    type: "application/msword",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${baseFilename}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
