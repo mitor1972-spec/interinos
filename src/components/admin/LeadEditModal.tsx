@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,22 +104,14 @@ export function LeadEditModal({ lead, onClose, onSaved }: Props) {
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/50 p-4 backdrop-blur-sm"
-        onClick={onClose}
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/50 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-elegant animate-in zoom-in-95 duration-200"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 8 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ type: "spring", damping: 26, stiffness: 260 }}
-          onClick={(e) => e.stopPropagation()}
-          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-elegant"
-        >
           <header className="flex items-center justify-between gap-3 border-b border-border bg-card px-5 py-4">
             <div>
               <h2 className="text-lg font-bold text-primary">Editar caso</h2>
@@ -277,9 +268,8 @@ export function LeadEditModal({ lead, onClose, onSaved }: Props) {
               Guardar cambios
             </button>
           </footer>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
 

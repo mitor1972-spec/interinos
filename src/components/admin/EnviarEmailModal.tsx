@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,22 +109,14 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/50 backdrop-blur-sm p-4"
-        onClick={() => !sending && onClose()}
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      onClick={() => !sending && onClose()}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-elegant animate-in zoom-in-95 duration-200"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.18 }}
-          onClick={(e) => e.stopPropagation()}
-          className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-elegant"
-        >
           {/* Header */}
           <header className="flex items-start justify-between gap-3 border-b border-border bg-card px-5 py-4">
             <div className="min-w-0">
@@ -246,9 +237,8 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
               )}
             </button>
           </footer>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
