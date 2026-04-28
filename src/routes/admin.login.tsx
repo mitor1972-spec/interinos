@@ -87,9 +87,8 @@ function LoginPage() {
 
       log(`Redirigiendo a ${target}...`);
       toast.success("Acceso correcto");
-      // Hard-navigation: evita el bug "Failed to fetch dynamically imported module"
-      // que aparece a veces en el preview de Lovable tras login.
-      window.location.assign(target);
+      // Hard redirect: evita el bug "Failed to fetch dynamically imported module"
+      window.location.href = target;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       log(`Excepción: ${msg}`);
@@ -99,23 +98,23 @@ function LoginPage() {
   };
 
   const handleClearSession = async () => {
-    setLoading(true);
     setErrorMsg(null);
     setDebugLog([]);
-    log("Limpiando sesión local y cookies de Supabase...");
+    log("Limpiando sesión, localStorage y sessionStorage...");
     try {
-      await supabase.auth.signOut();
-      // Limpieza agresiva por si quedó algo en localStorage
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith("sb-") || k.includes("supabase"))
-        .forEach((k) => localStorage.removeItem(k));
-      log("Sesión limpiada. Recargando página...");
-      setTimeout(() => window.location.reload(), 400);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      log(`Error limpiando sesión: ${msg}`);
-      setLoading(false);
+      // signOut sin esperar — si falla por sesión inválida, da igual
+      supabase.auth.signOut().catch(() => {});
+    } catch {
+      /* noop */
     }
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch {
+      /* noop */
+    }
+    // Hard redirect inmediato — no esperar
+    window.location.href = "/admin/login";
   };
 
   return (
@@ -221,9 +220,18 @@ function LoginPage() {
             </div>
           )}
 
-          <p className="mt-5 text-center text-xs text-muted-foreground">
-            ¿No tienes cuenta? Pide acceso al administrador.
-          </p>
+          <div className="mt-5 rounded-xl border border-border bg-muted/30 p-3 text-center">
+            <p className="text-xs font-semibold text-foreground">¿No tienes cuenta?</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Para solicitar acceso contacta con el administrador:
+            </p>
+            <a
+              href="mailto:empleopublico@hispajuris.es"
+              className="mt-1 inline-block text-[12px] font-semibold text-accent hover:underline"
+            >
+              empleopublico@hispajuris.es
+            </a>
+          </div>
         </div>
 
         <Link to="/" className="mt-6 block text-center text-xs text-primary-foreground/70 hover:text-accent">
