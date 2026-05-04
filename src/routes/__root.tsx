@@ -78,7 +78,13 @@ function RootComponent() {
     <ImpersonationProvider>
       <ImpersonationBanner />
       <Outlet />
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        className="notranslate"
+        toastOptions={{ className: "notranslate" }}
+      />
       <DevModeBar />
     </ImpersonationProvider>
   );
