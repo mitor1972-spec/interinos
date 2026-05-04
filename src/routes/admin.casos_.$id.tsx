@@ -27,6 +27,7 @@ import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
 import { LeadDatosExtraidos } from "@/components/admin/LeadDatosExtraidos";
 import { LeadGenerarDocumento } from "@/components/admin/LeadGenerarDocumento";
+import { HojaEncargoModal } from "@/components/admin/HojaEncargoModal";
 import { LeadValidacionIA } from "@/components/admin/LeadValidacionIA";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
