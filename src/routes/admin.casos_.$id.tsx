@@ -658,6 +658,14 @@ function AdminCasoDetalle() {
           onSent={() => setHistorialKey((k) => k + 1)}
         />
       )}
+
+      {showHojaEncargo && (
+        <HojaEncargoModal
+          lead={lead}
+          onClose={() => setShowHojaEncargo(false)}
+          onGenerated={() => setHistorialKey((k) => k + 1)}
+        />
+      )}
     </AdminLayout>
   );
 }
