@@ -97,6 +97,7 @@ const MenubarContent = React.forwardRef<
   <MenubarPrimitive.Portal>
     <MenubarPrimitive.Content
       ref={ref}
+      translate="no"
       align={align}
       alignOffset={alignOffset}
       sideOffset={sideOffset}
