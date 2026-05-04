@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Loader2, AlertCircle, Building2, Mail, Shield, Database, Cog } from "lucide-react";
+import { Loader2, AlertCircle, Building2, Mail, Shield, Database, Cog, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
