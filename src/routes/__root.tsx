@@ -33,6 +33,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google", content: "notranslate" },
       { title: "Interinos App - Hispajuris" },
       { name: "description", content: "Reclamar daños y perjuicios sin los límites máximos que el TJUE ha declarado insuficientes." },
       { name: "author", content: "Lovable" },
@@ -60,11 +61,11 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es" translate="no">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body translate="no">
         {children}
         <Scripts />
       </body>
