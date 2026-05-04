@@ -27,6 +27,7 @@ import { LeadHistorial } from "@/components/admin/LeadHistorial";
 import { LeadDocumentos } from "@/components/admin/LeadDocumentos";
 import { LeadDatosExtraidos } from "@/components/admin/LeadDatosExtraidos";
 import { LeadGenerarDocumento } from "@/components/admin/LeadGenerarDocumento";
+import { HojaEncargoModal } from "@/components/admin/HojaEncargoModal";
 import { LeadValidacionIA } from "@/components/admin/LeadValidacionIA";
 import { LeadValoracion } from "@/components/perito/LeadValoracion";
 import { AsignacionAbogado } from "@/components/admin/AsignacionAbogado";
@@ -84,6 +85,7 @@ function AdminCasoDetalle() {
   const [, setDocumentosCount] = useState(0);
   const [abogados, setAbogados] = useState<AbogadoConDespacho[]>([]);
   const [busyExport, setBusyExport] = useState<"pdf" | "word" | null>(null);
+  const [showHojaEncargo, setShowHojaEncargo] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/admin/login" });
@@ -298,6 +300,12 @@ function AdminCasoDetalle() {
               icon={busyExport === "word" ? Loader2 : FileText}
               label="Word"
               spin={busyExport === "word"}
+            />
+            <ActionBtn
+              onClick={() => setShowHojaEncargo(true)}
+              icon={FileText}
+              label="Hoja de encargo"
+              tone="accent"
             />
             <ActionBtn onClick={() => setEditing(true)} icon={Pencil} label="Editar" />
             {viewAsAdmin && (
@@ -654,6 +662,14 @@ function AdminCasoDetalle() {
           lead={lead}
           onClose={() => setEnviandoEmail(false)}
           onSent={() => setHistorialKey((k) => k + 1)}
+        />
+      )}
+
+      {showHojaEncargo && (
+        <HojaEncargoModal
+          lead={lead}
+          onClose={() => setShowHojaEncargo(false)}
+          onGenerated={() => setHistorialKey((k) => k + 1)}
         />
       )}
     </AdminLayout>

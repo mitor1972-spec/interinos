@@ -17,36 +17,48 @@ export type Database = {
       abogados: {
         Row: {
           activo: boolean
+          colegio: string | null
           created_at: string
           despacho_id: string | null
+          domicilio_profesional: string | null
           email: string
           id: string
+          nif: string | null
           nombre: string
           notas: string | null
+          num_colegiado: string | null
           telefono: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           activo?: boolean
+          colegio?: string | null
           created_at?: string
           despacho_id?: string | null
+          domicilio_profesional?: string | null
           email: string
           id?: string
+          nif?: string | null
           nombre: string
           notas?: string | null
+          num_colegiado?: string | null
           telefono?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           activo?: boolean
+          colegio?: string | null
           created_at?: string
           despacho_id?: string | null
+          domicilio_profesional?: string | null
           email?: string
           id?: string
+          nif?: string | null
           nombre?: string
           notas?: string | null
+          num_colegiado?: string | null
           telefono?: string | null
           updated_at?: string
           user_id?: string | null
@@ -60,6 +72,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      configuracion_despacho: {
+        Row: {
+          banco: string
+          cif: string
+          created_at: string
+          cuota_litis_default: number
+          domicilio: string
+          email_secretariado: string
+          honorarios_fase1_default: number
+          iban: string
+          id: string
+          logo_path: string | null
+          nombre: string
+          razon_social: string
+          updated_at: string
+        }
+        Insert: {
+          banco?: string
+          cif?: string
+          created_at?: string
+          cuota_litis_default?: number
+          domicilio?: string
+          email_secretariado?: string
+          honorarios_fase1_default?: number
+          iban?: string
+          id?: string
+          logo_path?: string | null
+          nombre?: string
+          razon_social?: string
+          updated_at?: string
+        }
+        Update: {
+          banco?: string
+          cif?: string
+          created_at?: string
+          cuota_litis_default?: number
+          domicilio?: string
+          email_secretariado?: string
+          honorarios_fase1_default?: number
+          iban?: string
+          id?: string
+          logo_path?: string | null
+          nombre?: string
+          razon_social?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       despachos: {
         Row: {
@@ -907,6 +967,7 @@ export type Database = {
         | "reclamacion_previa"
         | "escrito_generico"
         | "otro"
+        | "hoja_encargo"
       resultado_contacto:
         | "pendiente"
         | "contactado_interesado"
@@ -1112,6 +1173,7 @@ export const Constants = {
         "reclamacion_previa",
         "escrito_generico",
         "otro",
+        "hoja_encargo",
       ],
       resultado_contacto: [
         "pendiente",

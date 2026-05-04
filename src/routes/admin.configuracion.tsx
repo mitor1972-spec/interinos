@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Loader2, AlertCircle, Building2, Mail, Shield, Database, Cog } from "lucide-react";
+import { Loader2, AlertCircle, Building2, Mail, Shield, Database, Cog, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
@@ -20,6 +20,13 @@ const SECTIONS = [
     title: "Despachos y abogados",
     description: "Crear, editar y desactivar despachos colaboradores y profesionales.",
     to: "/admin/despachos",
+    available: true,
+  },
+  {
+    icon: FileText,
+    title: "Datos del despacho",
+    description: "Logo, datos fiscales, banco e importes por defecto para los documentos generados.",
+    to: "/admin/configuracion/despacho",
     available: true,
   },
   {

@@ -34,6 +34,7 @@ import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
 import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
 import { Route as AdminConfiguracionEmailRouteImport } from './routes/admin.configuracion.email'
+import { Route as AdminConfiguracionDespachoRouteImport } from './routes/admin.configuracion.despacho'
 import { Route as AdminCasosIdRouteImport } from './routes/admin.casos_.$id'
 import { Route as AbogadoCasosIdRouteImport } from './routes/abogado.casos_.$id'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -163,6 +164,12 @@ const AdminConfiguracionEmailRoute = AdminConfiguracionEmailRouteImport.update({
   path: '/email',
   getParentRoute: () => AdminConfiguracionRoute,
 } as any)
+const AdminConfiguracionDespachoRoute =
+  AdminConfiguracionDespachoRouteImport.update({
+    id: '/despacho',
+    path: '/despacho',
+    getParentRoute: () => AdminConfiguracionRoute,
+  } as any)
 const AdminCasosIdRoute = AdminCasosIdRouteImport.update({
   id: '/admin/casos_/$id',
   path: '/admin/casos/$id',
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/perito/': typeof PeritoIndexRoute
   '/abogado/casos/$id': typeof AbogadoCasosIdRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
+  '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -237,6 +245,7 @@ export interface FileRoutesByTo {
   '/perito': typeof PeritoIndexRoute
   '/abogado/casos/$id': typeof AbogadoCasosIdRoute
   '/admin/casos/$id': typeof AdminCasosIdRoute
+  '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/perito/': typeof PeritoIndexRoute
   '/abogado/casos_/$id': typeof AbogadoCasosIdRoute
   '/admin/casos_/$id': typeof AdminCasosIdRoute
+  '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/perito/'
     | '/abogado/casos/$id'
     | '/admin/casos/$id'
+    | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/perito'
     | '/abogado/casos/$id'
     | '/admin/casos/$id'
+    | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
   id:
@@ -360,6 +372,7 @@ export interface FileRouteTypes {
     | '/perito/'
     | '/abogado/casos_/$id'
     | '/admin/casos_/$id'
+    | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
@@ -571,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfiguracionEmailRouteImport
       parentRoute: typeof AdminConfiguracionRoute
     }
+    '/admin/configuracion/despacho': {
+      id: '/admin/configuracion/despacho'
+      path: '/despacho'
+      fullPath: '/admin/configuracion/despacho'
+      preLoaderRoute: typeof AdminConfiguracionDespachoRouteImport
+      parentRoute: typeof AdminConfiguracionRoute
+    }
     '/admin/casos_/$id': {
       id: '/admin/casos_/$id'
       path: '/admin/casos/$id'
@@ -596,10 +616,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminConfiguracionRouteChildren {
+  AdminConfiguracionDespachoRoute: typeof AdminConfiguracionDespachoRoute
   AdminConfiguracionEmailRoute: typeof AdminConfiguracionEmailRoute
 }
 
 const AdminConfiguracionRouteChildren: AdminConfiguracionRouteChildren = {
+  AdminConfiguracionDespachoRoute: AdminConfiguracionDespachoRoute,
   AdminConfiguracionEmailRoute: AdminConfiguracionEmailRoute,
 }
 
