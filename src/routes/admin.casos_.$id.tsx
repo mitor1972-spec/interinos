@@ -301,6 +301,12 @@ function AdminCasoDetalle() {
               label="Word"
               spin={busyExport === "word"}
             />
+            <ActionBtn
+              onClick={() => setShowHojaEncargo(true)}
+              icon={FileText}
+              label="Hoja de encargo"
+              tone="accent"
+            />
             <ActionBtn onClick={() => setEditing(true)} icon={Pencil} label="Editar" />
             {viewAsAdmin && (
               <ActionBtn onClick={deleteLead} icon={Trash2} label="Eliminar" tone="danger" />
