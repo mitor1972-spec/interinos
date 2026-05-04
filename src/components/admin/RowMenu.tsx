@@ -78,6 +78,7 @@ export function RowMenu({
 
       {open && (
         <ul
+          translate="no"
           className="absolute right-0 top-9 z-50 w-52 rounded-xl border border-border bg-background py-1 text-sm shadow-elegant"
           onClick={(e) => e.stopPropagation()}
         >

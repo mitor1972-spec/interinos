@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
@@ -33,6 +34,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google", content: "notranslate" },
       { title: "Interinos App - Hispajuris" },
       { name: "description", content: "Reclamar daños y perjuicios sin los límites máximos que el TJUE ha declarado insuficientes." },
       { name: "author", content: "Lovable" },
@@ -60,11 +62,11 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es" translate="no">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body translate="no">
         {children}
         <Scripts />
       </body>
@@ -75,10 +77,35 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <ImpersonationProvider>
+      <ReactDomMutationGuard />
       <ImpersonationBanner />
       <Outlet />
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        className="notranslate"
+        toastOptions={{ className: "notranslate" }}
+      />
       <DevModeBar />
     </ImpersonationProvider>
   );
+}
+
+function ReactDomMutationGuard() {
+  useEffect(() => {
+    if (typeof Node === "undefined") return;
+    const originalRemoveChild = Node.prototype.removeChild;
+
+    Node.prototype.removeChild = function removeChildGuard<T extends Node>(this: Node, child: T): T {
+      if (child.parentNode !== this) return child;
+      return originalRemoveChild.call(this, child) as T;
+    } as typeof Node.prototype.removeChild;
+
+    return () => {
+      Node.prototype.removeChild = originalRemoveChild;
+    };
+  }, []);
+
+  return null;
 }
