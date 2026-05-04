@@ -85,6 +85,7 @@ function AdminCasoDetalle() {
   const [, setDocumentosCount] = useState(0);
   const [abogados, setAbogados] = useState<AbogadoConDespacho[]>([]);
   const [busyExport, setBusyExport] = useState<"pdf" | "word" | null>(null);
+  const [showHojaEncargo, setShowHojaEncargo] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/admin/login" });
