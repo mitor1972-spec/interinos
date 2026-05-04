@@ -97,7 +97,7 @@ function ReactDomMutationGuard() {
     if (typeof Node === "undefined") return;
     const originalRemoveChild = Node.prototype.removeChild;
 
-    Node.prototype.removeChild = function removeChildGuard<T extends Node>(child: T): T {
+    Node.prototype.removeChild = function removeChildGuard<T extends Node>(this: Node, child: T): T {
       if (child.parentNode !== this) return child;
       return originalRemoveChild.call(this, child) as T;
     } as typeof Node.prototype.removeChild;
