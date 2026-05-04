@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
@@ -76,6 +77,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <ImpersonationProvider>
+      <ReactDomMutationGuard />
       <ImpersonationBanner />
       <Outlet />
       <Toaster
@@ -88,4 +90,22 @@ function RootComponent() {
       <DevModeBar />
     </ImpersonationProvider>
   );
+}
+
+function ReactDomMutationGuard() {
+  useEffect(() => {
+    if (typeof Node === "undefined") return;
+    const originalRemoveChild = Node.prototype.removeChild;
+
+    Node.prototype.removeChild = function removeChildGuard<T extends Node>(child: T): T {
+      if (child.parentNode !== this) return child;
+      return originalRemoveChild.call(this, child) as T;
+    } as typeof Node.prototype.removeChild;
+
+    return () => {
+      Node.prototype.removeChild = originalRemoveChild;
+    };
+  }, []);
+
+  return null;
 }
