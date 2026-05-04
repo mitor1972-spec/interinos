@@ -23,6 +23,13 @@ const SECTIONS = [
     available: true,
   },
   {
+    icon: FileText,
+    title: "Datos del despacho",
+    description: "Logo, datos fiscales, banco e importes por defecto para los documentos generados.",
+    to: "/admin/configuracion/despacho",
+    available: true,
+  },
+  {
     icon: Mail,
     title: "Notificaciones por email",
     description: "Configurar el envío de emails al abogado y a clientes (Resend).",
