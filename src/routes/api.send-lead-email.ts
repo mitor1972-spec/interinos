@@ -9,6 +9,7 @@ interface SendBody {
   cc?: string;
   subject: string;
   message: string;
+  html?: string;
 }
 
 function escapeHtml(s: string): string {
