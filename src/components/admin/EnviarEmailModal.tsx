@@ -84,6 +84,18 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   const handleSend = async () => {
     if (!valido || sending) return;
     setSending(true);
+
+    let attachments: { filename: string; content: string }[] | undefined;
+    if (adjuntarPdf) {
+      try {
+        const pdf = await generarPdfFichaCaso(lead, abogado, docsCaso);
+        attachments = [{ filename: pdf.filename, content: pdf.base64 }];
+      } catch (err) {
+        console.error("Error generando PDF", err);
+        toast.error("No se pudo generar el PDF adjunto. Se enviará sin él.");
+      }
+    }
+
     const res = await enviarEmailLead({
       leadId: lead.id,
       to: to.trim(),
@@ -91,6 +103,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       subject: subject.trim(),
       message,
       html,
+      attachments,
     });
     setSending(false);
 
