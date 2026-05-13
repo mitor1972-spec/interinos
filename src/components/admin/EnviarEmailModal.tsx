@@ -6,8 +6,9 @@ import type { Lead } from "@/lib/leads";
 import {
   construirBorradorEmailLead,
   enviarEmailLead,
+  generarPdfFichaCaso,
 } from "@/lib/emailLead";
-import { listarDocumentos } from "@/lib/documentos";
+import { listarDocumentos, type LeadDocumento } from "@/lib/documentos";
 
 interface Props {
   lead: Lead;
