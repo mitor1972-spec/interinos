@@ -86,6 +86,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       cc: cc.trim() || undefined,
       subject: subject.trim(),
       message,
+      html,
     });
     setSending(false);
 
