@@ -77,7 +77,7 @@ export const Route = createFileRoute("/api/send-lead-email")({
           }
 
           const body = (await request.json()) as SendBody;
-          const { leadId, to, cc, subject, message } = body || ({} as SendBody);
+          const { leadId, to, cc, subject, message, html } = body || ({} as SendBody);
 
           if (!leadId || !to || !subject || !message) {
             return new Response(
@@ -99,7 +99,7 @@ export const Route = createFileRoute("/api/send-lead-email")({
               { status: 400, headers: { "Content-Type": "application/json" } },
             );
           }
-          if (subject.length > 250 || message.length > 20000) {
+          if (subject.length > 250 || message.length > 20000 || (html && html.length > 200000)) {
             return new Response(
               JSON.stringify({ error: "Asunto o mensaje demasiado largos" }),
               { status: 400, headers: { "Content-Type": "application/json" } },
@@ -129,15 +129,13 @@ export const Route = createFileRoute("/api/send-lead-email")({
           const normalizedTo = to.trim();
           const normalizedCc = cc?.trim() || "";
 
-          const fullSubject = subject.startsWith("[Obadal]")
-            ? subject
-            : `[Obadal] ${subject}`;
+          const fullSubject = subject.trim();
 
           const payload: Record<string, unknown> = {
             from: fromAddress,
             to: [normalizedTo],
             subject: fullSubject,
-            html: textToHtml(message),
+            html: html && html.trim().length > 0 ? html : textToHtml(message),
             text: message,
             reply_to: "empleopublico@hispajuris.es",
           };
