@@ -3,6 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
+interface Attachment {
+  filename: string;
+  content: string; // base64 sin prefijo
+}
+
 interface SendBody {
   leadId: string;
   to: string;
@@ -10,6 +15,7 @@ interface SendBody {
   subject: string;
   message: string;
   html?: string;
+  attachments?: Attachment[];
 }
 
 function escapeHtml(s: string): string {
