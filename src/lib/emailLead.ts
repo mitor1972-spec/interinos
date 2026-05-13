@@ -13,9 +13,9 @@ export interface BorradorEmail {
   to: string;
   cc: string;
   subject: string;
-  /** Versión texto plano (editable, fallback para clientes que no aceptan HTML). */
+  /** Versión texto plano (editable, fallback). */
   message: string;
-  /** Versión HTML estructurada compatible con Outlook. */
+  /** Versión HTML simple para el cuerpo del email. */
   html: string;
 }
 
@@ -41,7 +41,57 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-/** Construye el asunto y el cuerpo automático del email al abogado. */
+interface DerivedDocs {
+  tieneContrato: string;
+  tieneNominas: string;
+  tieneVidaLaboral: string;
+  docsCompletosTxt: string;
+  docsSubidos: LeadDocumento[];
+}
+
+function derivarDocs(lead: Lead, docs: LeadDocumento[]): DerivedDocs {
+  const presentes = (lead.documentos_disponibles || []).map((d) =>
+    d.toLowerCase(),
+  );
+  const tieneContrato = presentes.some(
+    (d) => d.includes("contrato") || d.includes("nombramiento"),
+  );
+  const tieneNominas = presentes.some(
+    (d) => d.includes("nómina") || d.includes("nomina"),
+  );
+  const tieneVidaLaboral = presentes.some((d) => d.includes("vida laboral"));
+
+  const completos = docsCompletos(lead.documentos_disponibles);
+  let docsCompletosTxt: string;
+  if (completos) {
+    docsCompletosTxt = "Sí";
+  } else {
+    const faltantes: string[] = [];
+    if (!tieneContrato) faltantes.push("Contrato/Nombramiento");
+    const tieneAlgunSecundario = presentes.some(
+      (d) =>
+        d.includes("vida laboral") ||
+        d.includes("nómina") ||
+        d.includes("nomina") ||
+        d.includes("cese") ||
+        d.includes("sentencia"),
+    );
+    if (!tieneAlgunSecundario)
+      faltantes.push("Nóminas, Vida laboral, Cese o Sentencia previa");
+    docsCompletosTxt =
+      faltantes.length > 0 ? `No — falta: ${faltantes.join(", ")}` : "No";
+  }
+
+  return {
+    tieneContrato: tieneContrato ? "Sí" : "No",
+    tieneNominas: tieneNominas ? "Sí" : "No",
+    tieneVidaLaboral: tieneVidaLaboral ? "Sí" : "No",
+    docsCompletosTxt,
+    docsSubidos: docs,
+  };
+}
+
+/** Construye asunto y cuerpo simple del email al abogado. */
 export function construirBorradorEmailLead(
   lead: Lead,
   abogado: { nombre?: string | null; email?: string | null } | null,
@@ -57,100 +107,163 @@ export function construirBorradorEmailLead(
     origin || (typeof window !== "undefined" ? window.location.origin : "");
   const fichaUrl = `${baseOrigin}/admin/casos?lead=${lead.id}`;
 
-  const completos = docsCompletos(lead.documentos_disponibles);
-  let docsCompletosTxt: string;
-  if (completos) {
-    docsCompletosTxt = "Sí";
-  } else {
-    const presentes = (lead.documentos_disponibles || []).map((d) =>
-      d.toLowerCase(),
-    );
-    const faltantes: string[] = [];
-    const tieneContrato = presentes.some(
-      (d) => d.includes("contrato") || d.includes("nombramiento"),
-    );
-    const tieneAlgunSecundario = presentes.some(
-      (d) =>
-        d.includes("vida laboral") ||
-        d.includes("nómina") ||
-        d.includes("nomina") ||
-        d.includes("cese") ||
-        d.includes("sentencia"),
-    );
-    if (!tieneContrato) faltantes.push("Contrato/Nombramiento");
-    if (!tieneAlgunSecundario)
-      faltantes.push("Nóminas, Vida laboral, Cese o Sentencia previa");
-    docsCompletosTxt =
-      faltantes.length > 0
-        ? `No — falta: ${faltantes.join(", ")}`
-        : "No";
-  }
-
+  const der = derivarDocs(lead, documentosSubidos);
   const reclamaciones = reclamacionesPorPerfil(lead.perfil);
-  const docsMarcados =
-    lead.documentos_disponibles && lead.documentos_disponibles.length > 0
-      ? lead.documentos_disponibles
-      : [];
-
   const mensajeCliente =
     lead.mensaje_libre && lead.mensaje_libre.trim().length > 0
       ? lead.mensaje_libre.trim()
-      : "El cliente no facilitó información adicional";
+      : "El cliente no facilitó información adicional.";
 
-  const notasAdmin =
-    lead.notas_abogado && lead.notas_abogado.trim().length > 0
-      ? lead.notas_abogado.trim()
+  const urgencia = lead.urgencia ? "Sí — caso prioritario" : "No";
+  const viabilidad = `${lead.puntuacion_viabilidad}/13`;
+
+  // ===== Texto plano =====
+  const L: string[] = [];
+  L.push("Buenos días,");
+  L.push("");
+  L.push("Te adjunto los datos de un caso de interinos:");
+  L.push("");
+  L.push("1. Resumen del caso");
+  L.push(`- Nombre: ${val(lead.nombre)}`);
+  L.push(`- Provincia: ${val(lead.provincia)}`);
+  L.push(`- Perfil: ${per.label}`);
+  L.push(`- Viabilidad: ${viabilidad}`);
+  L.push(`- Urgencia: ${urgencia}`);
+  L.push(`- Situación actual: ${val(lead.situacion_actual)}`);
+  L.push("");
+  L.push("2. Datos de contacto");
+  L.push(`- Nombre: ${val(lead.nombre)}`);
+  L.push(`- Teléfono: ${val(lead.telefono)}`);
+  L.push(`- Email: ${val(lead.email)}`);
+  L.push(`- Provincia: ${val(lead.provincia)}`);
+  L.push("");
+  L.push("3. Mensaje del cliente");
+  L.push(mensajeCliente);
+  L.push("");
+  L.push("4. Diagnóstico inicial");
+  L.push(`- Semáforo: ${sem.label}`);
+  L.push(`- Puntuación: ${viabilidad}`);
+  L.push(`- Perfil detectado: ${per.label}`);
+  L.push(
+    `- Posibles reclamaciones: ${
+      reclamaciones.length > 0 ? reclamaciones.join("; ") : NO_FACILITADO
+    }`,
+  );
+  L.push("");
+  L.push("5. Documentación indicada");
+  L.push(`- Contratos / nombramientos: ${der.tieneContrato}`);
+  L.push(`- Nóminas: ${der.tieneNominas}`);
+  L.push(`- Vida laboral: ${der.tieneVidaLaboral}`);
+  L.push(`- Documentación completa: ${der.docsCompletosTxt}`);
+  L.push(
+    `- Documentos subidos: ${
+      der.docsSubidos.length > 0
+        ? der.docsSubidos
+            .map((d) => `${d.nombre_original} [${categoriaLabel(d.categoria)}]`)
+            .join(", ")
+        : "Ninguno"
+    }`,
+  );
+  L.push("");
+  L.push("6. Acceso al expediente");
+  L.push("Puedes consultar el expediente completo aquí:");
+  L.push(fichaUrl);
+  L.push("");
+  L.push("Atentamente,");
+  L.push("Secretariado Hispajuris");
+  L.push("empleopublico@hispajuris.es");
+  const message = L.join("\n");
+
+  // ===== HTML simple =====
+  const p = (s: string) =>
+    `<p style="margin:0 0 12px;font-size:14px;line-height:1.55;color:#111;">${s}</p>`;
+  const h = (s: string) =>
+    `<p style="margin:18px 0 6px;font-size:14px;line-height:1.4;color:#111;"><strong>${escapeHtml(s)}</strong></p>`;
+  const li = (label: string, value: string) =>
+    `<li style="margin:0 0 4px;"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</li>`;
+  const ul = (items: string) =>
+    `<ul style="margin:0 0 12px 20px;padding:0;font-size:14px;line-height:1.55;color:#111;">${items}</ul>`;
+
+  const reclamItems =
+    reclamaciones.length > 0
+      ? `<ul style="margin:0 0 12px 20px;padding:0;font-size:14px;line-height:1.55;color:#111;">${reclamaciones
+          .map((r) => `<li style="margin:0 0 4px;">${escapeHtml(r)}</li>`)
+          .join("")}</ul>`
       : "";
 
-  const abogadoAsignado = abogado?.nombre
-    ? abogado.nombre
-    : abogado?.email || "Sin asignar";
+  const docsSubidosTxt =
+    der.docsSubidos.length > 0
+      ? der.docsSubidos
+          .map((d) => `${d.nombre_original} [${categoriaLabel(d.categoria)}]`)
+          .join(", ")
+      : "Ninguno";
 
-  const motivoUrgencia = lead.urgencia ? "Sí — caso prioritario" : "No";
+  const mensajeClienteHtml = `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#111;white-space:pre-wrap;">${escapeHtml(mensajeCliente)}</p>`;
 
-  // Detección de contratos/nombramientos, nóminas y vida laboral en docs marcados
-  const presentes = (lead.documentos_disponibles || []).map((d) => d.toLowerCase());
-  const tieneContrato = presentes.some(
-    (d) => d.includes("contrato") || d.includes("nombramiento"),
-  );
-  const tieneNominas = presentes.some(
-    (d) => d.includes("nómina") || d.includes("nomina"),
-  );
-  const tieneVidaLaboral = presentes.some((d) => d.includes("vida laboral"));
+  const html = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:0;background:#ffffff;">
+<div style="max-width:640px;margin:0 auto;padding:16px 20px;font-family:Arial,Helvetica,sans-serif;color:#111;">
+${p("Buenos días,")}
+${p("Te adjunto los datos de un caso de interinos:")}
 
-  // === Texto plano (editable / fallback) ===
-  const lineas: string[] = [];
-  lineas.push(`Caso: ${val(lead.nombre)} — ${val(lead.provincia)}`);
-  lineas.push(`Perfil: ${per.label} · Semáforo: ${sem.label}`);
-  lineas.push("");
-  lineas.push(`Mensaje del cliente: ${mensajeCliente}`);
-  lineas.push("");
-  lineas.push(`Ficha completa: ${fichaUrl}`);
-  lineas.push("");
-  lineas.push("Atentamente,");
-  lineas.push("Secretariado Hispajuris");
-  lineas.push("empleopublico@hispajuris.es");
-  const message = lineas.join("\n");
+${h("1. Resumen del caso")}
+${ul(
+  [
+    li("Nombre", val(lead.nombre)),
+    li("Provincia", val(lead.provincia)),
+    li("Perfil", per.label),
+    li("Viabilidad", viabilidad),
+    li("Urgencia", urgencia),
+    li("Situación actual", val(lead.situacion_actual)),
+  ].join(""),
+)}
 
-  // === HTML estructurado (Outlook-friendly, basado en tablas + CSS inline) ===
-  const html = renderHtml({
-    lead,
-    sem,
-    per,
-    abogadoAsignado,
-    motivoUrgencia,
-    mensajeCliente,
-    notasAdmin,
-    fichaUrl,
-    reclamaciones,
-    docsMarcados,
-    docsCompletosTxt,
-    documentosSubidos,
-    baseOrigin,
-    tieneContrato,
-    tieneNominas,
-    tieneVidaLaboral,
-  });
+${h("2. Datos de contacto")}
+${ul(
+  [
+    li("Nombre", val(lead.nombre)),
+    li("Teléfono", val(lead.telefono)),
+    li("Email", val(lead.email)),
+    li("Provincia", val(lead.provincia)),
+  ].join(""),
+)}
+
+${h("3. Mensaje del cliente")}
+${mensajeClienteHtml}
+
+${h("4. Diagnóstico inicial")}
+${ul(
+  [
+    li("Semáforo", sem.label),
+    li("Puntuación", viabilidad),
+    li("Perfil detectado", per.label),
+  ].join(""),
+)}
+${
+  reclamaciones.length > 0
+    ? `<p style="margin:0 0 4px;font-size:14px;color:#111;"><strong>Posibles reclamaciones:</strong></p>${reclamItems}`
+    : `<p style="margin:0 0 12px;font-size:14px;color:#111;"><strong>Posibles reclamaciones:</strong> ${NO_FACILITADO}</p>`
+}
+
+${h("5. Documentación indicada")}
+${ul(
+  [
+    li("Contratos / nombramientos", der.tieneContrato),
+    li("Nóminas", der.tieneNominas),
+    li("Vida laboral", der.tieneVidaLaboral),
+    li("Documentación completa", der.docsCompletosTxt),
+    li("Documentos subidos", docsSubidosTxt),
+  ].join(""),
+)}
+
+${h("6. Acceso al expediente")}
+${p(`Puedes consultar el expediente completo aquí:<br><a href="${fichaUrl}" style="color:#1a56db;">${escapeHtml(fichaUrl)}</a>`)}
+
+${p("Atentamente,")}
+${p('Secretariado Hispajuris<br><a href="mailto:empleopublico@hispajuris.es" style="color:#1a56db;">empleopublico@hispajuris.es</a>')}
+</div>
+</body></html>`;
 
   return {
     to: abogado?.email || "",
@@ -161,201 +274,198 @@ export function construirBorradorEmailLead(
   };
 }
 
-interface RenderArgs {
-  lead: Lead;
-  sem: ReturnType<typeof semaforoConfig>;
-  per: ReturnType<typeof perfilConfig>;
-  abogadoAsignado: string;
-  motivoUrgencia: string;
-  mensajeCliente: string;
-  notasAdmin: string;
-  fichaUrl: string;
-  reclamaciones: string[];
-  docsMarcados: string[];
-  docsCompletosTxt: string;
-  documentosSubidos: LeadDocumento[];
-  baseOrigin: string;
-  tieneContrato: boolean;
-  tieneNominas: boolean;
-  tieneVidaLaboral: boolean;
-}
+// ============== PDF (adjunto opcional) ==============
 
-function renderHtml(a: RenderArgs): string {
-  const { lead } = a;
+/** Genera un PDF con la ficha completa del caso. Devuelve base64 (sin prefijo data:). */
+export async function generarPdfFichaCaso(
+  lead: Lead,
+  abogado: { nombre?: string | null; email?: string | null } | null,
+  documentosSubidos: LeadDocumento[] = [],
+): Promise<{ filename: string; base64: string }> {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-  // Estilos inline reutilizables
-  const wrapperStyle =
-    "background:#f4f6f8;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#1f2937;";
-  const cardStyle =
-    "max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;";
-  const headerStyle =
-    "background:#0f172a;color:#ffffff;padding:18px 24px;font-size:16px;font-weight:bold;";
-  const sectionTitleStyle =
-    "font-size:13px;font-weight:bold;color:#0f172a;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px;padding:0 0 6px;border-bottom:2px solid #0f172a;";
-  const sectionStyle = "padding:18px 24px;border-top:1px solid #f1f5f9;";
-  const labelTd =
-    "padding:6px 12px 6px 0;font-size:13px;color:#6b7280;width:42%;vertical-align:top;";
-  const valueTd =
-    "padding:6px 0;font-size:13px;color:#111827;font-weight:600;vertical-align:top;";
-  const blockquoteStyle =
-    "margin:0;padding:14px 16px;background:#f8fafc;border-left:4px solid #0f172a;border-radius:6px;font-size:14px;color:#1f2937;line-height:1.55;white-space:pre-wrap;";
-  const buttonStyle =
-    "display:inline-block;background:#0f172a;color:#ffffff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:14px;";
-  const footerStyle =
-    "padding:18px 24px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;line-height:1.6;";
+  const sem = semaforoConfig(lead.semaforo);
+  const per = perfilConfig(lead.perfil);
+  const der = derivarDocs(lead, documentosSubidos);
+  const reclamaciones = reclamacionesPorPerfil(lead.perfil);
 
-  const row = (label: string, value: string): string =>
-    `<tr><td style="${labelTd}">${escapeHtml(label)}</td><td style="${valueTd}">${escapeHtml(value)}</td></tr>`;
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const marginX = 48;
+  const maxW = pageW - marginX * 2;
+  let y = 56;
 
-  const tabla = (rows: string): string =>
-    `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">${rows}</table>`;
+  const ensure = (need: number) => {
+    if (y + need > pageH - 48) {
+      doc.addPage();
+      y = 56;
+    }
+  };
 
-  const seccion = (titulo: string, contenido: string): string =>
-    `<div style="${sectionStyle}"><h3 style="${sectionTitleStyle}">${escapeHtml(titulo)}</h3>${contenido}</div>`;
+  const title = (t: string) => {
+    ensure(28);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(20, 20, 20);
+    doc.text(t, marginX, y);
+    y += 8;
+    doc.setDrawColor(200);
+    doc.line(marginX, y, marginX + maxW, y);
+    y += 14;
+  };
 
-  // 1. Resumen
-  const resumen = tabla(
-    [
-      row("Nombre del cliente", val(lead.nombre)),
-      row("Provincia", val(lead.provincia)),
-      row("Área / tipo de caso", val(lead.tipo_relacion)),
-      row("Perfil detectado", a.per.label),
-      row("Semáforo", `${a.sem.emoji} ${a.sem.label}`),
-      row("Puntuación de viabilidad", `${lead.puntuacion_viabilidad}/13`),
-      row("Urgencia declarada", a.motivoUrgencia),
-      row("Estado del caso", val(lead.estado)),
-    ].join(""),
+  const row = (label: string, value: string) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    const lblW = 150;
+    doc.text(label, marginX, y);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(20, 20, 20);
+    const lines = doc.splitTextToSize(value || NO_FACILITADO, maxW - lblW);
+    ensure(lines.length * 12 + 4);
+    doc.text(lines, marginX + lblW, y);
+    y += lines.length * 12 + 4;
+  };
+
+  const para = (t: string) => {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(20, 20, 20);
+    const lines = doc.splitTextToSize(t, maxW);
+    ensure(lines.length * 13 + 6);
+    doc.text(lines, marginX, y);
+    y += lines.length * 13 + 8;
+  };
+
+  // Cabecera
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(15, 23, 42);
+  doc.text("Ficha del caso — Interinos", marginX, y);
+  y += 22;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(
+    `${val(lead.nombre)} · ${val(lead.provincia)} · ${formatDate(lead.created_at)}`,
+    marginX,
+    y,
   );
+  y += 22;
 
-  // 2. Contacto
-  const contacto = tabla(
-    [
-      row("Nombre", val(lead.nombre)),
-      row("Email", val(lead.email)),
-      row("Teléfono", val(lead.telefono)),
-      row("Provincia", val(lead.provincia)),
-      row("Fecha de solicitud", formatDate(lead.created_at)),
-    ].join(""),
-  );
+  title("1. Resumen del caso");
+  row("Nombre", val(lead.nombre));
+  row("Provincia", val(lead.provincia));
+  row("Área / tipo", val(lead.tipo_relacion));
+  row("Perfil", per.label);
+  row("Semáforo", sem.label);
+  row("Viabilidad", `${lead.puntuacion_viabilidad}/13`);
+  row("Urgencia", lead.urgencia ? "Sí — caso prioritario" : "No");
+  row("Estado", val(lead.estado));
 
-  // 3. Datos personales / perfil
-  const antiguedad =
+  title("2. Datos de contacto");
+  row("Nombre", val(lead.nombre));
+  row("Email", val(lead.email));
+  row("Teléfono", val(lead.telefono));
+  row("Provincia", val(lead.provincia));
+  row("Fecha de solicitud", formatDate(lead.created_at));
+
+  title("3. Datos personales / perfil");
+  const antig =
     lead.anos_servicio !== null && lead.anos_servicio !== undefined
       ? `${lead.anos_servicio} ${lead.anos_servicio === 1 ? "año" : "años"}`
       : NO_FACILITADO;
-  const personales = tabla(
-    [
-      row("Tipo de relación", val(lead.tipo_relacion)),
-      row("Administración", val(lead.administracion)),
-      row("Antigüedad", antiguedad),
-      row("Situación actual", val(lead.situacion_actual)),
-      row("Nombramientos sucesivos", siNo(lead.contratos_sucesivos)),
-      row("Procesos selectivos aprobados", NO_FACILITADO),
-      row("Plaza obtenida", NO_FACILITADO),
-    ].join(""),
+  row("Tipo de relación", val(lead.tipo_relacion));
+  row("Administración", val(lead.administracion));
+  row("Antigüedad", antig);
+  row("Situación actual", val(lead.situacion_actual));
+  row("Nombramientos sucesivos", siNo(lead.contratos_sucesivos));
+
+  title("4. Mensaje del cliente");
+  para(
+    lead.mensaje_libre && lead.mensaje_libre.trim().length > 0
+      ? lead.mensaje_libre.trim()
+      : "El cliente no facilitó información adicional.",
   );
 
-  // 4. Mensaje del cliente
-  const mensaje = `<blockquote style="${blockquoteStyle}">${escapeHtml(a.mensajeCliente)}</blockquote>`;
+  title("5. Diagnóstico automático");
+  row("Semáforo", sem.label);
+  row("Puntuación de viabilidad", `${lead.puntuacion_viabilidad}/13`);
+  row("Perfil detectado", per.label);
+  if (reclamaciones.length > 0) {
+    ensure(16);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(80);
+    doc.text("Posibles reclamaciones:", marginX, y);
+    y += 14;
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(20);
+    reclamaciones.forEach((r) => {
+      const lines = doc.splitTextToSize(`• ${r}`, maxW - 12);
+      ensure(lines.length * 12 + 2);
+      doc.text(lines, marginX + 12, y);
+      y += lines.length * 12 + 2;
+    });
+    y += 6;
+  } else {
+    row("Posibles reclamaciones", NO_FACILITADO);
+  }
 
-  // 5. Diagnóstico
-  const reclamItems =
-    a.reclamaciones.length > 0
-      ? `<ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:#111827;line-height:1.7;">${a.reclamaciones
-          .map((r) => `<li>${escapeHtml(r)}</li>`)
-          .join("")}</ul>`
-      : `<div style="font-size:13px;color:#6b7280;">${NO_FACILITADO}</div>`;
-  const diagnostico =
-    tabla(
-      [
-        row("Semáforo", `${a.sem.emoji} ${a.sem.label}`),
-        row("Puntuación de viabilidad", `${lead.puntuacion_viabilidad}/13`),
-        row("Perfil detectado", a.per.label),
-      ].join(""),
-    ) +
-    `<div style="margin-top:12px;"><div style="font-size:13px;color:#6b7280;margin-bottom:4px;">Posibles reclamaciones:</div>${reclamItems}</div>`;
+  title("6. Documentación");
+  row("Contratos / nombramientos", der.tieneContrato);
+  row("Nóminas", der.tieneNominas);
+  row("Vida laboral", der.tieneVidaLaboral);
+  row("Documentación completa", der.docsCompletosTxt);
+  if (der.docsSubidos.length > 0) {
+    ensure(16);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(80);
+    doc.text("Documentos subidos a la plataforma:", marginX, y);
+    y += 14;
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(20);
+    der.docsSubidos.forEach((d) => {
+      const txt = `• ${d.nombre_original}  [${categoriaLabel(d.categoria)}]`;
+      const lines = doc.splitTextToSize(txt, maxW - 12);
+      ensure(lines.length * 12 + 2);
+      doc.text(lines, marginX + 12, y);
+      y += lines.length * 12 + 2;
+    });
+  } else {
+    row("Documentos subidos", "Ninguno");
+  }
 
-  // 6. Documentación
-  const docsSubidosHtml =
-    a.documentosSubidos.length > 0
-      ? `<ul style="margin:6px 0 0;padding-left:20px;font-size:13px;color:#111827;line-height:1.7;">${a.documentosSubidos
-          .map(
-            (d) =>
-              `<li>${escapeHtml(d.nombre_original)} <span style="color:#6b7280;">[${escapeHtml(categoriaLabel(d.categoria))}]</span></li>`,
-          )
-          .join("")}</ul>`
-      : `<div style="font-size:13px;color:#6b7280;">Ningún documento subido a la plataforma</div>`;
-
-  const documentacion =
-    tabla(
-      [
-        row("Contratos o nombramientos", a.tieneContrato ? "Sí" : "No"),
-        row("Nóminas", a.tieneNominas ? "Sí" : "No"),
-        row("Certificado de vida laboral", a.tieneVidaLaboral ? "Sí" : "No"),
-        row("Documentación completa", a.docsCompletosTxt),
-      ].join(""),
-    ) +
-    `<div style="margin-top:12px;"><div style="font-size:13px;color:#6b7280;margin-bottom:4px;">Documentos subidos a la plataforma:</div>${docsSubidosHtml}</div>`;
-
-  // 7. Gestión interna
-  const gestion = tabla(
-    [
-      row("Estado del caso", val(lead.estado)),
-      row("Pago Fase 1", lead.pago_completado ? "Completado" : "Pendiente"),
-      row("Abogado asignado", a.abogadoAsignado),
-      row("Tipo de reclamación", NO_FACILITADO),
-      row("Resultado contacto", NO_FACILITADO),
-      row("Siguiente acción", NO_FACILITADO),
-      row("Urgencia percibida", NO_FACILITADO),
-      row("Encargo firmado", NO_FACILITADO),
-      row("Conflicto comprobado", NO_FACILITADO),
-      row("Factura emitida", NO_FACILITADO),
-      row("Apud Acta recibido", NO_FACILITADO),
-    ].join(""),
+  title("7. Gestión interna");
+  row("Estado del caso", val(lead.estado));
+  row("Pago Fase 1", lead.pago_completado ? "Completado" : "Pendiente");
+  row(
+    "Abogado asignado",
+    abogado?.nombre || abogado?.email || "Sin asignar",
   );
 
-  // 8. Notas internas
-  const notas = a.notasAdmin
-    ? `<blockquote style="${blockquoteStyle}">${escapeHtml(a.notasAdmin)}</blockquote>`
-    : `<div style="font-size:13px;color:#6b7280;">Sin notas internas.</div>`;
+  if (lead.notas_abogado && lead.notas_abogado.trim().length > 0) {
+    title("8. Notas internas");
+    para(lead.notas_abogado.trim());
+  }
 
-  // 9. Acceso al expediente
-  const acceso = `
-    <div style="text-align:center;padding:8px 0 4px;">
-      <a href="${a.fichaUrl}" style="${buttonStyle}">ABRIR EXPEDIENTE</a>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:#6b7280;text-align:center;word-break:break-all;">
-      ${escapeHtml(a.fichaUrl)}
-    </div>`;
-
-  // 10. Firma
-  const firma = `
-    <div style="${footerStyle}">
-      Atentamente,<br>
-      <strong style="color:#0f172a;">Secretariado Hispajuris</strong><br>
-      <a href="mailto:empleopublico@hispajuris.es" style="color:#0f172a;text-decoration:none;">empleopublico@hispajuris.es</a>
-    </div>`;
-
-  return `<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(`Interinos - ${val(lead.nombre)} - ${val(lead.provincia)}`)}</title></head>
-<body style="margin:0;padding:0;background:#f4f6f8;">
-  <div style="${wrapperStyle}">
-    <div style="${cardStyle}">
-      <div style="${headerStyle}">Nuevo caso — ${escapeHtml(val(lead.nombre))} (${escapeHtml(val(lead.provincia))})</div>
-      ${seccion("1. Breve resumen del caso", resumen)}
-      ${seccion("2. Datos del contacto", contacto)}
-      ${seccion("3. Datos personales / perfil", personales)}
-      ${seccion("4. Mensaje del cliente", mensaje)}
-      ${seccion("5. Diagnóstico automático", diagnostico)}
-      ${seccion("6. Documentación indicada por el cliente", documentacion)}
-      ${seccion("7. Gestión interna", gestion)}
-      ${seccion("8. Notas internas", notas)}
-      ${seccion("9. Acceso al expediente", acceso)}
-      ${firma}
-    </div>
-  </div>
-</body></html>`;
+  // Convertir a base64 sin prefijo
+  const dataUri = doc.output("datauristring");
+  const base64 = dataUri.split(",")[1] || "";
+  const safeName = val(lead.nombre)
+    .replace(/[^\w\s\-]/g, "")
+    .trim()
+    .replace(/\s+/g, "_") || "caso";
+  return {
+    filename: `Ficha_${safeName}.pdf`,
+    base64,
+  };
 }
+
+// ============== Envío ==============
 
 export interface EnviarEmailLeadResult {
   success: boolean;
@@ -363,7 +473,6 @@ export interface EnviarEmailLeadResult {
   code?: string;
 }
 
-/** Llama al endpoint /api/send-lead-email con el access token actual. */
 export async function enviarEmailLead(params: {
   leadId: string;
   to: string;
@@ -371,6 +480,7 @@ export async function enviarEmailLead(params: {
   subject: string;
   message: string;
   html?: string;
+  attachments?: { filename: string; content: string }[];
 }): Promise<EnviarEmailLeadResult> {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;

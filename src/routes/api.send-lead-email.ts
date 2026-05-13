@@ -3,6 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
+interface Attachment {
+  filename: string;
+  content: string; // base64 sin prefijo
+}
+
 interface SendBody {
   leadId: string;
   to: string;
@@ -10,6 +15,7 @@ interface SendBody {
   subject: string;
   message: string;
   html?: string;
+  attachments?: Attachment[];
 }
 
 function escapeHtml(s: string): string {
@@ -77,7 +83,7 @@ export const Route = createFileRoute("/api/send-lead-email")({
           }
 
           const body = (await request.json()) as SendBody;
-          const { leadId, to, cc, subject, message, html } = body || ({} as SendBody);
+          const { leadId, to, cc, subject, message, html, attachments } = body || ({} as SendBody);
 
           if (!leadId || !to || !subject || !message) {
             return new Response(
@@ -144,6 +150,31 @@ export const Route = createFileRoute("/api/send-lead-email")({
           // enviamos sin CC para que el autoenvío de prueba sí funcione.
           if (normalizedCc && !isTestingSender) {
             payload.cc = [normalizedCc];
+          }
+
+          if (Array.isArray(attachments) && attachments.length > 0) {
+            // Resend acepta { filename, content } con content en base64
+            const safe = attachments
+              .filter(
+                (a) =>
+                  a &&
+                  typeof a.filename === "string" &&
+                  typeof a.content === "string" &&
+                  a.content.length > 0,
+              )
+              .slice(0, 5)
+              .map((a) => ({ filename: a.filename, content: a.content }));
+            const totalBytes = safe.reduce(
+              (acc, a) => acc + Math.ceil((a.content.length * 3) / 4),
+              0,
+            );
+            if (totalBytes > 15 * 1024 * 1024) {
+              return new Response(
+                JSON.stringify({ error: "Adjuntos demasiado grandes (máx 15MB)" }),
+                { status: 400, headers: { "Content-Type": "application/json" } },
+              );
+            }
+            if (safe.length > 0) payload.attachments = safe;
           }
 
           const resp = await fetch(`${GATEWAY_URL}/emails`, {

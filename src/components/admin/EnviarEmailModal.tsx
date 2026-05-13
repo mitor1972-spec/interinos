@@ -6,8 +6,9 @@ import type { Lead } from "@/lib/leads";
 import {
   construirBorradorEmailLead,
   enviarEmailLead,
+  generarPdfFichaCaso,
 } from "@/lib/emailLead";
-import { listarDocumentos } from "@/lib/documentos";
+import { listarDocumentos, type LeadDocumento } from "@/lib/documentos";
 
 interface Props {
   lead: Lead;
@@ -27,6 +28,8 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   const [message, setMessage] = useState("");
   const [html, setHtml] = useState("");
   const [sending, setSending] = useState(false);
+  const [adjuntarPdf, setAdjuntarPdf] = useState(true);
+  const [docsCaso, setDocsCaso] = useState<LeadDocumento[]>([]);
 
   // Carga abogado asignado
   useEffect(() => {
@@ -45,6 +48,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       const docs = await listarDocumentos(lead.id);
       if (cancelled) return;
       setAbogado(ab);
+      setDocsCaso(docs);
       const draft = construirBorradorEmailLead(lead, ab, docs);
       setTo(draft.to);
       setCc(draft.cc);
@@ -80,6 +84,18 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   const handleSend = async () => {
     if (!valido || sending) return;
     setSending(true);
+
+    let attachments: { filename: string; content: string }[] | undefined;
+    if (adjuntarPdf) {
+      try {
+        const pdf = await generarPdfFichaCaso(lead, abogado, docsCaso);
+        attachments = [{ filename: pdf.filename, content: pdf.base64 }];
+      } catch (err) {
+        console.error("Error generando PDF", err);
+        toast.error("No se pudo generar el PDF adjunto. Se enviará sin él.");
+      }
+    }
+
     const res = await enviarEmailLead({
       leadId: lead.id,
       to: to.trim(),
@@ -87,6 +103,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       subject: subject.trim(),
       message,
       html,
+      attachments,
     });
     setSending(false);
 
@@ -205,10 +222,27 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
                     className="w-full rounded-lg border border-border bg-background p-3 font-mono text-xs leading-relaxed outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    El email se envía con formato HTML estructurado (compatible con Outlook).
-                    Este texto se incluye como versión de respaldo en texto plano.
+                    El cuerpo del email es un resumen breve. Activa el adjunto PDF
+                    para enviar la ficha completa del caso.
                   </p>
                 </Field>
+
+                <label className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adjuntarPdf}
+                    onChange={(e) => setAdjuntarPdf(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-primary"
+                  />
+                  <span>
+                    <span className="font-semibold text-foreground">
+                      Adjuntar ficha completa en PDF
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      Se generará un PDF con todos los datos del caso y se enviará como adjunto.
+                    </span>
+                  </span>
+                </label>
               </div>
             )}
           </div>
