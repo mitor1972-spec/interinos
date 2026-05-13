@@ -193,9 +193,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Se añadirá automáticamente el prefijo{" "}
-                    <code className="rounded bg-muted px-1">[Obadal]</code> al
-                    enviar.
+                    Formato: <code className="rounded bg-muted px-1">Interinos - Nombre - Provincia</code>.
                   </p>
                 </Field>
 
