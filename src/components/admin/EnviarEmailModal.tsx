@@ -28,6 +28,8 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   const [message, setMessage] = useState("");
   const [html, setHtml] = useState("");
   const [sending, setSending] = useState(false);
+  const [adjuntarPdf, setAdjuntarPdf] = useState(true);
+  const [docsCaso, setDocsCaso] = useState<LeadDocumento[]>([]);
 
   // Carga abogado asignado
   useEffect(() => {
