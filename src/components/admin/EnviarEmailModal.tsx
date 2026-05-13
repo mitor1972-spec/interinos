@@ -205,8 +205,8 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
                     className="w-full rounded-lg border border-border bg-background p-3 font-mono text-xs leading-relaxed outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Puedes editar libremente las notas y cualquier sección
-                    antes de enviar.
+                    El email se envía con formato HTML estructurado (compatible con Outlook).
+                    Este texto se incluye como versión de respaldo en texto plano.
                   </p>
                 </Field>
               </div>
