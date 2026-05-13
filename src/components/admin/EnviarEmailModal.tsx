@@ -50,6 +50,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       setCc(draft.cc);
       setSubject(draft.subject);
       setMessage(draft.message);
+      setHtml(draft.html);
       setLoadingAbogado(false);
     }
     load();
