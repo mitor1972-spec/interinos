@@ -83,7 +83,7 @@ export const Route = createFileRoute("/api/send-lead-email")({
           }
 
           const body = (await request.json()) as SendBody;
-          const { leadId, to, cc, subject, message, html } = body || ({} as SendBody);
+          const { leadId, to, cc, subject, message, html, attachments } = body || ({} as SendBody);
 
           if (!leadId || !to || !subject || !message) {
             return new Response(
