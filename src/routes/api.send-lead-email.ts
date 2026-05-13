@@ -152,6 +152,31 @@ export const Route = createFileRoute("/api/send-lead-email")({
             payload.cc = [normalizedCc];
           }
 
+          if (Array.isArray(attachments) && attachments.length > 0) {
+            // Resend acepta { filename, content } con content en base64
+            const safe = attachments
+              .filter(
+                (a) =>
+                  a &&
+                  typeof a.filename === "string" &&
+                  typeof a.content === "string" &&
+                  a.content.length > 0,
+              )
+              .slice(0, 5)
+              .map((a) => ({ filename: a.filename, content: a.content }));
+            const totalBytes = safe.reduce(
+              (acc, a) => acc + Math.ceil((a.content.length * 3) / 4),
+              0,
+            );
+            if (totalBytes > 15 * 1024 * 1024) {
+              return new Response(
+                JSON.stringify({ error: "Adjuntos demasiado grandes (máx 15MB)" }),
+                { status: 400, headers: { "Content-Type": "application/json" } },
+              );
+            }
+            if (safe.length > 0) payload.attachments = safe;
+          }
+
           const resp = await fetch(`${GATEWAY_URL}/emails`, {
             method: "POST",
             headers: {
