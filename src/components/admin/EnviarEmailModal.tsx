@@ -25,6 +25,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [html, setHtml] = useState("");
   const [sending, setSending] = useState(false);
 
   // Carga abogado asignado
