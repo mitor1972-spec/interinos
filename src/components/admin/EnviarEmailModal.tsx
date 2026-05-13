@@ -48,6 +48,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
       const docs = await listarDocumentos(lead.id);
       if (cancelled) return;
       setAbogado(ab);
+      setDocsCaso(docs);
       const draft = construirBorradorEmailLead(lead, ab, docs);
       setTo(draft.to);
       setCc(draft.cc);
