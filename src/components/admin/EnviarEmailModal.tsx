@@ -222,10 +222,27 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
                     className="w-full rounded-lg border border-border bg-background p-3 font-mono text-xs leading-relaxed outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    El email se envía con formato HTML estructurado (compatible con Outlook).
-                    Este texto se incluye como versión de respaldo en texto plano.
+                    El cuerpo del email es un resumen breve. Activa el adjunto PDF
+                    para enviar la ficha completa del caso.
                   </p>
                 </Field>
+
+                <label className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adjuntarPdf}
+                    onChange={(e) => setAdjuntarPdf(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-primary"
+                  />
+                  <span>
+                    <span className="font-semibold text-foreground">
+                      Adjuntar ficha completa en PDF
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      Se generará un PDF con todos los datos del caso y se enviará como adjunto.
+                    </span>
+                  </span>
+                </label>
               </div>
             )}
           </div>
