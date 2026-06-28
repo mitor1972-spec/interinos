@@ -123,12 +123,13 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
       </div>
 
       {/* Fila 2 — Actividad reciente */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className={`grid gap-4 ${recientes.length > 0 ? "lg:grid-cols-2" : "lg:grid-cols-1"}`}>
+        {recientes.length > 0 && (
         <PanelLista
           title="Nuevos contactos · últimas 24 h"
           icon={Clock}
           tone="primary"
-          empty="Sin contactos nuevos en las últimas 24 horas."
+          empty=""
         >
           {recientes.map((l) => {
             const cfg = semaforoConfig(l.semaforo);
