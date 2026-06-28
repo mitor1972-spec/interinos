@@ -160,6 +160,8 @@ export function DashboardOverview({ leads, onOpenLead, onApplyFilter }: Props) {
             );
           })}
         </PanelLista>
+        )}
+
 
         <PanelLista
           title="Requieren atención urgente"
