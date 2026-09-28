@@ -41,7 +41,7 @@ export function EnviarEmailModal({ lead, onClose, onSent }: Props) {
         const { data } = await supabase
           .from("abogados")
           .select("nombre,email")
-          .eq("id", lead.asignado_a)
+          .eq("user_id", lead.asignado_a)
           .maybeSingle();
         if (data) ab = { nombre: data.nombre, email: data.email };
       }

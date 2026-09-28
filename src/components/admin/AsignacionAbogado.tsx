@@ -23,7 +23,7 @@ export function AsignacionAbogado({ lead, onSaved, compact }: Props) {
     (async () => {
       const data = await listarAbogados();
       if (!cancel) {
-        setAbogados(data.filter((a) => a.activo));
+        setAbogados(data.filter((a) => a.activo && !!a.user_id));
         setLoading(false);
       }
     })();
@@ -46,8 +46,8 @@ export function AsignacionAbogado({ lead, onSaved, compact }: Props) {
       toast.error("No se pudo reasignar: " + (error?.message ?? ""));
       return;
     }
-    const labelPrev = abogados.find((a) => a.id === prev)?.nombre ?? "Sin asignar";
-    const labelNew = abogados.find((a) => a.id === newId)?.nombre ?? "Sin asignar";
+    const labelPrev = abogados.find((a) => a.user_id === prev)?.nombre ?? "Sin asignar";
+    const labelNew = abogados.find((a) => a.user_id === newId)?.nombre ?? "Sin asignar";
     await registrarCambios(lead.id, [
       { campo: "asignado_a", valor_anterior: labelPrev, valor_nuevo: labelNew },
     ]);
@@ -55,7 +55,7 @@ export function AsignacionAbogado({ lead, onSaved, compact }: Props) {
     onSaved(data);
   };
 
-  const current = abogados.find((a) => a.id === lead.asignado_a);
+  const current = abogados.find((a) => a.user_id === lead.asignado_a);
 
   if (compact) {
     return (
@@ -68,7 +68,7 @@ export function AsignacionAbogado({ lead, onSaved, compact }: Props) {
       >
         <option value="">— Sin asignar —</option>
         {abogados.map((a) => (
-          <option key={a.id} value={a.id}>
+          <option key={a.id} value={a.user_id ?? ""}>
             {a.nombre}
             {a.despachos?.nombre ? ` · ${a.despachos.nombre}` : ""}
           </option>
@@ -88,7 +88,7 @@ export function AsignacionAbogado({ lead, onSaved, compact }: Props) {
       >
         <option value="">— Sin asignar —</option>
         {abogados.map((a) => (
-          <option key={a.id} value={a.id}>
+          <option key={a.id} value={a.user_id ?? ""}>
             {a.nombre}
             {a.despachos?.nombre ? ` · ${a.despachos.nombre}` : ""}
           </option>

@@ -8,6 +8,13 @@
       "when": 1790608848623,
       "tag": "0000_hispajuris_export_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790609732109,
+      "tag": "0001_fix_lawyer_assigned_policies",
+      "breakpoints": true
     }
   ]
 }
