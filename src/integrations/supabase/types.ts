@@ -244,6 +244,51 @@ export type Database = {
         }
         Relationships: []
       }
+      export_log: {
+        Row: {
+          action: string | null
+          created_at: string
+          id: number
+          key_id: string | null
+          rows_returned: number | null
+          status: number
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string
+          id?: never
+          key_id?: string | null
+          rows_returned?: number | null
+          status: number
+        }
+        Update: {
+          action?: string | null
+          created_at?: string
+          id?: never
+          key_id?: string | null
+          rows_returned?: number | null
+          status?: number
+        }
+        Relationships: []
+      }
+      export_nonces: {
+        Row: {
+          created_at: string
+          key_id: string
+          nonce: string
+        }
+        Insert: {
+          created_at?: string
+          key_id: string
+          nonce: string
+        }
+        Update: {
+          created_at?: string
+          key_id?: string
+          nonce?: string
+        }
+        Relationships: []
+      }
       lead_documento_extracciones: {
         Row: {
           categoria: Database["public"]["Enums"]["documento_categoria"]

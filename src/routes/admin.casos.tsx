@@ -34,6 +34,7 @@ import {
 import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { RowMenu } from "@/components/admin/RowMenu";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { resolverRefCaso } from "@/lib/resolverRef.functions";
 
 type SortKey =
   | "created_at"
@@ -63,6 +64,24 @@ export const Route = createFileRoute("/admin/casos")({
 function AdminCasos() {
   const { session, isLawyer, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Enlace desde el Portal Hispajuris: /admin/casos?ref=<ref opaco>
+  useEffect(() => {
+    if (authLoading || !session) return;
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (!ref || !/^[0-9a-f]{16}$/.test(ref)) return;
+    let cancel = false;
+    void resolverRefCaso({ data: { ref, token: session.access_token } })
+      .then((r) => {
+        if (cancel) return;
+        if (r.id) navigate({ to: "/admin/casos/$id", params: { id: r.id } });
+        else toast.error("No se encontró el caso enlazado o no tienes permiso.");
+      })
+      .catch(() => !cancel && toast.error("No se pudo abrir el caso enlazado."));
+    return () => {
+      cancel = true;
+    };
+  }, [authLoading, session, navigate]);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);

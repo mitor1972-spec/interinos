@@ -624,10 +624,11 @@ export function FormularioDiagnostico() {
                     />
                     <span className="text-muted-foreground">
                       He leído y acepto la{" "}
-                      <a href="#" className="text-primary underline">
+                      <a href="/privacidad" target="_blank" rel="noopener" className="text-primary underline">
                         política de privacidad
                       </a>{" "}
-                      y el tratamiento de mis datos para recibir el diagnóstico. *
+                      y el tratamiento de mis datos para recibir el diagnóstico, así como su posible
+                      comunicación a un despacho de la red de abogados Hispajuris para la gestión de mi caso. *
                     </span>
                   </label>
                   {showErrors && errores.rgpd && (
