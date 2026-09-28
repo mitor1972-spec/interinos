@@ -33,6 +33,7 @@ import { Route as AdminCasosRouteImport } from './routes/admin.casos'
 import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
 import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
+import { Route as ApiPublicHispajurisExportRouteImport } from './routes/api.public.hispajuris-export'
 import { Route as AdminConfiguracionEmailRouteImport } from './routes/admin.configuracion.email'
 import { Route as AdminConfiguracionDespachoRouteImport } from './routes/admin.configuracion.despacho'
 import { Route as AdminCasosIdRouteImport } from './routes/admin.casos_.$id'
@@ -159,6 +160,12 @@ const AbogadoAyudaIaRoute = AbogadoAyudaIaRouteImport.update({
   path: '/abogado/ayuda-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHispajurisExportRoute =
+  ApiPublicHispajurisExportRouteImport.update({
+    id: '/api/public/hispajuris-export',
+    path: '/api/public/hispajuris-export',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminConfiguracionEmailRoute = AdminConfiguracionEmailRouteImport.update({
   id: '/email',
   path: '/email',
@@ -216,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -247,6 +255,7 @@ export interface FileRoutesByTo {
   '/admin/casos/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -279,6 +288,7 @@ export interface FileRoutesById {
   '/admin/casos_/$id': typeof AdminCasosIdRoute
   '/admin/configuracion/despacho': typeof AdminConfiguracionDespachoRoute
   '/admin/configuracion/email': typeof AdminConfiguracionEmailRoute
+  '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/admin/casos/$id'
     | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
+    | '/api/public/hispajuris-export'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -343,6 +354,7 @@ export interface FileRouteTypes {
     | '/admin/casos/$id'
     | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
+    | '/api/public/hispajuris-export'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -374,6 +386,7 @@ export interface FileRouteTypes {
     | '/admin/casos_/$id'
     | '/admin/configuracion/despacho'
     | '/admin/configuracion/email'
+    | '/api/public/hispajuris-export'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -404,6 +417,7 @@ export interface RootRouteChildren {
   PeritoIndexRoute: typeof PeritoIndexRoute
   AbogadoCasosIdRoute: typeof AbogadoCasosIdRoute
   AdminCasosIdRoute: typeof AdminCasosIdRoute
+  ApiPublicHispajurisExportRoute: typeof ApiPublicHispajurisExportRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -577,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbogadoAyudaIaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hispajuris-export': {
+      id: '/api/public/hispajuris-export'
+      path: '/api/public/hispajuris-export'
+      fullPath: '/api/public/hispajuris-export'
+      preLoaderRoute: typeof ApiPublicHispajurisExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/configuracion/email': {
       id: '/admin/configuracion/email'
       path: '/email'
@@ -655,6 +676,7 @@ const rootRouteChildren: RootRouteChildren = {
   PeritoIndexRoute: PeritoIndexRoute,
   AbogadoCasosIdRoute: AbogadoCasosIdRoute,
   AdminCasosIdRoute: AdminCasosIdRoute,
+  ApiPublicHispajurisExportRoute: ApiPublicHispajurisExportRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
