@@ -185,7 +185,7 @@ function InformesPage() {
   const rankingAbogados = useMemo(() => {
     const map = new Map<string, { id: string; nombre: string; leads: number; clientes: number; ingresos: number }>();
     const abogadoNombre = (id: string | null) =>
-      abogados.find((a) => a.id === id)?.nombre ?? "Sin asignar";
+      abogados.find((a) => a.user_id === id)?.nombre ?? "Sin asignar";
     for (const l of leads) {
       const id = l.asignado_a ?? "sin_asignar";
       const cur =
