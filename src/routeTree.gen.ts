@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PeritoIndexRouteImport } from './routes/perito.index'
 import { Route as ClienteIndexRouteImport } from './routes/cliente.index'
@@ -40,6 +41,11 @@ import { Route as AdminCasosIdRouteImport } from './routes/admin.casos_.$id'
 import { Route as AbogadoCasosIdRouteImport } from './routes/abogado.casos_.$id'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -196,6 +202,7 @@ const LovableEmailQueueProcessRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/privacidad': typeof PrivacidadRoute
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/privacidad': typeof PrivacidadRoute
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
@@ -261,6 +269,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/privacidad': typeof PrivacidadRoute
   '/abogado/ayuda-ia': typeof AbogadoAyudaIaRoute
   '/abogado/calendario': typeof AbogadoCalendarioRoute
   '/abogado/perfil': typeof AbogadoPerfilRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/privacidad'
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/privacidad'
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/privacidad'
     | '/abogado/ayuda-ia'
     | '/abogado/calendario'
     | '/abogado/perfil'
@@ -392,6 +404,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   AbogadoAyudaIaRoute: typeof AbogadoAyudaIaRoute
   AbogadoCalendarioRoute: typeof AbogadoCalendarioRoute
   AbogadoPerfilRoute: typeof AbogadoPerfilRoute
@@ -423,6 +436,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -651,6 +671,7 @@ const AdminConfiguracionRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PrivacidadRoute: PrivacidadRoute,
   AbogadoAyudaIaRoute: AbogadoAyudaIaRoute,
   AbogadoCalendarioRoute: AbogadoCalendarioRoute,
   AbogadoPerfilRoute: AbogadoPerfilRoute,
