@@ -45,7 +45,7 @@ async function run(request: Request) {
           const { data, error } = await supabaseAdmin
             .from("leads_interinos")
             .select(
-              "created_at, estado, semaforo, resultado_viabilidad, provincia, asignado_a, resultado_contacto, encargo_firmado, pago_completado, cobro_realizado",
+              "created_at, estado, semaforo, resultado_viabilidad, provincia, asignado_a, resultado_contacto, encargo_firmado, pago_completado, cobro_realizado, is_demo",
             )
             .order("created_at", { ascending: true })
             .range(from, from + 999);
@@ -59,7 +59,7 @@ async function run(request: Request) {
         let q = supabaseAdmin
           .from("leads_interinos")
           .select(
-            "id, created_at, estado, semaforo, resultado_viabilidad, provincia, tipo_reclamacion, area_sector, tipo_relacion, asignado_a",
+            "id, created_at, estado, semaforo, resultado_viabilidad, provincia, tipo_reclamacion, area_sector, tipo_relacion, asignado_a, portal_office_code, is_demo",
           )
           .order("created_at", { ascending: false })
           .limit(limit);

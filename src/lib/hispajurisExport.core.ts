@@ -54,6 +54,7 @@ export interface SummaryRow {
   encargo_firmado: boolean | null;
   pago_completado: boolean | null;
   cobro_realizado: boolean | null;
+  is_demo?: boolean | null;
 }
 
 export interface CaseRow {
@@ -67,6 +68,8 @@ export interface CaseRow {
   area_sector: string | null;
   tipo_relacion: string | null;
   asignado_a: string | null;
+  portal_office_code?: string | null;
+  is_demo?: boolean | null;
 }
 
 export const METRICS_DEFINITIONS = {
@@ -84,7 +87,9 @@ export const METRICS_DEFINITIONS = {
   last_case_at: "Fecha de la solicitud más reciente.",
 } as const;
 
-export function buildSummary(rows: SummaryRow[], now: Date) {
+export function buildSummary(allRows: SummaryRow[], now: Date) {
+  const rows = allRows.filter((r) => !r.is_demo);
+  const demoCount = allRows.length - rows.length;
   const t7 = now.getTime() - 7 * 864e5;
   const t30 = now.getTime() - 30 * 864e5;
   const by_status: Record<string, number> = {};
@@ -127,7 +132,7 @@ export function buildSummary(rows: SummaryRow[], now: Date) {
     },
     metrics_definitions: METRICS_DEFINITIONS,
     by_province,
-    demo: { count: 0 },
+    demo: { count: demoCount },
   };
 }
 
@@ -143,7 +148,8 @@ export function buildCase(row: CaseRow, secret: string, baseUrl: string) {
     province: row.provincia,
     claim_type: row.tipo_reclamacion ?? row.area_sector ?? row.tipo_relacion ?? null,
     assigned: !!row.asignado_a,
-    is_demo: false,
+    is_demo: !!row.is_demo,
+    portal_office_code: row.portal_office_code ?? null,
     detail_url: `${baseUrl}/admin/casos?ref=${ref}`,
   };
 }
