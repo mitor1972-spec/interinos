@@ -3,6 +3,7 @@ import {
   EXPORT_PATH,
   handleExport,
   type CaseRow,
+  type ClientFields,
   type SummaryRow,
 } from "@/lib/hispajurisExport.core";
 
@@ -68,6 +69,17 @@ async function run(request: Request) {
         const { data, error } = await q;
         if (error) throw error;
         return (data ?? []) as CaseRow[];
+      },
+      fetchClientFields: async (ids) => {
+        const m = new Map<string, ClientFields>();
+        if (!ids.length) return m;
+        const { data, error } = await supabaseAdmin
+          .from("leads_interinos")
+          .select("id, nombre, tipo_relacion, administracion, mensaje_libre")
+          .in("id", ids);
+        if (error) throw error;
+        for (const r of data ?? []) m.set(r.id, r as ClientFields);
+        return m;
       },
     },
   );
