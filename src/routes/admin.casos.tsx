@@ -527,7 +527,15 @@ function AdminCasos() {
                         <div className="text-foreground">{l.email}</div>
                         <div className="text-muted-foreground">{l.telefono}</div>
                       </td>
-                      <td className="px-4 py-3 text-foreground">{l.provincia}</td>
+                      <td className="px-4 py-3 text-foreground">
+                        {l.provincia}
+                        {l.portal_office_code && (
+                          <div className="mt-1 inline-block rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary" title={`Despacho (portal): ${l.portal_office_name ?? ""}`}>
+                            Portal · {l.portal_office_name ?? l.portal_office_code}
+                          </div>
+                        )}
+                        {l.is_demo && <div className="mt-1 text-[10px] font-semibold uppercase text-muted-foreground">Demo</div>}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${per.className}`}
