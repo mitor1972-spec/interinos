@@ -273,6 +273,14 @@ export async function handleCaseUpdate(req: BridgeRequest, deps: UpdateDeps): Pr
           portal_office_code: null, portal_office_name: null, portal_lawyer_name: null,
           portal_lawyer_email: null, portal_assigned_at: null, portal_assigned_by: null,
         });
+        // Solo se quita aquí si el abogado actual es el que asignó el portal (mismo email).
+        if (lead.asignado_a && lead.portal_lawyer_email) {
+          const prevUid = await deps.findLawyerUserId(lead.portal_lawyer_email);
+          if (prevUid && prevUid === lead.asignado_a) {
+            patch.asignado_a = null;
+            hist.push({ campo: "asignado_a", valor_anterior: lead.asignado_a, valor_nuevo: null, usuario_email: null });
+          }
+        }
         hist.push({ campo: "portal_asignacion", valor_anterior: lead.portal_office_code ?? null, valor_nuevo: `Desasignado en el portal por ${who}`, usuario_email: null });
       } else if (body.portal_assignment) {
         const a = body.portal_assignment;

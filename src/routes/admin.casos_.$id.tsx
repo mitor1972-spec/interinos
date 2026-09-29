@@ -511,6 +511,24 @@ function AdminCasoDetalle() {
             </div>
           </Block>
 
+          {/* PORTAL HISPAJURIS */}
+          <Block title="Portal Hispajuris" tone="gestion">
+            {lead.portal_office_code ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <DataRow label="Despacho (portal)" value={`${lead.portal_office_name ?? "—"} (${lead.portal_office_code})`} />
+                <DataRow label="Abogado (portal)" value={lead.portal_lawyer_name ?? "—"} />
+                <DataRow label="Email abogado" value={lead.portal_lawyer_email ?? "—"} />
+                <DataRow
+                  label="Asignado"
+                  value={`${lead.portal_assigned_at ? new Date(lead.portal_assigned_at).toLocaleString("es-ES") : "—"}${lead.portal_assigned_by ? ` · por ${lead.portal_assigned_by}` : ""}`}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Sin asignación desde el Portal Hispajuris.</p>
+            )}
+          </Block>
+
+
           {/* 4. DOCUMENTOS */}
           <Block title="Documentos del caso" tone="documentos">
             <LeadDocumentos

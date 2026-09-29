@@ -141,7 +141,7 @@ describe("sin datos personales", () => {
     const body = c.body as { cases: Record<string, unknown>[]; next_cursor: string | null };
     expect(body.cases).toHaveLength(3);
     expect(Object.keys(body.cases[0]).sort()).toEqual(
-      ["assigned", "claim_type", "created_at", "detail_url", "is_demo", "province", "ref", "result", "status", "traffic_light"].sort(),
+      ["assigned", "claim_type", "created_at", "detail_url", "is_demo", "portal_office_code", "province", "ref", "result", "status", "traffic_light"].sort(),
     );
     expect(body.cases[0].ref).toMatch(/^[0-9a-f]{16}$/);
     expect(body.cases[0].detail_url).toMatch(/\/admin\/casos\?ref=[0-9a-f]{16}$/);
