@@ -15,6 +15,13 @@
       "when": 1790609732109,
       "tag": "0001_fix_lawyer_assigned_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790662603296,
+      "tag": "0002_hispajuris_case_bridge",
+      "breakpoints": true
     }
   ]
 }
