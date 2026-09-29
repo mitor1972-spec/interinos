@@ -29,6 +29,13 @@
       "when": 1790671313429,
       "tag": "0003_portal_auth_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790686554435,
+      "tag": "0004_export_log_detail",
+      "breakpoints": true
     }
   ]
 }
