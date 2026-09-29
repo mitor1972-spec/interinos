@@ -854,6 +854,27 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_auth_attempts: {
+        Row: {
+          created_at: string
+          email_hash: string
+          id: number
+          outcome: string
+        }
+        Insert: {
+          created_at?: string
+          email_hash: string
+          id?: never
+          outcome: string
+        }
+        Update: {
+          created_at?: string
+          email_hash?: string
+          id?: never
+          outcome?: string
+        }
+        Relationships: []
+      }
       portal_requests: {
         Row: {
           created_at: string
