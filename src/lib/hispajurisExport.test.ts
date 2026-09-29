@@ -149,3 +149,34 @@ describe("sin datos personales", () => {
     expect((s.body as { metrics_definitions: object }).metrics_definitions).toBeTruthy();
   });
 });
+
+describe("include_client", () => {
+  const clientDeps = () =>
+    makeDeps({
+      fetchClientFields: async (ids) =>
+        new Map(ids.map((id) => [id, { nombre: PII.nombre, tipo_relacion: "interino", administracion: "SERMAS", mensaje_libre: "x".repeat(300) }])),
+    });
+  it("sin network_admin se ignora (salida idéntica)", async () => {
+    const { deps } = clientDeps();
+    for (const extra of [{}, { include_client: true }, { include_client: true, portal_role: "firm_admin", portal_firm_code: "F1", portal_user_id: "u" }, { include_client: true, portal_role: "network_admin" }]) {
+      const r = await handleExport(signed({ action: "cases", limit: 2, ...extra }), deps);
+      expect(r.status).toBe(200);
+      expect(JSON.stringify(r.body)).not.toContain(PII.nombre);
+      expect(JSON.stringify(r.body)).not.toContain("client_name");
+    }
+  });
+  it("network_admin recibe nombre, asunto y resumen ≤160, sin email/teléfono; un registro", async () => {
+    const { deps, logs } = clientDeps();
+    const r = await handleExport(signed({ action: "cases", limit: 3, include_client: true, portal_role: "network_admin", portal_firm_code: "HJ", portal_user_id: "u1" }), deps);
+    const c = (r.body as { cases: Record<string, string>[] }).cases;
+    expect(c[0].client_name).toBe(PII.nombre);
+    expect(c[0].asunto).toBe("interino / SERMAS");
+    expect(c[0].summary.length).toBeLessThanOrEqual(160);
+    const out = JSON.stringify(r.body);
+    expect(out).not.toContain(PII.email);
+    expect(out).not.toContain(PII.telefono);
+    expect(logs).toHaveLength(1);
+    expect(JSON.stringify(logs)).toContain("3 casos");
+    expect(JSON.stringify(logs)).not.toContain(PII.nombre);
+  });
+});
