@@ -470,6 +470,7 @@ export type Database = {
           created_at: string
           id: string
           lead_id: string
+          origen: string
           usuario_email: string | null
           usuario_id: string | null
           valor_anterior: string | null
@@ -480,6 +481,7 @@ export type Database = {
           created_at?: string
           id?: string
           lead_id: string
+          origen?: string
           usuario_email?: string | null
           usuario_id?: string | null
           valor_anterior?: string | null
@@ -490,6 +492,7 @@ export type Database = {
           created_at?: string
           id?: string
           lead_id?: string
+          origen?: string
           usuario_email?: string | null
           usuario_id?: string | null
           valor_anterior?: string | null
@@ -638,6 +641,7 @@ export type Database = {
           factura_emitida: boolean
           fecha_solicitud_inicial: string | null
           id: string
+          is_demo: boolean
           mensaje_libre: string | null
           metodo_pago: Database["public"]["Enums"]["metodo_pago"] | null
           motivo_especifico: string | null
@@ -649,6 +653,12 @@ export type Database = {
           pago_importe: number | null
           pago_referencia: string | null
           perfil: Database["public"]["Enums"]["perfil_tipo"]
+          portal_assigned_at: string | null
+          portal_assigned_by: string | null
+          portal_lawyer_email: string | null
+          portal_lawyer_name: string | null
+          portal_office_code: string | null
+          portal_office_name: string | null
           profesional_interviniente: string | null
           provincia: string
           puntuacion_viabilidad: number
@@ -691,6 +701,7 @@ export type Database = {
           factura_emitida?: boolean
           fecha_solicitud_inicial?: string | null
           id?: string
+          is_demo?: boolean
           mensaje_libre?: string | null
           metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
           motivo_especifico?: string | null
@@ -702,6 +713,12 @@ export type Database = {
           pago_importe?: number | null
           pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
+          portal_assigned_at?: string | null
+          portal_assigned_by?: string | null
+          portal_lawyer_email?: string | null
+          portal_lawyer_name?: string | null
+          portal_office_code?: string | null
+          portal_office_name?: string | null
           profesional_interviniente?: string | null
           provincia: string
           puntuacion_viabilidad?: number
@@ -744,6 +761,7 @@ export type Database = {
           factura_emitida?: boolean
           fecha_solicitud_inicial?: string | null
           id?: string
+          is_demo?: boolean
           mensaje_libre?: string | null
           metodo_pago?: Database["public"]["Enums"]["metodo_pago"] | null
           motivo_especifico?: string | null
@@ -755,6 +773,12 @@ export type Database = {
           pago_importe?: number | null
           pago_referencia?: string | null
           perfil?: Database["public"]["Enums"]["perfil_tipo"]
+          portal_assigned_at?: string | null
+          portal_assigned_by?: string | null
+          portal_lawyer_email?: string | null
+          portal_lawyer_name?: string | null
+          portal_office_code?: string | null
+          portal_office_name?: string | null
           profesional_interviniente?: string | null
           provincia?: string
           puntuacion_viabilidad?: number
@@ -827,6 +851,24 @@ export type Database = {
           tipo?: Database["public"]["Enums"]["plantilla_tipo"]
           updated_at?: string
           variables_disponibles?: Json
+        }
+        Relationships: []
+      }
+      portal_requests: {
+        Row: {
+          created_at: string
+          lead_id: string
+          request_id: string
+        }
+        Insert: {
+          created_at?: string
+          lead_id: string
+          request_id: string
+        }
+        Update: {
+          created_at?: string
+          lead_id?: string
+          request_id?: string
         }
         Relationships: []
       }
