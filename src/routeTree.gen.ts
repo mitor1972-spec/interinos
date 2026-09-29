@@ -34,6 +34,8 @@ import { Route as AdminCasosRouteImport } from './routes/admin.casos'
 import { Route as AbogadoPerfilRouteImport } from './routes/abogado.perfil'
 import { Route as AbogadoCalendarioRouteImport } from './routes/abogado.calendario'
 import { Route as AbogadoAyudaIaRouteImport } from './routes/abogado.ayuda-ia'
+import { Route as ApiPublicHispajurisVerifyCredentialsRouteImport } from './routes/api.public.hispajuris-verify-credentials'
+import { Route as ApiPublicHispajurisLawyersRouteImport } from './routes/api.public.hispajuris-lawyers'
 import { Route as ApiPublicHispajurisExportRouteImport } from './routes/api.public.hispajuris-export'
 import { Route as ApiPublicHispajurisCaseUpdateRouteImport } from './routes/api.public.hispajuris-case-update'
 import { Route as ApiPublicHispajurisCaseRouteImport } from './routes/api.public.hispajuris-case'
@@ -168,6 +170,18 @@ const AbogadoAyudaIaRoute = AbogadoAyudaIaRouteImport.update({
   path: '/abogado/ayuda-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHispajurisVerifyCredentialsRoute =
+  ApiPublicHispajurisVerifyCredentialsRouteImport.update({
+    id: '/api/public/hispajuris-verify-credentials',
+    path: '/api/public/hispajuris-verify-credentials',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHispajurisLawyersRoute =
+  ApiPublicHispajurisLawyersRouteImport.update({
+    id: '/api/public/hispajuris-lawyers',
+    path: '/api/public/hispajuris-lawyers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHispajurisExportRoute =
   ApiPublicHispajurisExportRouteImport.update({
     id: '/api/public/hispajuris-export',
@@ -246,6 +260,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hispajuris-case': typeof ApiPublicHispajurisCaseRoute
   '/api/public/hispajuris-case-update': typeof ApiPublicHispajurisCaseUpdateRoute
   '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
+  '/api/public/hispajuris-lawyers': typeof ApiPublicHispajurisLawyersRoute
+  '/api/public/hispajuris-verify-credentials': typeof ApiPublicHispajurisVerifyCredentialsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -281,6 +297,8 @@ export interface FileRoutesByTo {
   '/api/public/hispajuris-case': typeof ApiPublicHispajurisCaseRoute
   '/api/public/hispajuris-case-update': typeof ApiPublicHispajurisCaseUpdateRoute
   '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
+  '/api/public/hispajuris-lawyers': typeof ApiPublicHispajurisLawyersRoute
+  '/api/public/hispajuris-verify-credentials': typeof ApiPublicHispajurisVerifyCredentialsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -317,6 +335,8 @@ export interface FileRoutesById {
   '/api/public/hispajuris-case': typeof ApiPublicHispajurisCaseRoute
   '/api/public/hispajuris-case-update': typeof ApiPublicHispajurisCaseUpdateRoute
   '/api/public/hispajuris-export': typeof ApiPublicHispajurisExportRoute
+  '/api/public/hispajuris-lawyers': typeof ApiPublicHispajurisLawyersRoute
+  '/api/public/hispajuris-verify-credentials': typeof ApiPublicHispajurisVerifyCredentialsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -354,6 +374,8 @@ export interface FileRouteTypes {
     | '/api/public/hispajuris-case'
     | '/api/public/hispajuris-case-update'
     | '/api/public/hispajuris-export'
+    | '/api/public/hispajuris-lawyers'
+    | '/api/public/hispajuris-verify-credentials'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -389,6 +411,8 @@ export interface FileRouteTypes {
     | '/api/public/hispajuris-case'
     | '/api/public/hispajuris-case-update'
     | '/api/public/hispajuris-export'
+    | '/api/public/hispajuris-lawyers'
+    | '/api/public/hispajuris-verify-credentials'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -424,6 +448,8 @@ export interface FileRouteTypes {
     | '/api/public/hispajuris-case'
     | '/api/public/hispajuris-case-update'
     | '/api/public/hispajuris-export'
+    | '/api/public/hispajuris-lawyers'
+    | '/api/public/hispajuris-verify-credentials'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -458,6 +484,8 @@ export interface RootRouteChildren {
   ApiPublicHispajurisCaseRoute: typeof ApiPublicHispajurisCaseRoute
   ApiPublicHispajurisCaseUpdateRoute: typeof ApiPublicHispajurisCaseUpdateRoute
   ApiPublicHispajurisExportRoute: typeof ApiPublicHispajurisExportRoute
+  ApiPublicHispajurisLawyersRoute: typeof ApiPublicHispajurisLawyersRoute
+  ApiPublicHispajurisVerifyCredentialsRoute: typeof ApiPublicHispajurisVerifyCredentialsRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -638,6 +666,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbogadoAyudaIaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hispajuris-verify-credentials': {
+      id: '/api/public/hispajuris-verify-credentials'
+      path: '/api/public/hispajuris-verify-credentials'
+      fullPath: '/api/public/hispajuris-verify-credentials'
+      preLoaderRoute: typeof ApiPublicHispajurisVerifyCredentialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hispajuris-lawyers': {
+      id: '/api/public/hispajuris-lawyers'
+      path: '/api/public/hispajuris-lawyers'
+      fullPath: '/api/public/hispajuris-lawyers'
+      preLoaderRoute: typeof ApiPublicHispajurisLawyersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hispajuris-export': {
       id: '/api/public/hispajuris-export'
       path: '/api/public/hispajuris-export'
@@ -741,6 +783,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHispajurisCaseRoute: ApiPublicHispajurisCaseRoute,
   ApiPublicHispajurisCaseUpdateRoute: ApiPublicHispajurisCaseUpdateRoute,
   ApiPublicHispajurisExportRoute: ApiPublicHispajurisExportRoute,
+  ApiPublicHispajurisLawyersRoute: ApiPublicHispajurisLawyersRoute,
+  ApiPublicHispajurisVerifyCredentialsRoute:
+    ApiPublicHispajurisVerifyCredentialsRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport

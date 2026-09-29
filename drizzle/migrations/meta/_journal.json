@@ -22,6 +22,13 @@
       "when": 1790662603296,
       "tag": "0002_hispajuris_case_bridge",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790671313429,
+      "tag": "0003_portal_auth_attempts",
+      "breakpoints": true
     }
   ]
 }
