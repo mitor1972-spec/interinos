@@ -248,6 +248,7 @@ export type Database = {
         Row: {
           action: string | null
           created_at: string
+          detail: string | null
           id: number
           key_id: string | null
           rows_returned: number | null
@@ -256,6 +257,7 @@ export type Database = {
         Insert: {
           action?: string | null
           created_at?: string
+          detail?: string | null
           id?: never
           key_id?: string | null
           rows_returned?: number | null
@@ -264,6 +266,7 @@ export type Database = {
         Update: {
           action?: string | null
           created_at?: string
+          detail?: string | null
           id?: never
           key_id?: string | null
           rows_returned?: number | null

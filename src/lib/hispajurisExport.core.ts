@@ -13,8 +13,38 @@ export const bodySchema = z
     limit: z.number().int().min(1).max(200).optional(),
     cursor: z.string().min(1).max(200).optional(),
     since: z.string().datetime({ offset: true }).optional(),
+    include_client: z.boolean().optional(),
+    portal_role: z.string().trim().min(1).max(40).optional(),
+    portal_firm_code: z.string().regex(/^[A-Za-z0-9_.-]{1,40}$/).optional(),
+    portal_user_id: z.string().trim().min(1).max(100).optional(),
   })
   .strict();
+
+/** include_client solo se respeta con portal_role network_admin + firm_code + user_id. */
+export const clientAccessGranted = (b: ExportBody) =>
+  b.action === "cases" && b.include_client === true && b.portal_role === "network_admin" && !!b.portal_firm_code && !!b.portal_user_id;
+
+export interface ClientFields {
+  nombre: string | null;
+  tipo_relacion: string | null;
+  administracion: string | null;
+  mensaje_libre: string | null;
+}
+
+export function resumen(s: string | null, max = 160): string | null {
+  const t = (s ?? "").replace(/\s+/g, " ").trim();
+  if (!t) return null;
+  return t.length <= max ? t : t.slice(0, max - 1).trimEnd() + "…";
+}
+
+export function clientExtras(c: ClientFields | undefined) {
+  const asunto = [c?.tipo_relacion, c?.administracion].map((x) => (x ?? "").trim()).filter(Boolean).join(" / ");
+  return {
+    client_name: (c?.nombre ?? "").trim() || null,
+    asunto: asunto || null,
+    summary: resumen(c?.mensaje_libre ?? null),
+  };
+}
 export type ExportBody = z.infer<typeof bodySchema>;
 
 export const sha256hex = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
@@ -161,9 +191,10 @@ export interface ExportDeps {
   now: () => Date;
   insertNonce: (nonce: string, keyId: string) => Promise<"ok" | "duplicate">;
   cleanupNonces: () => Promise<void>;
-  log: (e: { key_id: string | null; action: string | null; rows_returned: number | null; status: number }) => Promise<void>;
+  log: (e: { key_id: string | null; action: string | null; rows_returned: number | null; status: number; detail?: string | null }) => Promise<void>;
   fetchSummaryRows: () => Promise<SummaryRow[]>;
   fetchCases: (o: { limit: number; before?: string; since?: string }) => Promise<CaseRow[]>;
+  fetchClientFields?: (ids: string[]) => Promise<Map<string, ClientFields>>;
 }
 
 export interface ExportRequest {
@@ -182,9 +213,9 @@ const err = (status: number, error: string): ExportResult => ({ status, body: { 
 
 export async function handleExport(req: ExportRequest, deps: ExportDeps): Promise<ExportResult> {
   const keyHeader = req.headers.get("x-bridge-key-id");
-  const done = async (r: ExportResult, action: string | null, rows: number | null) => {
+  const done = async (r: ExportResult, action: string | null, rows: number | null, detail?: string) => {
     try {
-      await deps.log({ key_id: keyHeader && keyHeader === deps.keyId ? keyHeader : null, action, rows_returned: rows, status: r.status });
+      await deps.log({ key_id: keyHeader && keyHeader === deps.keyId ? keyHeader : null, action, rows_returned: rows, status: r.status, ...(detail ? { detail } : {}) });
     } catch {
       /* el registro nunca rompe la respuesta */
     }
@@ -233,6 +264,12 @@ export async function handleExport(req: ExportRequest, deps: ExportDeps): Promis
     const page = rows.slice(0, limit);
     const next = rows.length > limit ? encodeCursor(page[page.length - 1].created_at) : null;
     const cases = page.map((r) => buildCase(r, deps.secret!, deps.baseUrl));
+    if (clientAccessGranted(body) && deps.fetchClientFields) {
+      const map = await deps.fetchClientFields(page.map((r) => r.id));
+      const withClient = cases.map((c, i) => ({ ...c, ...clientExtras(map.get(page[i].id)) }));
+      const detail = `Listado consultado desde Portal Hispajuris (${body.portal_firm_code}, ${body.portal_role}, ${body.portal_user_id}), ${withClient.length} casos`;
+      return done({ status: 200, body: { cases: withClient, next_cursor: next } }, "cases_client", withClient.length, detail);
+    }
     return done({ status: 200, body: { cases, next_cursor: next } }, "cases", cases.length);
   } catch {
     return done(err(500, "internal_error"), body.action, null);
